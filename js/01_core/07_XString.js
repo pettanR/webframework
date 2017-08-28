@@ -7,7 +7,7 @@ http://shimax.cocolog-nifty.com/search/2006/09/post_b296.html
 // ------------ local variables -------------------------------------------- //
 // ------------------------------------------------------------------------- //
 var X_String_CRLF = String.fromCharCode( 13 ) + String.fromCharCode( 10 ), // String.fromCharCode( 13, 10 )
-	X_String_CHAR_REFS = {"&iexcl;":161,"&cent;":162,"&pound;":163,"&curren;":164,"&yen;":165,"&brvbar;":166,"&sect;":167,"&uml;":168,"&copy;":169,
+	X_String_CHAR_REFS = {"&nbsp;":160,"&iexcl;":161,"&cent;":162,"&pound;":163,"&curren;":164,"&yen;":165,"&brvbar;":166,"&sect;":167,"&uml;":168,"&copy;":169,
 "&ordf;":170,"&laquo;":171,
 "&not;":172,"&shy;":173,"&reg;":174,"&macr;":175,"&deg;":176,"&plusmn;":177,"&sup2;":178,"&sup3;":179,"&acute;":180,"&micro;":181,"&para;":182,
 "&middot;":183,"&cedil;":184,"&sup1;":185,"&ordm;":186,"&raquo;":187,"&frac14;":188,"&frac12;":189,"&frac34;":190,"&iquest;":191,"&Agrave;":192,
@@ -34,6 +34,12 @@ var X_String_CRLF = String.fromCharCode( 13 ) + String.fromCharCode( 10 ), // St
 "&lceil;":8968,"&rceil;":8969,"&lfloor;":8970,"&rfloor;":8971,"&lang;":9001,"&rang;":9002,"&loz;":9674,"&spades;":9824,"&clubs;":9827,
 "&hearts;":9829,"&diams;":9830
 };
+
+(function( refs, k ){
+	for( k in refs ){
+		refs[ k ] = String.fromCharCode( refs[ k ] );
+	};
+})( X_String_CHAR_REFS );
 
 // ------------------------------------------------------------------------- //
 // --- interface ----------------------------------------------------------- //
@@ -116,7 +122,7 @@ function X_String_cleanupWhiteSpace( text ){
 	text.indexOf( '\f' )   !== -1 && ( text = text.split( '\f' ).join( _ ) );
 	text.indexOf( '\b' )   !== -1 && ( text = text.split( '\b' ).join( _ ) ); */
 	
-	text = text.toString()
+	text = ( '' + text )
 			.split( X_String_CRLF ).join( _ )
 			.split( '\r' ).join( _ )
 			.split( '\n' ).join( _ )
@@ -141,7 +147,7 @@ function X_String_cleanupWhiteSpace( text ){
  */
 function X_String_whiteSpaceToTag( text ){
     if( text == null || text === '' ) return '';
-    return text.toString()
+    return ( '' + text )
     	//.split( '\r\n\r\n' ).join( '<br>' )
     	//.split( '\n\r\n\r' ).join( '<br>' )
     	//.split( '\r\n' ).join( '<br>' )
@@ -162,30 +168,29 @@ function X_String_whiteSpaceToTag( text ){
  * @return {string} html文字列
  */
 function X_String_chrReferanceTo( str ){
-	var refs, i, l, ref, k;
+	var refs, k;
 	
     if( str == null || str === '' ) return '';
     if( str.indexOf( '&' ) === -1 ) return str;
     
-    str = str.toString()
+    str = ( '' + str )
     	.split( '&quot;' ).join( '"' )
     	.split( '&apos;' ).join( "'" )
     	.split( '&lt;'   ).join( '<' )
-    	.split( '&gt;'   ).join( '>' )
-    	.split( '&nbsp;' ).join( ' ' );
+    	.split( '&gt;'   ).join( '>' );
     
     if( str.indexOf( '&' ) === -1 ) return str;
     
     refs = X_String_CHAR_REFS;
     for( k in refs ){
-    	str = str.split( k ).join( String.fromCharCode( refs[ k ] ) );
+    	str = str.split( k ).join( refs[ k ] );
     };
   
     return str.split( '&amp;'  ).join( '&' ); // last!
 };
 
 /**
- * htmlタグで使われる文字を文字実体参照に変換します。&quot;, &amp;, &lt;, &gt;, &nbsp;
+ * htmlタグで使われる文字を文字実体参照に変換します。
  * <p>undefined, null が与えられた場合は '' を返します。
  * <p>数値,Object が与えられた場合は toString します。
  * @alias X.String.chrReferanceTo
@@ -193,14 +198,30 @@ function X_String_chrReferanceTo( str ){
  * @return {string}
  */
 function X_String_toChrReferance( str ){
+	var refs, k;
+
     if( str == null || str === '' ) return '';
-    return str.toString()
+    
+    str = X_String_toChrReferanceForHtmlSafety( str );
+
+    refs = X_String_CHAR_REFS;
+    for( k in refs ){
+    	str = str.split( refs[ k ] ).join( k );
+    };
+
+    return str;
+};
+
+
+function X_String_toChrReferanceForHtmlSafety( str ){
+    if( str == null || str === '' ) return '';
+    
+    return ( '' + str )
     	.split( '&' ).join( '&amp;' ) // first!
     	.split( '"' ).join( '&quot;' )
     	.split( "'" ).join( '&apos;' )
     	.split( '<' ).join( '&lt;' )
-    	.split( '>' ).join( '&gt;' )
-    	.split( ' ' ).join( '&nbsp;' );
+    	.split( '>' ).join( '&gt;' );
 };
 
 /**

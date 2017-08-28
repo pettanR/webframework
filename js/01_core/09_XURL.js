@@ -80,7 +80,7 @@ X[ 'URL' ] = {
 // ------------------------------------------------------------------------- //
 /**
  * <p>絶対 url にして返します。
- * <p>original AS3で相対パスを絶対パスに変換する http://www.shin-go.net/motionlab/?p=449
+ * <p>original AS3で相対パスを絶対パスに変換する http://web.archive.org/web/20140404021256/http://www.shin-go.net/motionlab/?p=449
  * @alias X.URL.toAbsolutePath
  * @param {string}
  * @return {string} url
@@ -90,7 +90,7 @@ function X_URL_toAbsolutePath( path ){
 		ss = '//',
 		_ary, ary, i = 0;
 
-	if( 'http:file:https:'.indexOf( path.substr( 0, 4 ) ) !== -1 ) return path;
+	if( 'http:file:https'.indexOf( path.substr( 0, 5 ) ) !== -1 ) return path;
 	
 	_ary = X_URL_BASE_URL.split( ss );
 	ary  = _ary[ 1 ].split( s );

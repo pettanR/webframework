@@ -15,6 +15,10 @@ var X_NodeAnime_QUEUE           = [],
 									!X_UA[ 'OperaMobile' ] && !X_UA[ 'OperaTablet' ] &&
 									!( X_UA[ 'IE' ] === 11 ) && !( X_UA[ 'IEHost' ] === 11 ) ? ' translateZ(0)' : '',
 
+// https://ics.media/entry/306
+// transform(3D)はAndroid 2.x系の標準ブラウザや、最新版のFirefoxで不具合があるので注意が必要
+// translate3dでrotate,scaleが適用されていない, transform(3D)が点滅し採点不可
+
 /*
  * phase:
  *  0: アニメーション無

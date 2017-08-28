@@ -19,7 +19,7 @@ X_TEMP.X_FormSender_init = function(){
  */
 function X_FormSender_escapeQuote( str ){
 	
-	return X_String_toChrReferance( str );
+	return X_String_toChrReferanceForHtmlSafety( str );
 };
 
 X_TEMP.X_FormSender_params = {

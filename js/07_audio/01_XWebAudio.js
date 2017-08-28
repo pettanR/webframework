@@ -95,6 +95,7 @@ var X_WebAudio_Context      =	// 4s 以下ではない iPad 2G または iPad mi
 								// Firefox40.0.5 + Windows8 で音声が途中から鳴らなくなる
 								// Firefox41.0.1 + Windows8 で音声が途中から鳴らなくなる
 								!( 40 <= X_UA[ 'Gecko' ] && /* X_UA[ 'Gecko' ] < 48 && */ X_UA[ 'Windows' ] ) &&
+								!X_UA[ 'Edge' ] &&
 								( window[ 'AudioContext' ] || window[ 'webkitAudioContext' ] || window[ 'mozAudioContext' ] ),		
 	X_WebAudio_context,
 	X_WebAudio_BUFFER_LIST  = [],

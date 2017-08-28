@@ -30,8 +30,7 @@ var X_Window = X[ 'Util' ][ 'Window' ] = X_EventDispatcher[ 'inherits' ](
 		'Constructor' : function( options ){
 			var url  = options[ 'url' ],
 				page = window.open( url || ''/* 'about:blank' */, options[ 'name' ] || '', options[ 'params' ] || '' ),
-				html = options[ 'html' ],
-				doc  = X_Script_try( X_Object_find, [ page, 'document' ] );
+				html = options[ 'html' ];
 
 			X_ViewPort[ 'listenOnce' ]( X_EVENT_UNLOAD, this, X_Util_Window_handleEvent );
 			this[ 'listenOnce' ]( [ X_EVENT_UNLOAD, X_EVENT_KILL_INSTANCE ], X_Util_Window_handleEvent );
@@ -43,7 +42,7 @@ var X_Window = X[ 'Util' ][ 'Window' ] = X_EventDispatcher[ 'inherits' ](
 
 			if( !url && html ){
 				this[ 'write' ]( html );
-			};	
+			};
 		},
 		
 		/**
@@ -104,7 +103,7 @@ var X_Window = X[ 'Util' ][ 'Window' ] = X_EventDispatcher[ 'inherits' ](
 		},
 		
 		/**
-		 * 別窓にfocusする ..firefox でできない...
+		 * 別窓にfocusする ..firefox で不可 -> [?] a:link とかを作ってfocus する?
 		 * @return {Window} チェーンメソッド
 		 */
 		'focus' : function(){

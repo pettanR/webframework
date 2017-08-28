@@ -136,9 +136,10 @@ var X_UA = X[ 'UA' ] = {},
 		 * @alias X.UA.webOS
 		 * @type {boolean}
 		 */
+		// window[ "palmGetResource" ]
 		X_UA[ 'webOS' ]  = true; // webOS
 	} else
-	if( sys.indexOf( 'Win' ) + 1 ){
+	if( sys.indexOf( 'Win' ) === 0 ){
 
 		switch( sys ){
 			case 'WinCE' :
@@ -200,7 +201,7 @@ var X_UA = X[ 'UA' ] = {},
 
 		// winRT
 	} else
-	if( sys.indexOf( 'Mac' ) + 1 ){
+	if( sys.indexOf( 'Mac' ) === 0 ){
 		console.log( 'Mac' );
 		/**
 		 * @alias X.UA.Mac
@@ -291,7 +292,7 @@ var X_UA = X[ 'UA' ] = {},
 			if( v ){
 				// PC版で見る、にチェックが付いている場合、ユーザーエージェント文字列にも platform にも Android の文字列が存在しない(標準ブラウザ&Chrome)
 				// Audio でタッチが必要か？の判定にとても困る...
-				// ua には Linux x86_64 になっている
+				// ua には Linux x86_64 になっている sys と矛盾する
 				X_UA[ 'Android' ]    = v;
 			};
 		};
@@ -300,6 +301,16 @@ var X_UA = X[ 'UA' ] = {},
 	if( window.opera ){
 		i = dua.split( 'Opera' )[ 1 ]; // Opera/
 		j = dua.split( 'Version/' )[ 1 ];
+		/**
+		 * http://help.dottoro.com/ljifbjwf.php
+		 * version method (opera)
+		 *   window.opera.buildNumber();
+		 *   window.opera.version();
+		 * 
+		 * kquery.js
+		 * // opera.versionは8から実装だが、8以下は切るので、typeofとかしない
+		 */
+		
 		/**
 		 * @alias X.UA.Opera
 		 * @type {number}
@@ -385,6 +396,12 @@ var X_UA = X[ 'UA' ] = {},
 	}  else
 	// Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko
 	if( ( v = dav.split( 'Trident/' )[ 1 ] ) || document.all ){ // .all は Opera にもいるので Opera の判定が先
+		// TODO
+		//	jscript  = eval( '/*@cc_on@_jscript_version+@*/0' ),
+		//	isIElte8 = jscript && ( jscript <= 5.8 || document.documentMode < 9 ),
+		//	isIElte6 = jscript && ( ( jscript <= 5.7 && !window.XMLHttpRequest ) || document.documentMode < 7 ),
+		//  
+		
 		if( v = parseFloat( v ) )
 		/**
 		 * IE11 の互換モードの navigator.appVersion にも Trident/7.0 が書かれているため互換モードか?判定ができるc 
@@ -600,7 +617,7 @@ var X_UA = X[ 'UA' ] = {},
 		} else
 		if( dua.indexOf( 'Android;' ) !== -1 ){
 			X_UA[ 'Android' ] = '2.2+';
-		};		
+		};
 		
 		// TODO PC版 Fennec もある
 		//Fennec
@@ -648,7 +665,7 @@ var X_UA = X[ 'UA' ] = {},
 		console.log( '>> Gecko : ' + X_UA[ 'Gecko' ] );
 	} else
 	
-	// Android 標準ブラウザ AOSP と ChromeWeb View, Sブラウザがある
+	// Android 標準ブラウザ AOSP と Chrome WebView, Sブラウザがある
 	if( ( v = X_UA[ 'Android' ] ) && ( dua.indexOf( 'Chrome\/' ) < 0 || 0 < dua.indexOf( 'Version\/' ) || androidBrowserPCMode ) ){ // Chrome/ を含まない または Version/ を含む
 		
 		/* if( window.chrome ){  // Android3.1 のAOSPブラウザで .chrome がいた、、、

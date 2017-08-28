@@ -149,6 +149,7 @@ if( !X_UA[ 'IE' ] || 9 <= X_UA[ 'IE' ] ){
 					target  = touch.target;
 					target  = target.nodeType === 3 ? target.parentNode : target;
 					xtarget = X_Node_getXNode( target );
+					// TODO getter で値を返す
 					// https://developer.mozilla.org/en/docs/Web/API/Element/getBoundingClientRect
 					// Android 2+, iOS4+
 					offset  = X_UA[ 'iOS' ] < 5 ? xtarget.offset() : target.getBoundingClientRect();
@@ -407,6 +408,11 @@ if( document.onwheel === undefined ){
 	//};
 };
 
+if( X_UA[ 'Webkit' ] || X_UA[ 'Opera' ] || X_UA[ 'Blink' ] || X_UA[ 'Khtml' ] || X_UA[ 'AOSP' ] || X_UA[ 'ChromeWV' ] ){
+	// http://d.hatena.ne.jp/uupaa/20091231/1262202954
+	X_Event_Rename[ 'focusin'  ] = 'DOMFocusIn';
+	X_Event_Rename[ 'focusout' ] = 'DOMFocusOut';
+};
 
 
 if( window.onwebkitanimationend !== undefined && window.onanimationend === undefined ){

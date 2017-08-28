@@ -171,7 +171,7 @@ if( X_XHR_w3c || X_XHR_msXML ){
 					postdata = obj[ 'postdata' ] || '',
 					timeout  = obj[ 'timeout' ] || 20000,
 					noCache  = obj[ 'cache' ] !== true,
-					dataType = X_XHR._dataType = obj[ 'dataType' ], // 明示され無い場合、ext が入っている
+					dataType = X_XHR._dataType = obj[ 'dataType' ], // 明示され無い場合、拡張子が入っている
 					xDomain  = !X_URL_isSameDomain( url ),
 					isFile   = X_URL_isLocal( url ),
 					init,
@@ -200,32 +200,38 @@ if( X_XHR_w3c || X_XHR_msXML ){
 				};
 				
 				raw.open( method, url, async, username, password );
-				
-				if( raw.responseType !== undefined ){
-					switch( dataType ){
-						case '' :
-						case 'txt' :
-						case 'text' :
-						// js, css
-							raw.responseType = X_XHR._dataType = 'text';
-							break;
-						case 'json' : // firefox9- は moz-json
-							raw.responseType = X_UA[ 'Gecko' ] < 10 ? 'moz-json' : X_UA[ 'Gecko' ] ? dataType : ''; // Iron 37 でエラー
-							X_XHR._dataType  = 'json';
-							break;
-						case 'document' :
-						case 'xml' :
-						case 'html' :
-						case 'htm' :
-						case 'svg' :
-						case 'vml' :
-							raw.responseType = X_XHR._dataType = 'document';
-							break;
-						case 'blob' :
-						case 'arraybuffer' :
-						// jpeg,jpg,png,gif,mp3,ogg...
-							raw.responseType = X_XHR._dataType = dataType;
-							break;
+
+				switch( dataType ){
+					case '' :
+					case 'txt' :
+					case 'text' :
+					// js, css
+						X_XHR._dataType = 'text';
+						break;
+					case 'json' :
+						X_XHR._dataType  = 'json';
+						break;
+					case 'document' :
+					case 'xml' :
+					case 'html' :
+					case 'htm' :
+					case 'svg' :
+					case 'vml' :
+						X_XHR._dataType = 'document';
+						break;
+					case 'blob' :
+					case 'arraybuffer' :
+					// jpeg,jpg,png,gif,mp3,ogg...
+						X_XHR._dataType = dataType;
+						break;
+				};
+
+				if( raw.responseType !== undefined && X_XHR._dataType ){
+					if( X_XHR._dataType === 'json' ){
+						// firefox9- は moz-json
+						raw.responseType = X_UA[ 'Gecko' ] < 10 ? 'moz-json' : X_UA[ 'Gecko' ] ? 'json' : ''; // Iron 37 でエラー
+					} else {
+						raw.responseType = X_XHR._dataType;
 					};
 				};
 				
@@ -281,7 +287,7 @@ if( X_XHR_w3c || X_XHR_msXML ){
 					} */
 
 					// http://8note.phpapps.jp/jquery-ajax%E3%81%A7%E3%81%AE412%E3%82%A8%E3%83%A9%E3%83%BC/
-					if( dataType === 'json' && X_UA[ 'Safari' ] ){
+					if( 'document json text'.indexOf( X_XHR._dataType ) !== -1 && X_UA[ 'Safari' ] ){
 						headers[ 'If-Modified-Since' ] = 'Thu, 01 Jun 1970 00:00:00 GMT';
 					};
 					
@@ -294,7 +300,6 @@ if( X_XHR_w3c || X_XHR_msXML ){
 						headers[ 'Content-Type' ] = 'application/x-www-form-urlencoded';
 					};
 
-					
 					for( p in headers ){
 						//if( X_EMPTY_OBJECT[ p ] ) continue;
 						//console.log( headers[ p ] );

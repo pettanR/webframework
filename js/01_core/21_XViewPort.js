@@ -81,7 +81,7 @@ X_ViewPort = X_Class_override(
 							//break;
 						};
 						if( X_ViewPort_activeTimerID ){
-							X_ViewPort_activeTimerID = X_Timer_remove( X_ViewPort_activeTimerID );
+							X_Timer_remove( X_ViewPort_activeTimerID );
 						};
 						X_ViewPort_activeTimerID = X_Timer_once( 16, X_ViewPort_changeFocus );
 						return X_CALLBACK_PREVENT_DEFAULT | X_CALLBACK_STOP_PROPAGATION;
@@ -95,7 +95,7 @@ X_ViewPort = X_Class_override(
 				case 'focusin' :
 					if( X_ViewPort_active === active ){
 						X_ViewPort_active = !active;
-						console.log( e.type + ':' + X_ViewPort_active );
+						// console.log( e.type + ':' + X_ViewPort_active );
 						X_ViewPort[ 'dispatch' ]( active ? X_EVENT_VIEW_DEACTIVATE : X_EVENT_VIEW_ACTIVATE );
 					};
 					break;
@@ -109,8 +109,7 @@ function X_ViewPort_detectFocusForIE( e ){
 	//console.log( 'iefix! ' + e.type + ':' + this.attr( 'tag' ) + ' isActive?:' + ( this[ '_rawObject' ] === document.activeElement ) );
 	var elmActive = FocusUtility_getFocusedElement();
 	X_ViewPort_active = e.type === 'focus';
-	
-	
+
 	if( elmActive && this[ '_rawObject' ] !== elmActive ){
 		this[ 'unlisten' ]( X_ViewPort_active ? 'blur' : 'focus', X_ViewPort_detectFocusForIE );
 		console.log( '>>>>>> activeElement 取得 不一致 ' + this._tag );
@@ -268,7 +267,7 @@ X[ 'ViewPort' ] = {
 		// http://orera.g.hatena.ne.jp/edvakf/20100515/1273908051
 	//http://onozaty.hatenablog.com/entry/20060803/p1
 	// Safari2.0.4では標準・互換どちらも document.body
-	// http://hisasann.com/housetect/2008/08/jqueryheightwidthopera95.html このdocument.body[ "client" + name ]はおそらくOpera9.5未満のバージョンで有効なんじゃないかな？
+	// http://hisasann.com/housetect/2008/08/jqueryheightwidthopera95.html このdocument.body[ 'client' + name ]はおそらくOpera9.5未満のバージョンで有効なんじゃないかな？
 		
 		X_Node_updateTimerID && X_Node_startUpdate();
 		/*X_UA[ 'Opera' ] ?
@@ -552,16 +551,24 @@ X[ 'ViewPort' ] = {
 				X_ViewPort[ 'listen' ]( [ 'pageshow', 'pagehide' ] );
 			};
 			
-			if( document[ 'onfocusin' ] !== undefined ){
+			if( X_UA[ 'Gecko' ] ){
+				// http://d.hatena.ne.jp/uupaa/20091231/1262202954
+				// 現状で capture = true でリッスンする手段が無いので...
+				document.addEventListener( 'focus', X_ViewPort[ 'handleEvent' ], true ); // capture
+				document.addEventListener( 'blur' , X_ViewPort[ 'handleEvent' ], true ); // capture
+			} else {
 				// https://github.com/ai/visibilityjs/blob/master/lib/visibility.fallback.js
 				X_ViewPort_document[ 'listen' ]( [ 'focusin', 'focusout' ], X_ViewPort );
 			};
+			// http://help.dottoro.com/ljuoivsj.php
+			
 			
 			// TODO activeElement が無い対策
 			if( !FocusUtility_docActiveElmSupport ){
 				X_ViewPort[ 'listen' ]( 'focus', X_ViewPort_fixActiveElm );
 			};
 			
+			// bubleup しない!
 			X_ViewPort[ 'listen' ]( [ 'focus', 'blur' ] );
 
 			return X_CALLBACK_UN_LISTEN;
