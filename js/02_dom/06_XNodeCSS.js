@@ -636,11 +636,13 @@ function X_Node_CSS__splitValueAndUnit( v ){
 function X_Node_css( nameOrObj /* value */ ){
 	var args = arguments,
 		css  = this[ '_css' ],
+		bad  = !this[ '_tag' ] || X_Dom_DTD_MOVE_TO_HEAD[ this[ '_tag' ] ] || this[ '_tag' ] === 'SCRIPT',
 		p, name, v, plain, camelize, flags;
 
-	if( !this[ '_tag' ] || X_Dom_DTD_MOVE_TO_HEAD[ this[ '_tag' ] ] || this[ '_tag' ] === 'SCRIPT' ) return this;
 // setter:object
 	if( X_Type_isObject( nameOrObj ) ){
+		if( bad ) return this;
+		
 		if( !css ) css = this[ '_css' ] = {};
 		//plain    = X_EMPTY_OBJECT;
 		camelize = X_Node_CSS_camelize;
@@ -659,6 +661,8 @@ function X_Node_css( nameOrObj /* value */ ){
 		return this;
 	} else
 	if( 1 < args.length ){
+		if( bad ) return this;
+		
 // setter name, value
 		if( !css ) css = this[ '_css' ] = {};
 		name = X_Node_CSS_camelize( nameOrObj );
@@ -670,7 +674,7 @@ function X_Node_css( nameOrObj /* value */ ){
 		return this;
 	};
 // getter
-	if( !css ) return;
+	if( !css || bad ) return;
 	// TODO 集計 border, padding, margin, backgroundPosition, clip
 	// TODO border で正確なデータを返せない時は、null を返す
 	return css[ X_Node_CSS_camelize( nameOrObj ) ];

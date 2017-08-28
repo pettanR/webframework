@@ -128,7 +128,7 @@ function X_Node_Attr_objToAttrText( that, skipNetworkForElmCreation ){
 
 		attrs[ ++n ] = noValue[ k ] ? k : [
 			k, '="',
-			X_Node_Attr_toChrReferance[ k ] ? X_String_toChrReferance( obj[ k ] ) : obj[ k ],
+			X_Node_Attr_toChrReferance[ k ] ? X_String_toChrReferanceForHtmlSafety( obj[ k ] ) : obj[ k ],
 			'"' ].join( '' );
 	};
 	
@@ -164,9 +164,9 @@ function X_Node_Attr_objToAttrText( that, skipNetworkForElmCreation ){
 function X_Node_attr( nameOrObj /* v */ ){
 	var attrs = this[ '_attrs' ], newAttrs, f, k, elm, v;
 	
-	if( !this[ '_tag' ] ) return this;
-	
 	if( nameOrObj && X_Type_isObject( nameOrObj ) ){
+		if( !this[ '_tag' ] ) return this;
+		
 		attrs || ( attrs = this[ '_attrs' ] = {} );
 		newAttrs = this[ '_newAttrs' ] || ( this[ '_newAttrs' ] = {} );
 		
@@ -182,6 +182,8 @@ function X_Node_attr( nameOrObj /* v */ ){
 		return this;
 	} else
 	if( 1 < arguments.length ){
+		if( !this[ '_tag' ] ) return this;
+		
 		// setter
 		if( X_Node_Attr_setAttr( this, attrs || ( this[ '_attrs' ] = {} ), this[ '_newAttrs' ] || ( this[ '_newAttrs' ] = {} ), nameOrObj, arguments[ 1 ] ) === true ){
 			delete this[ '_attrText' ];
@@ -191,6 +193,8 @@ function X_Node_attr( nameOrObj /* v */ ){
 		return this;
 	} else
 	if( X_Type_isString( nameOrObj ) ){
+		if( !this[ '_tag' ] ) return;
+		
 		// getter
 		switch( nameOrObj ){
 			case 'id' :
@@ -218,7 +222,9 @@ function X_Node_attr( nameOrObj /* v */ ){
 				// kquery.js : safariのバグ対策
 				// if ($.browser.safari && key === "selected" && tmp) tmp.selectedIndex;
 				// 親ノードの selectedIndex の getter を呼んでおくと値が正しくなる、ということ?( by itozyun )
-				if( X_UA[ 'WebKit' ] ) this[ '_rawObject' ].parentNode && this[ '_rawObject' ].parentNode.selectedIndex;
+				if( X_UA[ 'WebKit' ] && ( elm = this[ '_rawObject' ] ) ){
+					elm.parentNode && elm.selectedIndex;
+				};
 			case 'value' :
 				if( this[ '_tag' ] === 'INPUT' && X_Node_Attr_STATIC_VALUE_TYPES[ attrs[ 'type' ] ] ) break;
 			case 'checked' :

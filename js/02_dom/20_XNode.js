@@ -221,7 +221,10 @@ var	Node = X[ 'Node' ] = X_EventDispatcher[ 'inherits' ](
 				this[ '_flags' ] |= X_NodeFlags_IN_TREE;
 			};
 			this[ '_flags' ] |= X_NodeFlags_EXIST;
-			X_Node_CHASHE[ this[ '_uid' ] = uid ] = this;
+			
+			X_Node_CHASHE[ this[ '_uid' ] = uid ] =
+				this[ 0 ] = /* for like array */
+					this;
 		},
 		
 		// TODO .mesure() -> X.Event.MESURED
@@ -2123,6 +2126,7 @@ var X_Node__actualRemove =
 					if( that[ '_tag' ] === 'SELECT' && ( !that[ '_newAttrs' ] || !X_Object_inObject( 'selectedIndex', that[ '_newAttrs' ] ) ) ){
 						if( !that[ '_attrs' ] ) that[ '_attrs' ] = {};
 						that[ '_attrs' ].selectedIndex = elm.selectedIndex;
+						that[ '_attrs' ].value = elm.value;
 					};
 					if( that[ '_tag' ] === 'INPUT' && that[ '_attrs' ] && ( that[ '_attrs' ].type === 'checkbox' || that[ '_attrs' ].type === 'radio' ) && ( !that[ '_newAttrs' ] || !X_Object_inObject( 'checked', that[ '_newAttrs' ] ) ) ){
 						if( !that[ '_attrs' ] ) that[ '_attrs' ] = {};
@@ -2166,6 +2170,7 @@ var X_Node__actualRemove =
 			if( that[ '_tag' ] === 'SELECT' && ( !that[ '_newAttrs' ] || !X_Object_inObject( 'selectedIndex', that[ '_newAttrs' ] ) ) ){
 				if( !that[ '_attrs' ] ) that[ '_attrs' ] = {};
 				that[ '_attrs' ].selectedIndex = elm.selectedIndex;
+				that[ '_attrs' ].value = elm.value;
 			};
 			if( that[ '_tag' ] === 'INPUT' && that[ '_attrs' ] && ( that[ '_attrs' ].type === 'checkbox' || that[ '_attrs' ].type === 'radio' ) && ( !that[ '_newAttrs' ] || !X_Object_inObject( 'checked', that[ '_newAttrs' ] ) ) ){
 				if( !that[ '_attrs' ] ) that[ '_attrs' ] = {};
