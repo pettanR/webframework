@@ -1,0 +1,4 @@
+/*
+ * 
+ */
+X_TEMP.onRearchEndOfScript();

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		
+	<title>Logger</title>
+	<meta name="msapplication-tap-highlight" content="no">
+	<meta name="HandheldFriendly" content="true">
+	<meta name="mobileoptimized" content="0">
+	
+	<!-- for ie & chrome frame -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta http-equiv="imagetoolbar" content="no">
+	
+	<!-- for smartphone -->
+	<meta name="format-detection" content="telephone=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	
+	<!-- maximum-scale=1 初代iPod touch で必要, dynamic-viewport は operaで可能  -->
+	<meta name="viewport" id="dynamic-viewport" content="width=device-width,target-densitydpi=device-dpi,initial-scale=1,user-scalable=0,maximum-scale=1,minimum-scale=1">
+
+	<style>
+		html {
+			font-size                : 100%; /* 1 */
+			-webkit-text-size-adjust : 100%; /* 2 */
+			   -moz-text-size-adjust : 100%; /* 2 */
+			    -ms-text-size-adjust : none; /* 2 */
+			        text-size-adjust : 100%; /* 2 */
+			       
+		    touch-action            : none;
+		-ms-touch-action            : none;
+		        touch-callout       : none;
+		-webkit-touch-callout       : none;
+		    content-zooming         : none;
+		-ms-content-zooming         : none;
+		        user-drag           : none;
+		 -khtml-user-drag           : none;
+		-webkit-user-drag           : none;
+		}
+		html, body {
+			padding    : 0;
+			margin     : 0;
+			border     : 0;
+			width      : 100%;
+			height     : 100%;
+			overflow   : hidden;
+			background : #FF66FF;
+		}
+		iframe {
+			display     : block;
+			padding     : 0;
+			border      : 0;
+			height      : 100%;
+			margin-left : 0;
+			background  : #fff;
+		}
+		#log {
+			position   : absolute;
+			top        : 0%;
+			left       : 0%;
+			width      : 240px;
+			height     : 100%;
+			font-size  : 12px;
+			z-index    : 888;
+			color      : #fff;
+			background : #000;
+			overflow   : auto;
+		}
+		#toggle {
+			font-size   : 2em;
+			font-family : Arial;
+			position    : absolute;
+			top         : 0;
+			left        : 0;
+			width       : 1em;
+			height      : 1em;
+			line-height : 1;
+			color       : #00f;
+			text-align  : center;
+			font-weight : bold;
+			z-index     : 999999;
+			cursor      : pointer;
+			-webkit-tap-highlight-color : rgba(0,0,0,0);
+		}
+		.toggle_close #log,
+		.toggle_none #toggle {
+			display : none;
+		}
+		.toggle_none iframe {
+			margin-left : 240px;
+		}
+		
+/*--------------------------------------------------------------------------------------
+ *  slide & zoom
+ */
+	.toggle_open_anime #log,
+	.toggle_close_anime #log,
+	.toggle_close_before #log, .toggle_open_before #log /* win safari3.2 */
+	{
+		-webkit-transition          : 0.5s ease-in-out; /* win safari3.2 */
+		-webkit-transition          : opacity 0.5s ease-in-out, left 0.5s ease-in-out, -webkit-transform 0.5s ease-in-out, transform 0.5s ease-in-out; /* win safari4 delay は指定しない */
+
+		/* http://blog.webcreativepark.net/2012/10/19-161432.html */
+		-webkit-backface-visibility : hidden;
+		   -moz-backface-visibility : hidden;
+		        backface-visibility : hidden;
+		        
+		        transition          : opacity 0.5s ease-in-out 0s, left 0.5s ease-in-out 0s, transform 0.5s ease-in-out 0s;
+		     -o-transition          : opacity 0.5s ease-in-out 0s, left 0.5s ease-in-out 0s, transform 0.5s ease-in-out 0s, -o-transform 0.5s ease-in-out 0s;
+		    -ms-transition          : opacity 0.5s ease-in-out 0s, left 0.5s ease-in-out 0s, transform 0.5s ease-in-out 0s, -ms-transform 0.5s ease-in-out 0s;
+		   -moz-transition          : opacity 0.5s ease-in-out 0s, left 0.5s ease-in-out 0s, transform 0.5s ease-in-out 0s, -moz-transform 0.5s ease-in-out 0s;
+    }
+
+/* slideIn */
+	.toggle_open_anime #log,
+	.toggle_open #log,
+	.toggle_close_before #log {
+		opacity   : 1;
+		-webkit-transform : translate(0%,0); /* win safari3.2 */
+		-webkit-transform : translateX(0%) translateZ(0); /* safari4 */
+		   -moz-transform : translateX(0%) translateZ(0);
+		    -ms-transform : translateX(0%) translateZ(0);
+		     -o-transform : translateX(0%) translateZ(0);
+		        transform : translateX(0%) translateZ(0);
+    }
+    
+/* slideOut */
+	.toggle_close_anime #log,
+	.toggle_close #log,
+	.toggle_open_before #log {
+		opacity   : 0;
+		-webkit-transform : translate(-10%,0); /* win safari3.2 */
+		-webkit-transform : translateX(-10%) translateZ(0); /* safari4 */
+		   -moz-transform : translateX(-10%) translateZ(0);
+		    -ms-transform : translateX(-10%) translateZ(0);
+		     -o-transform : translateX(-10%) translateZ(0);
+		        transform : translateX(-10%) translateZ(0);
+    }
+	</style>
+	
+	<script>
+		// css3 anime
+		// ff5+(-moz, 16+), ie10+, opera12+(-o, 12.5+), safari4+(-webkit, ?), iOS2+, Android2.1+
+		// http://lealog.hateblo.jp/entry/2013/03/06/234023
+		
+		// css3 transition
+		// ff4+(-moz, 16+), ie10+, opera11.6+(-o, 12.1+), safari3.0+(-webkit, ?), iOS(safari3.2+), Android2.1+
+		// https://developer.mozilla.org/ja/docs/Web/CSS/transition
+		
+		// css3 transform
+		// ff3.5+(-moz, 16+), ie9+(-ms, 10+), opera10.5+(-o, 12.1+), safari3.1+(-webkit, ?)
+		// https://developer.mozilla.org/ja/docs/Web/CSS/transform
+		
+		var EV_TRANS_END = document.getElementById && (function(){
+				var style = document.createElement( 'div' ).style;
+				return style[ 'transition' ]    !== void 0 ? 'transitionend'   :
+					style[ 'OTransition' ]      !== void 0 ? 'otransitionend'  :
+					style[ 'msTransition' ]     !== void 0 ? 'msTransitionEnd' :// 'MSTransitionEnd' :
+					style[ 'MozTransition' ]    !== void 0 ? 'transitionend'   :
+					style[ 'webkitTransition' ] !== void 0 ? 'webkitTransitionEnd' : false;
+			})(),
+			USE_ANIME  = !!EV_TRANS_END,
+			LOG_WIDTH  = 240,
+			hasEvent   = false,
+			toggleOpen = true,
+			toggleBusy = false;
+			
+		function __load(){
+			__resize();
+		    setTimeout(function(){scrollTo(0, 1);}, 100);
+		    if( window.addEventListener ){
+		    	window.addEventListener( 'orientationchange', function(){
+		    		setTimeout(function(){
+		    			//alert( window.innerWidth + 'x' + window.innerHeight );
+		    			__resize();
+		    		}, 100);
+		    		}, false
+		    	); // iOS
+		    };
+		};
+		function __resize( toggleChanged ){
+			var body  = document.body,
+				log   = body.children[0],
+				ifr   = body.children[1],
+				btn   = body.children[2],
+				viewW = document.all ? ( document.documentElement || body ).offsetWidth || window.innerWidth /* for ie9 */ : window.innerWidth,
+				viewH = window.innerHeight;
+
+			if( 800 <= viewW ){
+				ifr.style.width  = viewW - LOG_WIDTH + 'px';
+				if( !document.all ){	
+					ifr.style.height = viewH + 'px'; // NetFront3.4
+				};
+				body.className = 'toggle_none';
+			} else {
+				if( viewW < 240 ) log.style.width = viewW + 'px';
+				
+				ifr.style.width  = viewW + 'px';
+				if( !document.all ){
+					ifr.style.height = viewH + 'px'; // NetFront3.4
+				};
+				if( USE_ANIME && toggleChanged ){
+					toggleBusy = true;
+					body.className = toggleOpen ? 'toggle_open_before' : 'toggle_close_before';
+					setTimeout( __readyTrans, 60 ); // 0 は不可
+				} else {
+					body.className = toggleOpen ? 'toggle_open' : 'toggle_close';
+				};
+			};
+			btn.innerHTML = toggleOpen ? '&#9654;' : '&#9660;';//&#9658;&#9656;
+		};
+			function __readyTrans(){
+				var body   = document.body,
+					log    = body.children[0],
+					_class = body.className,
+					i      = _class.indexOf( '_before' );
+				if( i !== -1 ){
+					hasEvent = true;
+					body.className = _class.substr( 0, i ) + '_anime';
+					
+					log.addEventListener( EV_TRANS_END, __onTrans, true );
+					log.style.cssText = toggleOpen ?
+						'opacity:1;-webkit-transform:translate(0,0);' :
+						'opacity:0;-webkit-transform:translate(-10%,0);'; /* win safari3.2 */
+				} else {
+					
+				};
+			};
+			function __onTrans(e){
+				var body   = document.body,
+					log    = body.children[0],
+					_class = body.className,
+					i      = _class.indexOf( '_anime' );
+				if( i !== -1 ){
+					log.removeEventListener( EV_TRANS_END, __onTrans, true );
+					log.style.cssText = '';
+					body.className = _class.substr( 0, i );
+					toggleBusy = false;
+				} else {
+					
+				};
+			};
+		function __ontoggle(){
+			//if( toggleBusy ) return;
+			toggleOpen = !toggleOpen;
+			__resize( true );
+		};
+	</script>
+	<noscript>
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	</noscript>
+</head>
+<body onload="__load()" onresize="__resize()" scroll="no"><div id="log">-- console.log() --</div><iframe src="index.html" width="500" height="100%" scrolling="yes" frameborder="0" allowtransparency="no"></iframe><div id="toggle" onclick="__ontoggle();"></div></body>
+</html>
+<xmp class="cleanup-target" style="display:none"><plaintext style="display:none"><!-- plainetext は nds 用 -->

@@ -1,0 +1,233 @@
+
+	html {
+		font-size                : 100%; /* 1 */
+		-webkit-text-size-adjust : 100%; /* 2 */
+		   -moz-text-size-adjust : 100%; /* 2 */
+		    -ms-text-size-adjust : 100%; /* 2 */
+		        text-size-adjust : 100%; /* 2 */
+	}
+
+	html,
+	body {
+		width    : 100%;
+		height   : 100%;
+		overflow : hidden;
+		margin   : 0;
+		padding  : 0; /* opera 8 */
+		border   : 0;
+	}
+
+	body {
+		background : #111;
+		color      : #eee;
+	}
+	.js-disabled body {
+		background : #111 url( "../img/loading.gif" ) 50% 50% no-repeat;
+	}
+
+	.IE5x body,
+	.IE6 body,
+	.IE7 body,
+	.IE8 body {
+		font-size : 16px; /* px 指定しないと ie8- で要素のサイズが狂う */
+	}
+
+	/*
+	 * http://loconet.web2.jp/blog/archives/2007/02/cssfontfamily.html
+	 */
+	body, textarea {
+		font-family:'ヒラギノ角ゴ Pro W3','Hiragino Kaku Gothic Pro','メイリオ',Meiryo,'ＭＳ Ｐゴシック',sans-serif;
+	}
+
+	.IE5x body, .IE5x textarea,
+	.IE6  body, .IE6  textarea,  {
+		font-family : 'ＭＳ Ｐゴシック',sans-serif;
+	}
+
+
+/*------------------------------------------------------------------------------------
+ *  X.UI
+ */
+.Root {
+	height   : 100%;
+}
+
+.Root,
+.Root div {
+/* 要素は絶対配置される */
+	position           : absolute;
+	top                : 0;
+	left               : 0;
+	width              : 100%;
+	height             : auto;
+	padding            : 0;
+	margin             : 0;
+/* ブラウザのレイアウト機能による auto なサイズ指定は行わない */
+	overflow           : hidden;
+	border-style       : solid;
+	border-width       : 0;
+/* border-box がデフォルト 
+	box-sizing         : border-box;
+	-o-box-sizing      : border-box;
+	-ms-box-sizing     : border-box;
+	-moz-box-sizing    : border-box;
+	-khtml-box-sizing  : border-box;
+	-webkit-box-sizing : border-box;*/
+/* browser bug fix */
+
+	zoom               : 1;
+	word-wrap          : break-word; /* IE5.5?5?, Firefox3.5, Chrome1 Opera10.5 Safari1 */
+	white-space        : pre;           /* CSS 2.0 */
+	white-space        : pre-wrap;      /* CSS 2.1 */
+	white-space        : pre-line;      /* CSS 3.0 */
+	white-space        : -o-pre-wrap;   /* Opera 7 */
+	white-space        : -moz-pre-wrap; /* Mozilla */  
+}
+.IE5x .Root, .IE5x .Root div,
+.IE6  .Root, .IE6  .Root div,
+.IE7  .Root, .IE7  .Root div, {
+	word-break  : break-all;  /* ie5+ */
+}
+.IE .Root, .IE .Root div {
+	white-space : normal/* ie系では、 float要素へ回り込みする、 white-space の効いているテキストの位置が狂う */
+}
+
+
+
+/*------------------------------------------------------------------------------------
+ *  mouse-operation-catcher
+ */
+	.mouse-operation-catcher,
+	.mouse-operation-catcher-scrollFix {
+		position : absolute;
+		top      : 0;
+		left     : 0;
+		width    : 100%;
+		height   : 100%; /* 100% don't work for ie6, so ie6 need to set height as 'XXpx' by js */
+		
+		        user-select         : none;
+		   -moz-user-select         : none;
+		 -khtml-user-select         : none;
+		-webkit-user-select         : none;
+
+		/* this makes the element blocking in IE10 >, you could experiment with the value
+		   see for more options this issue; https://github.com/EightMedia/hammer.js/issues/241 */
+		    touch-action            : none;
+		-ms-touch-action            : none;
+		        touch-callout       : none;
+		-webkit-touch-callout       : none;
+		    content-zooming         : none;
+		-ms-content-zooming         : none;
+		        user-drag           : none;
+		 -khtml-user-drag           : none;
+		-webkit-user-drag           : none;
+		        tap-highlight-color : rgba(0,0,0,0);
+		-webkit-tap-highlight-color : rgba(0,0,0,0);
+	}
+	/*
+	 * ie では、背景を設定しないと、 mousemove が働かない。
+	 * activeX 有効の場合は背景を着色して filter で透明に。
+	 * activeX 無効の場合は透明 gif を使用
+	 * background:			url(4x4.gif) fixed repeat;
+	 */
+	.mouse-operation-catcher {
+		background       : url( "../img/opacity0.gif" ) fixed repeat;
+	}	
+	
+	.ActiveX .mouse-operation-catcher {
+		background       : #fff;
+		filter           : alpha( opacity=0 );
+	}
+	
+	.mouse-operation-catcher-scrollFix {
+		overflow : scroll;
+	}
+	.mouse-operation-catcher-scrollFix div {
+		width            : 300%;
+		height           : 300%;
+		/* background       : url( "../img/grid.gif" ) repeat; */
+	}
+
+/*------------------------------------------------------------------------------------
+ *  hidden-sysyem-node
+ */
+.hidden-system-node {
+	position   : absolute;
+	left       : 0;
+	top        : 0;
+	visibility : hidden;
+	/*z-index    : 99;*/
+}
+.hidden-iframe {
+	z-index     : -1;
+	visibility  : hidden;
+	overflow    : hidden;
+	border      : 0;
+	outline     : 0;
+	margin      : -10px 0 0 -10px;
+	padding     : 0;
+	min-width   : 0;
+	min-height  : 0;
+	width       : 10px;
+	height      : 10px;
+	max-width   : 10px;
+	max-height  : 10px;
+	top         : -20px;
+	left        : -20px;
+}
+
+/* Fix for WebAudio
+ * see http://qiita.com/sou/items/5688d4e7d3a37b4e2ff1
+--------------------------------------------------------------------------------------*/
+	#fps-slowdown-make-sound-noisy {
+		width                             : 0px;
+		height                            : 0px;
+		position                          : absolute;
+		-webkit-animation-name            : anim-void;
+		-webkit-animation-duration        : 1s;
+		-webkit-animation-iteration-count : infinite;
+	}
+	@-webkit-keyframes anim-void {
+		from {
+			top: 0px;
+		}
+		to {
+			top: 1px;
+		}
+	}
+
+/*  Scrollbox
+--------------------------------------------------------------------------------------*/
+	.ScrollBox-Scroller {
+		position        : absolute;
+	}
+		.Root .ScrollBox-IndicatorV,
+		.Root .ScrollBox-IndicatorH {
+			position     : absolute;
+			overflow     : hidden;
+			background   : #000;
+			/* background   : rgba(0,0,0,0.5); IE5.5 ietester でインジケーターに色がつかない、、、*/
+		}
+		.Root .ScrollBox-IndicatorV {
+			top    : 0;
+			right  : 0.1em;
+			left   : auto;
+			width  : 0.5em;
+		}		
+		.Root .ScrollBox-IndicatorH {
+			top    : auto;
+			bottom : 0.1em;
+			left   : 0;
+			height : 0.5em;
+		}
+		.IE4  .ScrollBox-IndicatorH,
+		.IE5x .ScrollBox-IndicatorH {
+			line-height : 0.5;
+		}
+
+.IE8 * {
+	filter : inherit;
+}
+[ie8opcityFix] * {
+	filter : inherit;
+}
