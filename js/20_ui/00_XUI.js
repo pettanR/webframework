@@ -12,7 +12,7 @@
  *    mouseDisabled など
  */
 
-X.UI = {
+X[ 'UI' ] = {
 	
 	currentRootData : null
 };

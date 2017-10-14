@@ -173,20 +173,20 @@ function XUI_createChecker( str ){
 	};
 
 function XUI_Attr_copy( proto, supports ){
-	var support, p;
+	var support, p, no, v;
 	
 	for( p in supports ){
 		//if( X_EMPTY_OBJECT[ p ] ) continue;
 		if( p === '_last' ) continue;
 		support = supports[ p ];
-		proto[ support.No ] = support[ 0 ];
+		proto[ no = support.No ] = v = support[ 0 ];
 		if( support[ 3 ] & XUI_Attr_Type.QUARTET ){
-			proto[ support.No + 1 ] = support[ 0 ];
-			proto[ support.No + 2 ] = support[ 0 ];
-			proto[ support.No + 3 ] = support[ 0 ];
+			proto[ no + 1 ] = v;
+			proto[ no + 2 ] = v;
+			proto[ no + 3 ] = v;
 		} else
 		if( support[ 3 ] & XUI_Attr_Type.COMBI ){
-			proto[ support.No + 1 ] = support[ 0 ];
+			proto[ no + 1 ] = v;
 		};
 	};
 };
