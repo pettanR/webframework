@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- <?xml-stylesheet type="text/xsl" href="gadget/gadget.xsl"?> --> 
+<Module>
+    <ModulePrefs
+			title        = "X.XHR.GadgetProxy"
+			title_url    = "http://outcloud.blogspot.com/"
+			description  = "PettanR X.XHR.GadgetProxy"
+			screenshot   = ""
+			thumbnail    = ""
+			author       = "itozyun"
+			author_email = "1067433670566@developer.gserviceaccount.com"
+			height       = "100"
+			width        = "100"
+			scaling      = "false"
+			scrolling    = "false"
+			singleton    = "true">
+	</ModulePrefs>
+	<Content type="html"><![CDATA[
+<style>iframe{width:20px;height:20px}</style>
+<script src="//pettanR.github.io/webframework/X.Net.GadgetRequest.js" type="text/javascript"></script>
+]]></Content>
+</Module>
