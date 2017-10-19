@@ -17,6 +17,6 @@
 	</ModulePrefs>
 	<Content type="html"><![CDATA[
 <style>iframe{width:20px;height:20px}</style>
-<script src="//pettanR.github.io/webframework/X.Net.GadgetRequest.js" type="text/javascript"></script>
+<script src="//pettanR.github.io/webframework/gadget/X.Net.GadgetRequest.js" type="text/javascript"></script>
 ]]></Content>
 </Module>
