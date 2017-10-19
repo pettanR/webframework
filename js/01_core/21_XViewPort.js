@@ -603,13 +603,10 @@ console.log( 'X.Dom dom:w3c=' + X_UA_DOM.W3C + ' ev:w3c=' + X_UA_EVENT.W3C );
 if( X_UA_EVENT.W3C ){
 	X_ViewPort_document[ 'listenOnce' ]( 'DOMContentLoaded', X_TEMP.onDomContentLoaded );
 } else
-if( 6 <= X_UA[ 'IE' ] && X[ 'inHead' ] /* && !X_UA[ 'ieExeComError' ] */ ){ // standalone の除外 ->  && !X_UA[ 'ieExeComError' ]
-	// if this script in Head
-	//document.write( '<script id=__ieonload defer src=javascript:void(0)></script>' );
-	//X_TEMP._script = document.getElementById( '__ieonload' );
-	
-	// 上のコードはスタンドアローン版ie6でエラー
+if( 6 <= X_UA[ 'IE' ] && X[ 'inHead' ] ){
     X_TEMP._script = document.createElement( '<script id=__ieonload defer src=javascript:void(0)></script>' );
+	// 次のコードはスタンドアローン版ie6でエラー
+	// document.write( '<script id=__ieonload defer src=javascript:void(0)></script>' );
     X_elmHead.appendChild( X_TEMP._script );
 
 	X_TEMP._script.onreadystatechange = function(){
@@ -625,7 +622,7 @@ if( 6 <= X_UA[ 'IE' ] && X[ 'inHead' ] /* && !X_UA[ 'ieExeComError' ] */ ){ // s
 };
 // Re: onLoad doesn't work with Safari?
 // http://lists.apple.com/archives/web-dev/2003/Oct/msg00036.html
-if( X_UA[ 'WebKit' ] || X_UA[ 'Safari' ]  < 3 ){ // sniff
+if( X_UA[ 'WebKit' ] <= 419.3 ){ // Safari 2-
 	X_Timer_add( 16, function(){
 		if( !X_TEMP.onDomContentLoaded ) return X_CALLBACK_UN_LISTEN;
 		if( document.readyState === 'loaded' || document.readyState === 'complete' ) return X_TEMP.onDomContentLoaded();

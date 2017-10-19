@@ -34,13 +34,13 @@ var X_NodeFlags_DESTROYED              = 0x0,
 	X_NodeFlags_GPU_RELEASE_RESERVED   = 2 << 23, // 4:GPU解除予約
 	X_NodeFlags_GPU_CHILD              = 2 << 24, 
 	
-	X_NodeFlags_IE4_HAS_TEXTNODE       = X_UA[ 'IE4' ] ? 2 << 21 : 0,
-	X_NodeFlags_IE4_HAS_ELEMENT        = X_UA[ 'IE4' ] ? 2 << 22 : 0,
-	X_NodeFlags_IE4_DIRTY_CHILDREN     = X_UA[ 'IE4' ] ? 2 << 23 : 0,
-	X_NodeFlags_IE4_FIXED              = X_UA[ 'IE4' ] ? 2 << 24 : 0,
+	X_NodeFlags_IE4_HAS_TEXTNODE       = X_UA[ 'IE' ] < 5 ? 2 << 21 : 0,
+	X_NodeFlags_IE4_HAS_ELEMENT        = X_UA[ 'IE' ] < 5 ? 2 << 22 : 0,
+	X_NodeFlags_IE4_DIRTY_CHILDREN     = X_UA[ 'IE' ] < 5 ? 2 << 23 : 0,
+	X_NodeFlags_IE4_FIXED              = X_UA[ 'IE' ] < 5 ? 2 << 24 : 0,
 
-	X_NodeFlags_IE5_DISPLAY_NONE_FIX   = X_UA[ 'IE5' ] && X_UA[ 'ActiveX' ] ? 2 << 24 : 0,
-	X_NodeFlags_IE8_OPACITY_FIX        = 0,//X_UA[ 'IE8' ] && X_UA[ 'ActiveX' ] ? 2 << 25 : 0,
+	X_NodeFlags_IE5_DISPLAY_NONE_FIX   = 5 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 5.5 && X_UA[ 'ActiveX' ] ? 2 << 24 : 0,
+	X_NodeFlags_IE8_OPACITY_FIX        = 0,//X_UA[ 'IE' ] === 8 && X_UA[ 'ActiveX' ] ? 2 << 25 : 0,
 	X_NodeFlags_IE_FILTER_FIX_AFTER    = X_UA[ 'ActiveX' ] && 2 << 26,
 	
 	// http://modernizr.com/downloads/modernizr.js

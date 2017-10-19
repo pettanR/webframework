@@ -20,7 +20,7 @@ var X_Event_Rename    = {},
 		
 		// TODO  focusin focusout
 		
-		// X_UA[ 'Opera' ]
+		// X_UA[ 'Prsto' ]
 		'contextmenu' : function( eventDispatcher ){
 			eventDispatcher[ 'listen' ]( 'mousedown', contextmenu_proxy );
 		},

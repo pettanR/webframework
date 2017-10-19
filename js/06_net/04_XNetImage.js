@@ -48,7 +48,7 @@ X_TEMP.X_ImgLoader_params = {
 
 			this[ '_rawObject' ].src = this.abspath;
 
-			if( X_UA[ 'Opera7' ] && this[ '_rawObject' ].complete ){
+			if( X_UA[ 'Opera' ] < 8 && this[ '_rawObject' ].complete ){
 				this[ 'asyncDispatch' ]( 'load' );
 			} else {
 				this.timerID = X_Timer_add( this.delay, 0, this, X_ImgLoader_detect );
@@ -123,7 +123,7 @@ function X_ImgLoader_handleEvent( e ){
 		// if( timer ) return; // これがあると safari3.2 で駄目、、、
 			this.finish = true;
 			this.timerID && X_Timer_remove( this.timerID );
-			if( X_UA[ 'Opera' ] && !raw.complete ){
+			if( X_UA[ 'Prsto' ] && !raw.complete ){
 				this.timerID = this[ 'asyncDispatch' ]( X_EVENT_ERROR );
 				return;
 			};

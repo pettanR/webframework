@@ -298,7 +298,7 @@ var	Node = X[ 'Node' ] = X_EventDispatcher[ 'inherits' ](
 		
 		'html'           : X_Node__html,
 		'text'           : X_Node_text,
-		'call'           : X_Node_call,
+		'call'           : X_Node_call, // get(), set(), exec()
 		'each'           : X_Node_each
 		
 	}
@@ -580,7 +580,7 @@ function X_Node_append( v ){
 		if( v.parent === this && xnodes[ xnodes.length - 1 ] === v ) return this;
 			v[ 'remove' ]();
 			// IE4 でテキストノードの追加、FIXED 済でない場合、親に要素の追加を通知
-			if( X_UA[ 'IE4' ] && !v[ '_tag' ] && ( ( this[ '_flags' ] & X_NodeFlags_IE4_FIXED ) === 0 ) ) this[ '_flags' ] |= X_NodeFlags_IE4_DIRTY_CHILDREN;
+			if( X_UA[ 'IE' ] < 5 && !v[ '_tag' ] && ( ( this[ '_flags' ] & X_NodeFlags_IE4_FIXED ) === 0 ) ) this[ '_flags' ] |= X_NodeFlags_IE4_DIRTY_CHILDREN;
 			break;
 		default :
 			return this;
@@ -656,7 +656,7 @@ function X_Node_appendAt( start, v ){
 				v[ 'remove' ]();
 			};
 			// IE4 でテキストノードの追加、FIXED 済でない場合、親に要素の追加を通知
-			if( X_UA[ 'IE4' ] && !v[ '_tag' ] && ( ( this[ '_flags' ] & X_NodeFlags_IE4_FIXED ) === 0 ) ) this[ '_flags' ] |= X_NodeFlags_IE4_DIRTY_CHILDREN;
+			if( X_UA[ 'IE' ] < 5 && !v[ '_tag' ] && ( ( this[ '_flags' ] & X_NodeFlags_IE4_FIXED ) === 0 ) ) this[ '_flags' ] |= X_NodeFlags_IE4_DIRTY_CHILDREN;
 			break;
 		default :
 			return this;
@@ -1427,7 +1427,7 @@ function X_Node_startUpdate( time ){
 	
 	// 強制的に再描画を起こす, 但し activeElement からフォーカスが外れるため復帰する
 	// IE5mode win10 で 確認
-	if( X_UA[ 'IE5' ] ){
+	if( 5 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 5.5 ){
 		active = FocusUtility_getFocusedElement();
 		X_elmBody.style.visibility = 'hidden';
 	};
@@ -1439,7 +1439,7 @@ function X_Node_startUpdate( time ){
 		X_Node__commitUpdate( X_Node_body, X_Node_body[ '_rawObject' ].parentNode, null, X_Node_body[ '_flags' ], 1, xnodesIEFilterFixAfter = [] );
 	};
 
-	if( X_UA[ 'IE5' ] ){
+	if( 5 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 5.5 ){
 		X_elmBody.style.visibility = '';
 		active && active.parentNode && FocusUtility_setTemporarilyFocus( active );
 	};
@@ -1853,7 +1853,7 @@ var X_Node__updateRawNode =
 						case 'TEXTAREAvalue' :
 							// IETester 5.5 ではエラーが出なかった．MultipulIE5.5 ではエラーが出たので
 							// MultipleIE6 でもここを通す。X_UA[ 'ieExeComError' ] の場合 MultipleIE6
-							if( ( !X_UA[ 'MacIE' ] && X_UA[ 'IE5x' ] ) || ( X_UA[ 'ieExeComError' ] && X_UA[ 'IE6' ] ) ){
+							if( ( !X_UA[ 'MacIE' ] && 5 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 5 ) || ( X_UA[ 'ieExeComError' ] && 6 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 7 ) ){
 								elm.firstChild ?
 									( elm.firstChild.data = v || '' ) :
 									elm.appendChild( document.createTextNode( v || '' ) );
@@ -1905,12 +1905,15 @@ var X_Node__updateRawNode =
 			// style
 			if( that[ '_flags' ] & X_NodeFlags_DIRTY_CSS ){
 				if( that[ '_flags' ] & X_NodeFlags_OLD_CSSTEXT ? X_Node_CSS_objToCssText( that ) : that[ '_cssText' ] ){
-					X_UA[ 'Opera78' ] || X_UA[ 'NN6' ] ?
-						elm.setAttribute( 'style', that[ '_cssText' ] ) : // opera8用
+					X_UA[ 'Opera' ] < 9 || X_UA[ 'Gecko' ] < 1 ? // Opera7, 8, NN6
+						elm.setAttribute( 'style', that[ '_cssText' ] ) :
 						( elm.style.cssText = that[ '_cssText' ] );
 				} else {
-					elm.style.cssText = ''; // IE5.5以下 Safari3.2 で必要
-					elm.removeAttribute( 'style' );
+					if( X_UA[ 'IE' ] < 6 || X_UA[ 'WebKit' ] < 528 ){  // IE5.5以下 Safari3.2 で必要
+						elm.style.cssText = '';
+					} else {
+						elm.removeAttribute( 'style' );
+					};
 				};
 			} else
 			if( that[ '_flags' ] & X_NodeFlags_DIRTY_IE_FILTER ){

@@ -19,9 +19,9 @@
 	 * TODO html5 要素, audio, video は?
 	 */	
 	X_Dom_DTD_TAG_FIX =
-		X_UA[ 'IE4' ] ?
+		X_UA[ 'IE' ] < 5 ? // IE4
 			{ 'ABBR' : 'ACRONYM', 'BDO' : '', 'RUBY' : '' } :
-		X_UA[ 'IE5x' ] || X_UA[ 'IE6' ] ?
+		X_UA[ 'IE' ] < 7 ? // IE6-
 			{ 'ABBR' : 'ACRONYM' } :
 			{},
 	

@@ -10,297 +10,44 @@
  * @type {object}
  */
 var X_UA = X[ 'UA' ] = {},
-	X_UA_classNameForHTML = '';
+	X_UA_classNameForHTML = '',
+	X_UA_Gecko_Version;
 
 (function(){
-	var dua  = navigator.userAgent,
-		dav  = navigator.appVersion,
-		tv   = parseFloat(dav),
-		sys  = navigator.platform,
-		tridentToVer, i, j, v, androidBrowserPCMode;
-		
-	console.log( ' userAgent  : ' + dua );
-	console.log( '-' );
-	console.log( ' appVersion : ' + dav );
-	console.log( '-' );
-	console.log( ' platform   : ' + sys );
-	console.log( '-' );
-	
-	// TODO 3DS, DSi, WiiU
-	
-	if( sys.indexOf( 'iP' ) === 0 ){
-
-		v = dav.split( 'OS ' )[ 1 ].split( '_' );
-		i = window.devicePixelRatio === 1;
-		/**
-		 * @alias X.UA.iOSMajor
-		 * @type {number}
-		 */
-		X_UA[ 'iOSMajor' ] = parseFloat( v[ 0 ] ) || 0;
-		/**
-		 * @alias X.UA.iOSMinor
-		 * @type {number}
-		 */
-		X_UA[ 'iOSMinor' ]  = parseFloat( v[ 1 ] ) || 0;
-		/**
-		 * @alias X.UA.iOSPatch
-		 * @type {number}
-		 */
-		X_UA[ 'iOSPatch' ]  = parseFloat( v[ 2 ] ) || 0;
-		/**
-		 * @alias X.UA.iOS
-		 * @type {number}
-		 */
-		X_UA[ 'iOS' ]  = X_UA[ 'iOSMajor' ] + X_UA[ 'iOSMinor' ] / 10;
-
-		// 4:3 model
-		v = screen.width === screen.height * 1.5 || screen.width * 1.5 === screen.height;
-
-		switch( sys ){
-			case 'iPhone' :
-			case 'iPhone Simulator' :
-				/**
-				 * @alias X.UA.iPhone
-				 * @type {boolean}
-				 */
-				X_UA[ 'iPhone' ]  = true;
-				if( v ){
-					/**
-					 * iPhone4s以下
-					 * @alias X.UA.iPhone_4s
-					 * @type {boolean}
-					 */
-					X_UA[ 'iPhone_4s' ]  = true;
-					
-					if( i ){
-						/**
-						 * iPhone3GS以下
-						 * @alias X.UA.iPhone_3GS
-						 * @type {boolean}
-						 */
-						X_UA[ 'iPhone_3GS' ]  = true;
-					};				
-				};
-				break;
-			
-			case 'iPad' :
-			case 'iPad Simulator' :
-				/**
-				 * @alias X.UA.iPad
-				 * @type {boolean}
-				 */
-				X_UA[ 'iPad' ]    = true;
-				if( i ){
-					/**
-					 * iPad2以下または初代iPad mini 以下
-					 * @alias X.UA.iPad_2Mini1
-					 * @type {boolean}
-					 */
-					X_UA[ 'iPad_2Mini1' ]  = true;
-				};
-				break;
-			
-			case 'iPod' :
-			case 'iPod Simulator' : // 必要??
-				/**
-				 * @alias X.UA.iPod
-				 * @type {boolean}
-				 */
-				X_UA[ 'iPod' ]    = true;
-	
-				if( v ){
-					/**
-					 * iPod4以下
-					 * @alias X.UA.iPod_4
-					 * @type {boolean}
-					 */
-					X_UA[ 'iPod_4' ]  = true;
-					
-					if( i ){
-						/**
-						 * iPod3以下
-						 * @alias X.UA.iPod_3
-						 * @type {boolean}
-						 */
-						X_UA[ 'iPod_3' ]  = true;
-					};				
-				};
-				break;
-		};
-		
-		console.log( '>> iOS : ' + X_UA[ 'iOS' ]  );
-	} else
-	if( dua.indexOf( 'hp-tablet' ) !== -1 || dua.indexOf( 'webOS' ) !== -1 ){
-		/**
-		 * http://user-agent-string.info/list-of-ua/os-detail?os=webOS
-		 * @alias X.UA.webOS
-		 * @type {boolean}
-		 */
-		// window[ "palmGetResource" ]
-		X_UA[ 'webOS' ]  = true; // webOS
-	} else
-	if( sys.indexOf( 'Win' ) === 0 ){
-
-		switch( sys ){
-			case 'WinCE' :
-				/**
-				 * @alias X.UA.WinCE
-				 * @type {boolean}
-				 */
-				X_UA[ sys ] = true;
-				break;
-			case 'Win16' :
-			case 'Win32' :
-			case 'Win64' :
-				/**
-				 * @alias X.UA.Win16
-				 * @alias X.UA.Win32
-				 * @alias X.UA.Win64
-				 * @type {boolean}
-				 */
-				X_UA[ sys ] = true;
-
-				if( v = dua.split( 'Windows NT 10' )[ 1 ] ){
-					switch( v.substr( 0, 2 ) ){
-						case '.0' : v = 10; break;
-						default : v = '?';
-					};
-				} else
-				if( v = dua.split( 'Windows NT ' )[ 1 ] ){
-					switch( v.substr( 0, 3 ) ){
-						case '6.3' : v = 8.1; break;
-						case '6.2' : v = 8; break;
-						case '6.1' : v = 7; break;
-						case '6.0' : v = 'Vista'; break;
-						case '5.2' : v = '2003|XP64'; break;
-						case '5.1' : v = v.indexOf( '5.1; SV1' ) ? 'XP' : 'XPSP2'; break;
-						case '5.0' : v = v.indexOf( '5.01' ) ? 2000 : '2kSP1'; break;
-						case '4.0' : v = 'NT'; break;
-						default : v = '?';
-					};	
-				} else
-				if( v = dua.split( 'Windows ' )[ 1 ] ){
-					switch( v.substr( 0, 2 ) ){
-						case '98' : v = v.indexOf( '98; Win 9x 4.90' ) ? '98|98SE' : 'ME'; break;
-						case '95' : v = 95; break;
-						case '3.' : v = parseFloat( v ); break;
-						default : v = '?';
-					};	
-				} else {
-					v = '?';
-				};
-				
-				/**
-				 * 10, 8.1, 8, 7, Vista, 2003|XP64, XPSP2, XP, 2kSP1, 2000, ME, 98|98SE, 95, ?
-				 * @alias X.UA.Windows
-				 * @type {number|string}
-				 */				
-				X_UA[ 'Windows' ] = v;
-				break;
-		};
-
-		// winRT
-	} else
-	if( sys.indexOf( 'Mac' ) === 0 ){
-		console.log( 'Mac' );
-		/**
-		 * @alias X.UA.Mac
-		 * @type {boolean}
-		 */
-		X_UA[ 'Mac' ]  = true;
-		switch( sys ){
-			case 'MacPowerPC' :
-				/**
-				 * @alias X.UA.MacPPC
-				 * @type {boolean}
-				 */
-				X_UA[ 'MacPPC' ] = true;
-				break;
-			case 'MacPPC' :
-			case 'Mac68K' :
-			case 'MacIntel' :
-				/**
-				 * @alias X.UA.MacPPC
-				 * @alias X.UA.Mac68K
-				 * @alias X.UA.MacIntel
-				 * @type {boolean}
-				 */
-				X_UA[ sys ] = true;
-		};
-	} else
-	if( ( sys.indexOf( 'Linux' ) + 1 ) || ( sys.indexOf( 'Android' ) + 1 ) ){
-		console.log( 'Linux' );
-		/**
-		 * @alias X.UA.Linux
-		 * @type {boolean}
-		 */
-		if( ( v = dua.split( 'Android ' )[ 1 ] ) ||
-			( v = sys.split( 'Android ' )[ 1 ] ) ){ // PCモードの Android Firefox では platform に Android 0.0.0 が存在
-			v = v.split( '.' );
-			/**
-			 * @alias X.UA.AndroidMajor
-			 * @type {number}
-			 */
-			X_UA[ 'AndroidMajor' ] = parseFloat( v[ 0 ] ) || 0;
-			/**
-			 * @alias X.UA.AndroidMinor
-			 * @type {number}
-			 */
-			X_UA[ 'AndroidMinor' ] = parseFloat( v[ 1 ] ) || 0;
-			/**
-			 * @alias X.UA.AndroidPatch
-			 * @type {number}
-			 */
-			X_UA[ 'AndroidPatch' ] = parseFloat( v[ 2 ] ) || 0;
-			/**
-			 * Firefox で Version が取れない！
-			 * http://bizmakoto.jp/bizid/articles/1207/31/news004.html
-			 * Chrome 	Android 4.0以上 	Google
-			 * Dolphin Browser HD 	Android 2.0.1以上 	Mobotap
-			 * Firefox 	Android 2.2以上 	Mozilla
-			 * Opera Mobile 	Android 1.6以上 	Opera Software ASA
-			 * Sleipnir Mobile 	Android 2.1以上 	Fenrir
-			 * @alias X.UA.Android
-			 * @type {number}
-			 */
-			X_UA[ 'Android' ] = X_UA[ 'AndroidMajor' ] + X_UA[ 'AndroidMinor' ] / 10;
-			console.log( '>> Android : ' + X_UA[ 'Android' ]  );
-		} else
-		if( ( sys === 'Linux armv7l' || sys === 'Linux i686' ) && window.ontouchstart !== undefined && ( v = parseFloat( dua.split( 'WebKit\/' )[ 1 ] ) ) ){
-			// https://ja.wikipedia.org/wiki/WebKit
-			// http://www.au.kddi.com/developer/android/kishu/ua/
-			// webkit version to Android version...
-			androidBrowserPCMode = !window.chrome || v < 534.3; // 4.0 & 3.x には chrome がいる...
-			
-			if( !window[ 'Int8Array' ] ){
-				v =
-					v < 529    ? 1.5 : // <= 528.5
-					v < 531    ? 2.0 : // 530 2.0~2.1
-									   // 533 2.2~2.3
-					v < 534    ? ( window.HTMLAudioElement ? 2.3 : 2.2 ) : 0;
-			} else {
-				v =
-						!navigator[ 'connection' ] ? 4.4 :
-						Number.isFinite && ( window.history && window.history.pushState ) ? 4.2/* & 4.3 */ : // ここに 4.1, 4.0 も入ってくる...
-						Number.isFinite ? 4.1 : 4;
-					// 534 - 3.x~4.x , 534.13=3.x
-					// 534.30 = 4.0-4.1
-					// 535.19 = 4.1
-					// 537.36 = 4.4.2-5.x
-			};
-
-			if( v ){
-				// PC版で見る、にチェックが付いている場合、ユーザーエージェント文字列にも platform にも Android の文字列が存在しない(標準ブラウザ&Chrome)
-				// Audio でタッチが必要か？の判定にとても困る...
-				// ua には Linux x86_64 になっている sys と矛盾する
-				X_UA[ 'Android' ]    = v;
-			};
-		};
+	function getNumber( str1, str2 ){
+		return parseFloat( str1.split( str2 )[ 1 ] );
+	};
+	function fromString( str1, str2 ){
+		return str1.indexOf( str2 ) === 0;
+	};
+	function findString( str1, str2 ){
+		return 0 <= str1.indexOf( str2 );
 	};
 	
-	if( window.opera ){
-		i = dua.split( 'Opera' )[ 1 ]; // Opera/
-		j = dua.split( 'Version/' )[ 1 ];
+	var ua         = X_UA,
+		html       = document.documentElement,
+		dua        = navigator.userAgent,
+		dav        = navigator.appVersion,
+		tv         = parseFloat(dav),
+		sys        = navigator.platform,
+		docMode    = document.documentMode,
+		screenW    = screen.width,
+		screenH    = screen.height,
+	
+		isTouch    = window.ontouchstart !== undefined,
+	
+		NINTENDO_  = 'Nintendo ',
+		WIN_PHONE  = 'Windows Phone',
+		ANDROID    = 'Android',
+		ANDROID_   = ANDROID + ' ',
+		PC_MODE    = 'PCMode',
+		VERSION_   = 'Version/',
+		I_PHONE    = 'iPhone',
+		LINUX      = 'Linux',
+		SAFARI     = 'Safari',
+		NETSCAPE   = 'Netscape',
+	
+		verVersion = getNumber( dav, VERSION_ ) || getNumber( dua, VERSION_ ),
 		/**
 		 * http://help.dottoro.com/ljifbjwf.php
 		 * version method (opera)
@@ -308,495 +55,411 @@ var X_UA = X[ 'UA' ] = {},
 		 *   window.opera.version();
 		 * 
 		 * kquery.js
-		 * // opera.versionは8から実装だが、8以下は切るので、typeofとかしない
+		 *   opera.versionは8から実装
 		 */
-		
+		isPrsto   = window.opera,
+		verOpera  = isPrsto && ( isPrsto.version ? parseFloat( isPrsto.version() ) : Math.max( getNumber( dua, 'Opera' ), verVersion, tv ) ),
+		isOPR     = window[ 'opr' ],
 		/**
-		 * @alias X.UA.Opera
-		 * @type {number}
+		 * http://qiita.com/takanamito/items/8c2b6bc24ea01381f1b5#_reference-8eedaa6525b73cd272b7
+		 * インドネシアの特殊なブラウザ事情(Opera Mini,UC Browser Mini)
 		 */
-		X_UA[ 'Opera' ] = v = Math.max( parseFloat( i ) || 0, parseFloat( j ) || 0, tv );
+		isOpMin   = window[ 'operamini' ],
+		verOpMin  = isOpMin && Math.max( isOpMin.version && parseFloat( isOpMin.version() ), getNumber( dua, 'Opera Mini/' ), verVersion, tv ),
+		isUCWEB   = findString( dua, 'UCWEB' ),
+		verUC2    = getNumber( dua, ' U2/' ),
+	
+		isTrident = !isPrsto && ( document.all || docMode ), // IE11 には .all が居ない .docMode == 11
+		isEdge    = !isTrident && html[ 'msContentZoomFactor' ],
+		isBlink   = !isEdge && window.chrome,
+	
+		isSafari  = findString( dua, SAFARI ),
+		isIris    = findString( dua.toLowerCase(), 'iris' ),
 		/**
-		 * memo:closure compiler で minify するとOpera7で動かない 
-		 * --compilation_level WHITESPACE_ONLY --formatting pretty_print <- 動く
-		 * @alias X.UA.Opera7
-		 * @type {boolean}
+		 * https://www.fxsitecompat.com/ja/docs/2017/moz-appearance-property-has-been-removed/
+		 * -moz-appearance プロパティが廃止されました -> 更新: この変更は Firefox 54 で予定されていましたが、延期されました。
 		 */
-		X_UA[ 'Opera7' ] = v < 8;
-		/**
-		 * @alias X.UA.Opera78
-		 * @type {boolean}
-		 */
-		X_UA[ 'Opera78' ] = v < 9;
+		isGecko   = html && html.style[ 'MozAppearance' ] !== undefined, // window.Components
+		isKHTML   = findString( dav, 'Konqueror' ),
+	
+		PS3        = getNumber( dua.toUpperCase(), 'PLAYSTATION 3' ),
+	// https://github.com/chitoku-k/SystemInfo/blob/master/systeminfo.js
+		PSP        = window[ 'pspext' ] && getNumber( window[ 'pspext' ][ 'sysGetEnv' ]( 'x-psp-browser' ), 'system=' ),
+		PSVita     = getNumber( dua, 'PlayStation Vita' ),
+	// http://blog.gutyan.jp/entry/2015/01/31/NintendoBrowser
+		NDS        = sys === 'Nitro',
+		NDSi       = sys === NINTENDO_ + 'DSi',
+		N3DS       = sys === NINTENDO_ + '3DS',
+		New3DS     = sys === 'New ' + NINTENDO_ + '3DS' || ( findString( dua, I_PHONE + ' OS 6_0' ) && screenW === 320 && screenH === 240 ),
+		Wii        = sys === NINTENDO_ + 'Wii',
+		WiiU       = sys === NINTENDO_ + 'WiiU',
 		
-		if( 0 < dua.indexOf( 'Opera Mini' ) )
-			/**
-			 * @alias X.UA.OperaMini
-			 * @type {boolean}
-			 */
-			X_UA[ 'OperaMini' ] = true;
-		
-		if( 0 < dua.indexOf( 'Opera Mobi' ) )
-			/**
-			 * @alias X.UA.OperaMobile
-			 * @type {boolean}
-			 */
-			X_UA[ 'OperaMobile' ] = true;
-		
-		if( 0 < dua.indexOf('Opera Tablet') )
-			/**
-			 * @alias X.UA.OperaTablet
-			 * @type {boolean}
-			 */
-			X_UA[ 'OperaTablet' ] = true;
-		
-		// Android Opera12.10 UserAgent:Desktop
-		// この場合 android version 不明...
-		if( !X_UA[ 'OperaMini' ] && !X_UA[ 'OperaTablet' ] && !X_UA[ 'OperaMobile' ] && sys === 'Android' ){
-			if( screen.width * screen.height < 320000 ){
-				X_UA[ 'OperaMobile' ] = true;
+		iOS        = !New3DS && fromString( sys, 'iP' )
+						|| fromString( dua, '; iPh OS ' ), // UC Browser
+		WebOS      = window[ 'palmGetResource' ],
+		WinPhone   = getNumber( dua, WIN_PHONE ) || getNumber( dav, WIN_PHONE + ' OS ' )
+						|| getNumber( dua, '; wds' ), // UC Browser
+		wpPCMode   = findString( dav, 'ZuneWP' ), // ZuneWP はデスクトップモードで登場する
+		Win        = fromString( sys, 'Win' ),
+		Mac        = fromString( sys, 'Mac' ),
+	// Kobo Mozilla/5.0 (Linux; U; Android 2.0; en-us;) AppleWebKit/533.1 (KHTML, like Gecko) Verson/4.0 Mobile Safari/533.1 (Kobo Touch)
+		Kobo       = findString( dua, 'Kobo' ),
+	// Kindle paperwhite Mozilla/5.0 (X11; U; Linux armv7l like Android; en-us) AppleWebKit/531.2+ (KHTML, like Gecko) Version/5.0 Safari/533.2+ Kindle/3.0+
+		Kindle     = findString( dua, 'Kindle' ), // Kindle Fire|KFOT|KFTT|KFJW
+	// Sony Reader Mozilla/5.0 (Linux; U; ja-jp; EBRD1101; EXT) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1
+		SonyReader = findString( dua, 'EBRD' ),
+		Mylo       = tv === 2 && findString( dua, 'Sony/COM2/' ),
+		Android    = findString( sys, ANDROID ) || /* Android2.3.5 Firefox3.1 */ isGecko && findString( dav, ANDROID ),
+		Linux      = findString( sys, LINUX ),
+		MeeGo      = findString( dua, 'MeeGo' ) && findString( dua, 'NokiaBrowser/8.5.0' ),
+		FireFoxOS,
+		BlackBerry, XBox,
+		Solaris, // ua SunOS
+		// (Ubuntu|Linux|(Free|Net|Open)BSD)
+	
+		verAndroid = getNumber( sys, ANDROID_ ) || getNumber( dav, ANDROID_ ) || getNumber( dua, ANDROID_ )
+						|| getNumber( dua, '; Adr ' ), // Android for UC Browser Speed mode
+	
+		verSafari  = verVersion,
+		verTrident = getNumber( dav, 'Trident/' ),
+		verEdge    = getNumber( dav, 'Edge/' ),
+		verMSIE    =
+			docMode               ? docMode :
+			window.XMLHTTPRequest ? ( document.getElementsByTagName ? 7 : 4 ) :
+			document.compatMode   ? 6 :
+			(0).toFixed           ? 5.5 :
+			window.attachEvent    ? 5 : 4,
+	
+		verGecko   = getNumber( dua, 'rv:' ),
+		verWebKit  = getNumber( dua, 'AppleWebKit/' ),
+		verChrome  = getNumber( dua, 'Chrome/' ),
+		verOPR     = getNumber( dua, 'OPR/' ),
+		verFennec  = getNumber( dua, 'Fennec/' ),
+	
+	// Netscape Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+	// Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
+	// Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20070321 Netscape/8.1.3
+	// Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.12) Gecko/20080219 Firefox/2.0.0.12 Navigator/9.0.0.6
+		verNetscape = getNumber( dua, NETSCAPE + '6/' ) || // NN6
+					  getNumber( dua, NETSCAPE + '/'  ) || // NN7-8
+					  getNumber( dua, 'Navigator/' ),   // NN
+		verNetFront = getNumber( dua, 'NetFront/' ),
+		ver_iCab    = getNumber( dua, 'iCab' ),
+		maybeAOSP   = isBlink && verWebKit <= 534.3, // 4.0 & 3.x には chrome がいる... 534~534.3
+		maybePCMode = isTouch && ( verWebKit || isGecko ) && ( sys === LINUX + ' armv7l' || sys === LINUX + ' i686' ) && findString( dua, LINUX + ' x86_64' ),
+		v, pcMode, dpRatio;
+		// FxiOS, CriOS, Coast
+	
+	// system 判定
+		if( Kobo ){
+			ua[ 'Kobo' ] = true;
+		} else if( Kindle ){
+			ua[ 'KindlePW' ] = true;
+		} else if( SonyReader ){
+			ua[ 'SonyReader' ] = true;
+		} else  if( WiiU ){
+			ua[ 'WiiU' ] = true;
+		} else  if( Wii ){
+			ua[ 'Wii' ] = true;
+			// ua[ 'Opera' ] = verOpera;
+		} else if( NDS ){
+			ua[ 'NDS' ] = true;
+			// ua[ 'Opera' ] = verOpera;
+		} else if( NDSi ){
+			ua[ 'NDSi' ] = true;
+			// ua[ 'Opera' ] = verOpera;
+		} else if( N3DS ){
+			ua[ 'N3DS' ] = true;
+			// ua[ 'Opera' ] = verOpera;
+		} else if( New3DS ){
+			ua[ 'New3DS' ] = true;
+			// ua[ 'Opera' ] = verOpera;
+		} else if( PS3 ){
+			ua[ 'PS3' ] = true;
+		} else if( PSP ){
+			ua[ 'PSP' ] = PSP;
+		} else if( PSVita ){
+			ua[ 'PSVita' ] = PSVita;
+		} else if( WebOS ){
+			ua[ 'WebOS' ] = true;
+		} else if( MeeGo ){
+			ua[ 'MeeGo' ] = true;
+		} else if( iOS ){
+			dpRatio = window.devicePixelRatio === 1;
+			ua[ 'iOS' ] = getNumber( dav.split( '_' ).join( '.' ), 'OS ' );
+	
+			// 4:3 model
+			v = screenW === screenH * 1.5 || screenW * 1.5 === screenH;
+	
+			switch( sys ){
+				case I_PHONE :
+				case I_PHONE + ' Simulator' :
+					ua[ I_PHONE ] = v ? ( dpRatio ? '3GS-' : '4|4s' ) : '5+';
+					break;
+				case 'iPad' :
+				case 'iPad Simulator' :
+					ua[ 'iPad' ] = dpRatio ? '2-|1min-' : '3+|2min+';
+					break;
+				case 'iPod' :
+				// case 'iPod Simulator' : // 必要??
+					ua[ 'iPod' ] = v ? ( dpRatio ? '3-' : '4' ) : '5+';
+					break;
+			};
+		} else if( WinPhone ){
+			ua[ 'WinPhone' ] = WinPhone;
+		} else if( verEdge && sys === 'ARM' ){
+			ua[ 'WinPhone' ] = 10;
+			ua[ PC_MODE    ] = true;
+		} else if( wpPCMode ){
+			ua[ 'WinPhone' ] = verMSIE === 11 ? 8.1 :
+							   verMSIE === 10 ? 8   :
+							   verMSIE ===  9 ? 7.5 :
+							   verMSIE ===  7 ? 7   : '?';
+			ua[ PC_MODE   ] = true;
+		} else if( Win ){
+			switch( sys ){
+				case 'WinCE' :
+					ua[ sys ] = true;
+					break;
+				case 'Win16' :
+				case 'Win32' :
+				case 'Win64' :
+					ua[ sys ] = true;
+	
+					if( v = dua.split( 'Windows NT 10' )[ 1 ] ){
+						switch( v.substr( 0, 2 ) ){
+							case '.0' : v = 10; break;
+							default : v = '?';
+						};
+					} else
+					if( v = dua.split( 'Windows NT ' )[ 1 ] ){
+						switch( v.substr( 0, 3 ) ){
+							case '6.3' : v = 8.1; break;
+							case '6.2' : v = 8; break;
+							case '6.1' : v = 7; break;
+							case '6.0' : v = 'Vista'; break;
+							case '5.2' : v = '2003|XP64'; break;
+							case '5.1' : v = findString( v, '5.1; SV1' ) ? 'XPSP2' : 'XP'; break;
+							case '5.0' : v = findString( v, '5.01' ) ? '2kSP1' : 2000; break;
+							case '4.0' : v = 'NT'; break;
+							default : v = '?';
+						};	
+					} else
+					if( v = dua.split( 'Windows ' )[ 1 ] ){
+						switch( v.substr( 0, 2 ) ){
+							case '98' : v = findString( v, '98; Win 9x 4.90' ) ? 'ME' : '98|98SE'; break;
+							case '95' : v = 95; break;
+							case '3.' : v = parseFloat( v ); break;
+							default : v = '?';
+						};	
+					} else {
+						v = '?';
+					};
+					
+					// 10, 8.1, 8, 7, Vista, 2003|XP64, XPSP2, XP, 2kSP1, 2000, ME, 98|98SE, 95, ?				
+					ua[ 'Windows' ] = v;
+					break;
+			};
+		} else if( Mac ){
+			ua[ 'Mac' ] = true;
+			switch( sys ){
+				case 'MacPowerPC' :
+					sys = 'MacPPC';
+				case 'MacPPC' :
+				case 'Mac68K' :
+				case 'MacIntel' :
+					ua[ sys ] = true;
+			};
+	// Android Fennec
+		} else if( Android && isGecko ){
+			// PCモードの Android Firefox では platform に Android 0.0.0 が存在
+			// Fennec41- 用
+			// https://developer.mozilla.org/ja/docs/Gecko_user_agent_string_reference
+			// バージョン 41 以降の Android 版 Firefox では platform トークンに Android バージョンが含まれます。
+			// 相互運用性向上のため、Android 4 以前のバージョンでブラウザが動作している場合は 4.4 と出力します。
+			// Android バージョン 4 以降では実際のバージョン番号が出力されます。
+			// なお、Gecko エンジンはすべての Android バージョンに対して同じ機能を提供しています。	
+			if( findString( dua, ANDROID_ + '4.4;' ) ){
+				ua[ ANDROID ] = '2.3+';
+			} else if( 4 <= verAndroid ){
+				ua[ ANDROID ] = verAndroid;
+			} else if( Android ){
+				ua[ ANDROID ] = '2.2+';
+			};
+			if( maybePCMode ) ua[ PC_MODE ] = true;
+		} else if( Android && isPrsto ){
+			if( verAndroid ){
+				ua[ ANDROID ] = verAndroid;
 			} else {
-				X_UA[ 'OperaTablet' ] = true;
+				ua[ ANDROID ] = '1.6+';
+				ua[ PC_MODE ] = true;
 			};
-		};
-		
-		if( 0 < dua.indexOf( 'Nintendo Wii' ) )
-			/**
-			 * @alias X.UA.Wii
-			 * @type {boolean}
-			 */
-			X_UA[ 'Wii' ] = true;
-
-		if( 0 < dua.indexOf( 'Nitro' ) )
-			/**
-			 * @alias X.UA.NDS
-			 * @type {boolean}
-			 */
-			X_UA[ 'NDS' ] = true;
-
-		console.log( '>> Opera : ' + v );
-	} else
-	if( v = parseFloat( dav.split( 'Edge/' )[ 1 ] ) ){
-		/**
-		 * Microsoft Edge
-		 * @alias X.UA.Edge
-		 * @type {number}
-		 */
-			X_UA[ 'Edge' ]  = v;
-
-		if( dav.indexOf( 'Mobile' ) ){
-			/**
-			 * Microsoft Edge for Windows 10 Mobile
-			 * @alias X.UA.EdgeMobile
-			 * @type {number}
-			 */
-			X_UA[ 'EdgeMobile' ] = v;
-		};
-
-	}  else
-	// Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko
-	if( ( v = dav.split( 'Trident/' )[ 1 ] ) || document.all ){ // .all は Opera にもいるので Opera の判定が先
-		// TODO
-		//	jscript  = eval( '/*@cc_on@_jscript_version+@*/0' ),
-		//	isIElte8 = jscript && ( jscript <= 5.8 || document.documentMode < 9 ),
-		//	isIElte6 = jscript && ( ( jscript <= 5.7 && !window.XMLHttpRequest ) || document.documentMode < 7 ),
-		//  
-		
-		if( v = parseFloat( v ) )
-		/**
-		 * IE11 の互換モードの navigator.appVersion にも Trident/7.0 が書かれているため互換モードか?判定ができるc 
-		 * @alias X.UA.Trident
-		 * @type {number}
-		 */
-			X_UA[ 'Trident' ]  = v;
-		
-		if( window[ 'ActiveXObject' ] )
-		/**
-		 * @alias X.UA.ActiveX
-		 * @type {boolean}
-		 */
-			X_UA[ 'ActiveX' ] = true;
-
-		v = parseFloat( dua.split( 'MSIE ' )[ 1 ] ) ||
-			parseFloat( dua.split( 'rv:' )[ 1 ] ) || 0;
-
-		tridentToVer = X_UA[ 'Trident' ] ? ( X_UA[ 'Trident' ] + 4 | 0 ) : v;
-
-		if( tridentToVer !== v ){
-			/**
-			 * IE10 以上の互換モードを使用している場合、そのバージョン
-			 * @alias X.UA.IEHost
-			 * @type {number}
-			 */			
-			X_UA[ 'IEHost' ] = tridentToVer;
-		};
-		/**
-		 * documentモードを考慮したIEのバージョン
-		 * @alias X.UA.IE
-		 * @type {number}
-		 */
-		X_UA[ 'IE' ] = v = document.documentMode || tridentToVer;
-
-		if( v < 4.5 ){
-			/**
-			 * @alias X.UA.IE4
-			 * @type {boolean}
-			 */			
-			X_UA[ 'IE4' ] = true;
-		} else
-		if( v < 5 ){
-			/**
-			 * @alias X.UA.IE45
-			 * @type {boolean}
-			 */			
-			X_UA[ 'IE45' ] = true;
-		} else
-		if( v < 5.5 ){
-			/**
-			 * @alias X.UA.IE5
-			 * @type {boolean}
-			 */
-			X_UA[ 'IE5' ] = true;		
-		} else
-		if( v < 6 ){
-			/**
-			 * @alias X.UA.IE55
-			 * @type {boolean}
-			 */			
-			X_UA[ 'IE55' ] = true;		
-		} else
-		if( v < 7 ){
-			/**
-			 * @alias X.UA.IE6
-			 * @type {boolean}
-			 */			
-			X_UA[ 'IE6' ] = true;	
-		} else
-		if( v < 8 ){
-			/**
-			 * @alias X.UA.IE7
-			 * @type {boolean}
-			 */			
-			X_UA[ 'IE7' ] = true;		
-		} else
-		if( v < 9 ){
-			/**
-			 * @alias X.UA.IE8
-			 * @type {boolean}
-			 */			
-			X_UA[ 'IE8' ] = true;		
-		} else
-		if( v < 10 ){
-			/**
-			 * @alias X.UA.IE9
-			 * @type {boolean}
-			 */			
-			X_UA[ 'IE9' ] = true;
-		};
-		
-		if( X_UA[ 'IE4' ] || X_UA[ 'IE45' ] ){
-			/**
-			 * @alias X.UA.IE4x
-			 * @type {boolean}
-			 */			
-			X_UA[ 'IE4x' ] = true;
-		};
-
-		if( X_UA[ 'IE5' ] || X_UA[ 'IE55' ] ){
-			/**
-			 * @alias X.UA.IE5x
-			 * @type {boolean}
-			 */			
-			X_UA[ 'IE5x' ] = true;
-		};
-
-		if( X_UA[ 'Mac' ] ){
-			/**
-			 * @alias X.UA.MacIE
-			 * @type {boolean}
-			 */			
-			X_UA[ 'MacIE' ] = true;
-		};
-		
-		if( 0 < dua.indexOf( 'IEMobile' ) || X_UA[ 'WinCE' ] ){
-			/**
-			 * @alias X.UA.IEMobile
-			 * @type {boolean}
-			 */			
-			X_UA[ 'IEMobile' ] = true;
-		};
-
-		if( 0 < dua.indexOf( 'Windows Phone' ) || 0 < dav.indexOf( 'ZuneWP' ) ){
-			/**
-			 * @alias X.UA.WinPhone
-			 * @type {boolean}
-			 */			
-			X_UA[ 'WinPhone' ] = true; // ZuneWP はデスクトップモードで登場する
-		};
-		
-		console.log( '>> IE : ' + v + ' ActiveX : ' + X_UA[ 'ActiveX' ] + ' IEHost : ' + X_UA[ 'IEHost' ] );
-		// TODO XBox360, XBox1, Modern or Desktop, Standalone
-	} else
+	// Android other | Linux
+		} else if( verAndroid ){
+			ua[ ANDROID ] = verAndroid;
+		} else if( Linux && maybePCMode ){
+			// https://ja.wikipedia.org/wiki/WebKit
+			// http://www.au.kddi.com/developer/android/kishu/ua/
+			// webkit version to Android version...
+			pcMode = true;
+			// AOSP の判定は Version/ の有無. 但し「デスクトップ版で見る」場合、Version/ が居なくなる...
+			// PC版で見る、にチェックが付いている場合、ユーザーエージェント文字列にも platform にも Android の文字列が存在しない(標準ブラウザ&Chrome)
+			// Audio でタッチが必要か？の判定にとても困る...
+			// ua には Linux x86_64 になっている sys と矛盾する. ATOM CPU の場合は？	
+			if( ( isBlink && !maybeAOSP ) || isOPR || verOPR ){
+				ua[ ANDROID ] = verAndroid = '4+';
+			} else if( document[ 'registerElement' ] ){
+				// http://caniuse.com/#feat=document-execcommand
+				// Android 5+ で非対応に
+				ua[ ANDROID ] = verAndroid = document.execCommand ? 4.4 : 5;
 	
-	// 
-	if( v = dua.split( 'NetFront\/' )[ 1 ] ){
-		/**
-		 * http://qa.support.sony.jp/solution/S0812181056444/common/nfb34_dom_200jp/dom_dom0_JP.html
-		 * @alias X.UA.NetFront
-		 * @type {number}
-		 */
-		X_UA[ 'NetFront' ] = parseFloat( v ) || 0.1;
-		console.log( '>> NetFront : ' + X_UA[ 'NetFront' ] );
-	} else
-	
-	if( X_UA[ 'Linux' ] && tv === 2 && dua.indexOf( 'Sony\/COM2\/' ) !== -1 ){
-		X_UA[ 'NetFront' ] = 3.4;
-		console.log( '>> NetFront : ' + X_UA[ 'NetFront' ] );
-	} else
-	
-	if( v = dua.toUpperCase().split( 'PLAYSTATION 3' )[ 1 ] ){
-		/**
-		 * PlayStation 3 システムバージョン 4.10 未満の SONY 独自ブラウザ
-		 * http://www.useragentstring.com/pages/Playstation%203/
-		 * Mozilla/5.0 (PLAYSTATION 3; 3.55)
-		 * Mozilla/4.0 (PS3 (PlayStation 3); 1.00)
-		 * https://github.com/Famous/famous/blob/1a02c8084587d80519ea4bd3b55649ab32ee2e65/examples/assets/lib/require.js
-		 * PS3 ブラウザのロードイベントについて
-		 * @alias X.UA.PS3
-		 * @type {number}
-		 */
-		X_UA[ 'PS3' ] = parseFloat( v ) || 0.1;
-		console.log( '>> PS3 : ' + X_UA[ 'PS3' ] );
-	} else
-	
-	if( v = dua.split( 'iCab' )[ 1 ] ){
-		/**
-		 * http://www.useragentstring.com/pages/iCab/
-		 * iCab/3.0.2 (Macintosh; U; PPC Mac OS X)
-		 * Mozilla/5.0 (Macintosh; U; PPC Mac OS; en) iCab 3
-		 * @alias X.UA.iCab
-		 * @type {number}
-		 */
-		X_UA[ 'iCab' ] = parseFloat( v ) || 0.1;
-		console.log( '>> iCab : ' + X_UA[ 'iCab' ] );
-	} else
-	
-	if( 0 < dua.indexOf( 'Gecko\/' ) && ( v = dua.split( 'rv:' )[ 1 ] ) ){
-		v = v.split( '.' );
-		/**
-		 * メジャーバージョン + マイナーバージョン
-		 * @alias X.UA.Gecko
-		 * @type {number}
-		 */
-		X_UA[ 'Gecko' ] = parseFloat( v[ 0 ] ) || 0 +
-			( parseFloat( v[ 1 ] ) || 0 ) / 10;
-		/**
-		 * @alias X.UA.GeckoMajor
-		 * @type {number}
-		 */
-		X_UA[ 'GeckoMajor' ] = parseFloat( v[ 0 ] ) || 0;
-		/**
-		 * @alias X.UA.GeckoMinor
-		 * @type {number}
-		 */
-		X_UA[ 'GeckoMinor' ] = parseFloat( v[ 1 ] ) || 0;
-		/**
-		 * @alias X.UA.GeckoPatch
-		 * @type {number}
-		 */
-		X_UA[ 'GeckoPatch' ] = parseFloat( v[ 2 ] ) || 0;
-		
-		// Fennec41- 用
-		// https://developer.mozilla.org/ja/docs/Gecko_user_agent_string_reference
-		// バージョン 41 以降の Android 版 Firefox では platform トークンに Android バージョンが含まれます。
-		// 相互運用性向上のため、Android 4 以前のバージョンでブラウザが動作している場合は 4.4 と出力します。
-		// Android バージョン 4 以降では実際のバージョン番号が出力されます。
-		// なお、Gecko エンジンはすべての Android バージョンに対して同じ機能を提供しています。		
-		if( dua.indexOf( 'Android 4.4; Mobile;' ) !== -1 || dua.indexOf( 'Android 4.4; Tablet;' ) !== -1 ){
-			X_UA[ 'Android' ] = '2.3+';
-		} else
-		if( dua.indexOf( 'Android;' ) !== -1 ){
-			X_UA[ 'Android' ] = '2.2+';
+			} else if( window[ 'Int8Array' ] ){
+				ua[ ANDROID ] = verAndroid =
+					!navigator[ 'connection' ] ? 4.4 :
+					( !window[ 'searchBoxJavaBridge_' ] && !isBlink ) ? 4.2 : /* & 4.3. 4.1 には searchBoxJavaBridge_ と chrome が存在 */
+					Number.isNaN ? 4.1 : 4;
+					// 534 - 3.x~4.x , 534.13=3.x
+					// 534.30 = 4.0-4.1
+					// 535.19 = 4.1
+					// 537.36 = 4.4.2-5.x
+			} else {
+				ua[ ANDROID ] = verAndroid =
+					verWebKit < 529    ? 1.5 : // <= 528.5
+					verWebKit < 531    ? 2.0 : // 530 2.0~2.1
+									// 533 2.2~2.3
+					verWebKit < 534    ? ( window.HTMLAudioElement ? 2.3 : 2.2 ) : 3;
+			};
+		} else if( Linux ){
+			ua[ LINUX ] = true;
 		};
-		
-		// TODO PC版 Fennec もある
+	
+	// browser 判定
+	// PS3 Sony Browser
+		if( PS3 ){
+			ua[ 'Sony' ] = PS3;
+		} else
+	// Opera Mini
+		if( isOpMin ){
+			ua[ 'OperaMin' ] = verOpMin;
+		} else
+	// UC Browser Speed Mode
+		if( isUCWEB ){
+			ua[ 'UCWEB' ] = verUC2;
+		} else
+	// Prsto Opera
+		if( isPrsto ){
+			ua[ 'Opera' ] = ua[ 'Prsto' ] = verOpera;
+		} else
+	// ie11-
+		if( isTrident ){
+			verTrident = verTrident ? ( verTrident + 4 | 0 ) : verMSIE;
+	
+			if( verTrident !== verMSIE ){		
+				ua[ 'IEHost' ] = verTrident;
+			};
+			ua[ 'IE' ] = verMSIE;
+	
+			// https://stackoverflow.com/questions/8751479/detect-metro-ui-version-of-ie
+			if( 10 <= verMSIE && 8 <= ua[ 'Windows' ] && ua[ 'Windows' ] < 9 ){
+				if( window.screenY === 0 && ( window.innerHeight + 1 ) !== window.outerHeight ){
+					ua[ 'ModernIE' ] = verMSIE;
+				};
+			};
+	
+			if( ua[ 'Mac' ] ){
+				ua[ 'MacIE' ] = verMSIE;
+			};
+			// TODO ModernUI IE
+		} else
+	// edge
+		if( isEdge ){
+			ua[ 'Edge' ] = verEdge;
+		} else
+	// Gecko
+		if( isGecko ){
+			ua[ 'Gecko' ] = verGecko;		
+		/** TODO PC版 Fennec もある */
 		//Fennec
-		if( v = dua.split( 'Fennec/' )[ 1 ] ){
-			/**
-			 * Mozilla/5.0 (Android; Linux armv7l; rv:9.0) Gecko/20111216 Firefox/9.0 Fennec/9.0
-			 * @alias X.UA.Fennec
-			 * @type {number}
-			 */
-			X_UA[ 'Fennec' ] = parseFloat( v );
-			console.log( '>> Fennec : ' + X_UA[ 'Fennec' ] + ', Gecko : ' + X_UA[ 'Gecko' ] );
-		} else
-		if( X_UA[ 'Android' ] ){
-			X_UA[ 'Fennec' ] = X_UA[ 'Gecko' ];
-		} else
-		//Firefox
-		
-		//Netscape
-		//Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-		if( ( i = dua.indexOf( 'Netscape6/' ) ) !== -1 ){
-			/**
-			 * @alias X.UA.NN
-			 * @type {number}
-			 */
-			X_UA[ 'NN' ]  = parseFloat( dua.substr( i + 10 ) ) || 6;
-			/**
-			 * @alias X.UA.NN6
-			 * @type {boolean}
-			 */
-			X_UA[ 'NN6' ] = true;
-			console.log( '>> NN : ' + X_UA[ 'NN' ] + ', Gecko : ' + X_UA[ 'Gecko' ] );
-		} else
-		//Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
-		//Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20070321 Netscape/8.1.3
-		if( v = dua.split( 'Netscape/' )[ 1 ] ){
-			X_UA[ 'NN' ] = parseFloat( v ) || 7;
-			console.log( '>> NN : ' + X_UA[ 'NN' ] + ', Gecko : ' + X_UA[ 'Gecko' ] );
-		} else
-		//Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.12) Gecko/20080219 Firefox/2.0.0.12 Navigator/9.0.0.6
-		if( v = dua.split( 'Navigator/' )[ 1 ] ){
-			X_UA[ 'NN' ] = parseFloat( v ) || 9;
-			console.log( '>> NN : ' + X_UA[ 'NN' ] + ', Gecko : ' + X_UA[ 'Gecko' ] );
-		};
-		
-		console.log( '>> Gecko : ' + X_UA[ 'Gecko' ] );
-	} else
-	
-	// Android 標準ブラウザ AOSP と Chrome WebView, Sブラウザがある
-	if( ( v = X_UA[ 'Android' ] ) && ( dua.indexOf( 'Chrome\/' ) < 0 || 0 < dua.indexOf( 'Version\/' ) || androidBrowserPCMode ) ){ // Chrome/ を含まない または Version/ を含む
-		
-		/* if( window.chrome ){  // Android3.1 のAOSPブラウザで .chrome がいた、、、
-		} else */
-		if( dua.indexOf( 'Version\/' ) < 0 && 0 < dua.indexOf( 'Chrome\/' ) && !androidBrowserPCMode ){
-			/**
-			 * Android 標準ブラウザ Chrome WebView ブラウザ
-			 * @alias X.UA.ChromeWV
-			 * @type {number}
-			 */			
-			X_UA[ 'ChromeWV' ] = v;
-		} else
-		// http://uupaa.hatenablog.com/entry/2014/04/15/163346
-		// Chrome WebView は Android 4.4 の時点では WebGL や WebAudio など一部の機能が利用できません(can i use)。
-		// また UserAgent が書き換え可能なため、旧来のAOSPブラウザの UserAgent を偽装した形で配布されているケースがあります。
-		// http://caniuse.com/#compare=chrome+40,android+4.2-4.3,android+4.4,android+4.4.3-4.4.4,and_chr+45
-		// CustomElement の有無で判定
-		if( document[ 'registerElement' ] ){
-			// UA が偽装された Chrome WebView
-			X_UA[ 'ChromeWV' ] = v;
-		} else {
-			/**
-			 * Android 標準ブラウザ AOSP
-			 * @alias X.UA.AOSP
-			 * @type {number}
-			 */
-			X_UA[ 'AOSP' ] = v;
-		};
-		
-		/*
-		 * http://www.flexfirm.jp/blog/article/402
-		 * TODO Sブラウザ
-		 * SC-04E、SC-01F、SC-02F、 SC-04F、SCL22、SCL23など
-		 */
-	} else
-	// Blink Chrome & Blink Opera
-	if( v = parseFloat( dua.split( 'OPR/' )[ 1 ] ) ){
-		/**
-		 * @alias X.UA.BlinkOpera
-		 * @type {number}
-		 */
-		X_UA[ 'BlinkOpera' ] = v;
-		
-		X_UA[ 'Blink' ] = parseFloat( dua.split( 'Chrome/' )[ 1 ] );
-	} else
-	if( window.chrome ){
-		/**
-		 * @alias X.UA.Blink
-		 * @type {number}
-		 */
-		X_UA[ 'Blink' ] = parseFloat( dua.split( 'Chrome/' )[ 1 ] );
-
-		console.log( '>>Blink : ' + X_UA[ 'Blink' ] );
-	} else
-	if( dav.indexOf( 'Konqueror' ) !== -1 ){
-		/**
-		 * @alias X.UA.Khtml
-		 * @type {number}
-		 */
-		X_UA[ 'Khtml' ] = tv;
-		console.log( '>>Khtml : ' + X_UA[ 'Khtml' ] );
-		
-	} else
-	if( v = parseFloat( dua.split( 'WebKit\/' )[ 1 ] ) ){
-		/**
-		 * @alias X.UA.WebKit
-		 * @type {number}
-		 */
-		X_UA[ 'WebKit' ] = v;
-		
-		if( v = parseFloat( dua.split( 'Chrome\/' )[ 1 ] ) ){
-			/**
-			 * @alias X.UA.Chrome
-			 * @type {number}
-			 */
-			X_UA[ 'Chrome' ] = v;
-		} else
-		if( dua.indexOf( 'Safari' ) !== -1 ){
-			if( v = parseFloat( dav.split( 'Version/' )[ 1 ] ) ){
+			if( verFennec ){
 				/**
-				 * @alias X.UA.Safari
-				 * @type {number}
+				 * Mozilla/5.0 (Android; Linux armv7l; rv:9.0) Gecko/20111216 Firefox/9.0 Fennec/9.0
 				 */
-				X_UA[ 'Safari' ] = v;
+				ua[ 'Fennec' ] = verFennec;
 			} else
-			if( v <= 528.16 ){
-				X_UA[ 'Safari' ] = v <   73    ? 0.8 :
-								   v <   85    ? 0.9 :
-								   v <  100    ? 1 :
-								   v <  125    ? 1.1 :
-								   v <  312    ? 1.2 :
-								   v <  412    ? 1.3 :
-								   v <= 419.3  ? 2 :
-								   v <= 525.13 ? 3 :
-								   v <= 525.25 ? 3.1 : 3.2;
+			if( Android ){
+				ua[ 'Fennec' ] = verGecko;
+			} else
+		//Firefox
+			if( verNetscape ){
+				ua[ 'NN' ] = verNetscape;
 			};
-		};	
-		
-		console.log( '>> Webkit : ' + X_UA[ 'WebKit' ] + ' Safari : ' + X_UA[ 'Safari' ] );
-		
-		if( dua.toLowerCase().indexOf( 'iris' ) !== -1 ){
-			/**
-			 * http://www.useragentstring.com/pages/Iris/
-			 * @alias X.UA.Iris
-			 * @type {boolean}
-			 */
-			X_UA[ 'Iris' ] = true;
+		} else
+	// Blink Opera
+		if( /* isBlink && */ isOPR || verOPR ){
+			ua[ 'OPR'   ] = verOPR;
+			ua[ 'Blink' ] = verChrome;
+			if( pcMode ) ua[ PC_MODE ] = true;
+		} else
+	// AOSP | Chrome WebView Wrapped Browser
+	// Android3.x-4.0 のAOSPで window.chrome がいるので AOSP の判定を Blink より先に
+		if( verAndroid && maybeAOSP ){
+			ua[ 'AOSP' ] = verAndroid;
+			if( pcMode ) ua[ PC_MODE ] = true;
+		} else
+	// Blink Chrome
+		if( isBlink ){
+			ua[ 'Blink' ] = verChrome;
+			if( pcMode ) ua[ PC_MODE ] = true;
+		} else
+	// http://uupaa.hatenablog.com/entry/2014/04/15/163346
+	// Chrome WebView は Android 4.4 の時点では WebGL や WebAudio など一部の機能が利用できません(can i use)。
+	// また UserAgent が書き換え可能なため、旧来のAOSPブラウザの UserAgent を偽装した形で配布されているケースがあります。
+	// http://caniuse.com/#compare=chrome+40,android+4.2-4.3,android+4.4,android+4.4.3-4.4.4,and_chr+45
+	// CustomElement の有無で判定
+		if( verAndroid && document[ 'registerElement' ] ){
+			// Android 標準ブラウザ Chrome WebView ブラウザ
+			ua[ 'CrWV' ] = verAndroid;
+			if( pcMode ) ua[ PC_MODE ] = true;
+		} else
+		if( verAndroid && ( verVersion || pcMode ) ){
+			ua[ 'AOSP' ] = verAndroid;
+			if( pcMode ) ua[ PC_MODE ] = true;
+		} else
+		if( isKHTML ){
+			ua[ 'Khtml' ] = tv;
+		} else
+		if( verWebKit ){
+			ua[ 'WebKit' ] = verWebKit;
+			
+			if( verChrome ){
+				ua[ 'Chrome' ] = verChrome;
+			} else
+			if( isIris ){
+				ua[ 'Iris' ] = verWebKit;
+			} else
+			if( isSafari ){
+				if( verSafari ){
+					ua[ SAFARI ] = verSafari;
+				} else
+				if( verWebKit <= 528.16 ){
+					ua[ SAFARI ] = verWebKit <   73    ? 0.8 :
+									 verWebKit <   85    ? 0.9 :
+									 verWebKit <  100    ? 1 :
+									 verWebKit <  125    ? 1.1 :
+									 verWebKit <  312    ? 1.2 :
+									 verWebKit <  412    ? 1.3 :
+									 verWebKit <= 419.3  ? 2 :
+									 verWebKit <= 525.13 ? 3 :
+									 verWebKit <= 525.25 ? 3.1 : 3.2;
+				};
+			};
 		};
-		
-		if( // Kobo Mozilla/5.0 (Linux; U; Android 2.0; en-us;) AppleWebKit/533.1 (KHTML, like Gecko) Verson/4.0 Mobile Safari/533.1 (Kobo Touch)
-			dua.indexOf( 'Kobo' ) !== -1 ||
-			// Kindle paperwhite Mozilla/5.0 (X11; U; Linux armv7l like Android; en-us) AppleWebKit/531.2+ (KHTML, like Gecko) Version/5.0 Safari/533.2+ Kindle/3.0+
-			dua.indexOf( 'Kindle' ) !== -1 ||
-			// Sony Reader Mozilla/5.0 (Linux; U; ja-jp; EBRD1101; EXT) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1
-			dua.indexOf( 'EBRD' ) !== -1
-			 ){
-				/**
-				 * Kobo, Kindle, Sony Reader
-				 * @alias X.UA.EInk
-				 * @type {boolean}
-				 */
-			 	X_UA[ 'EInk' ] = true;
-			};		
-	};
-
 })();
 
 (function(){
 	var k, v;
 
-	if( X_UA[ 'IE45' ] || X_UA[ 'IE4' ] ){
+	if( X_UA[ 'IE' ] < 5 ){
 		if( X_UA[ 'Mac' ] ){
 			X_UA_classNameForHTML = 'Mac';
 		} else
@@ -812,12 +475,8 @@ var X_UA = X[ 'UA' ] = {},
 		
 		X_UA_classNameForHTML += '_IE4';
 		
-		if( X_UA[ 'IE45' ] ){
+		if( 4.5 <= X_UA[ 'IE' ] ){
 			X_UA_classNameForHTML += '5';
-		};
-
-		if( X_UA[ 'ActiveX' ] ){
-			X_UA_classNameForHTML += '_ActiveX';
 		};
 		
 	} else {
@@ -832,6 +491,14 @@ var X_UA = X[ 'UA' ] = {},
 			};
 		};		
 	};
+	
+	if( X_UA[ 'Gecko' ] && ( v = navigator.userAgent.split( 'rv:' )[ 1 ] )){
+		v = v.split( '.' );
+		X_UA_Gecko_Version = v[ 0 ] +
+			( 0 <= parseFloat( v[ 1 ] ) ?
+				'.' + v[ 1 ] +
+					( 0  < parseFloat( v[ 2 ] ) ? '.' + v[ 2 ] : '' ) : '' );
+	};
 })();
 
 var X_UA_DOM   = {},
@@ -842,11 +509,11 @@ var X_UA_DOM   = {},
  * http://d.hatena.ne.jp/t-uchima/20051003/p1
  * MacIEにはattachEventが一応あるけどwindow.attachEventとdocument.attachEventしかなく他の要素にはattachEventはない。
  */
-if( X_UA[ 'IE4' ] && X_UA[ 'IE' ] < 5 ){ // ie4 & iemobi4 & macie4.x
+if( X_UA[ 'IE' ] < 5 ){ // ie4 & iemobi4 & macie4.x
 	X_UA_DOM.IE4   = true;
 	X_UA_EVENT.IE4 = true;
 } else
-if( X_UA[ 'MacIE' ] ){
+if( X_UA[ 'Mac' ] && X_UA[ 'IE' ] ){
 	X_UA_DOM.W3C  = true;
 	X_UA_EVENT.IE = true;
 } else

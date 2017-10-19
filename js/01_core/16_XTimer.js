@@ -290,7 +290,7 @@ X[ 'Timer' ] = {
 		return 0;
 	};
 
-if( X_UA[ 'IE4' ] || X_UA[ 'MacIE' ] ){
+if( X_UA[ 'IE' ] < 5 || X_UA[ 'MacIE' ] ){
 	X[ 'Timer' ][ '_' ] = X_Timer_onTimeout;
 	X_Timer_onTimeout = 'X.Timer._()';
 };

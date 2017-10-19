@@ -25,7 +25,7 @@ var
 	X_Class_traits             = null,
 	X_Class_useObjectCreate    = false, // !!Object.create, http://jsperf.com/prototype-vs-object-create-perf
 	// Opera Mobile 12.10 Android11 IS01 でクラスのメンバが欠落する問題に遭遇。__proto__ を辞めると動作,,,
-	X_Class_use_proto_         = !X_UA[ 'OperaMobile' ] && !X_UA[ 'OperaTablet' ] &&
+	X_Class_use_proto_         = !( X_UA[ 'Prsto' ] && X_UA[ 'Android' ] ) &&
 								// Android で原因不明のエラーに遭遇しているのは、この辺りが怪しい... 2016.3.9
 								 !X_UA[ 'AOSP' ] && !X_UA[ 'ChromeWV' ] &&
 									!!X_emptyFunction.prototype.__proto__,

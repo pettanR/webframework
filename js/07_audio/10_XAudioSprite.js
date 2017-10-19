@@ -4,13 +4,13 @@
  * Mobile Opera11 は Audio をサポートするがイベントが取れない
  * iframe 内で生成して、Audio Sprite の preset で再生できないか？
  */
-var X_AudioSprite_shouldUse         = X_HTMLAudio && ( X_UA[ 'iOS' ] || X_UA[ 'AOSP' ] || X_UA[ 'OperaMobile' ] || X_UA[ 'OperaTablet' ] ), // Flash がない
+var X_AudioSprite_shouldUse         = X_HTMLAudio && ( X_UA[ 'iOS' ] || X_UA[ 'AOSP' ] || ( X_UA[ 'Prsto' ] && X_UA[ 'Android' ] ) ), // Flash がない
 	X_AudioSprite_useVideoForMulti  = //( 3.1 <= X_UA[ 'AOSP' ] < 4 ) || 
 									  //( ( 4.2 <= X_UA[ 'AOSP' ] ),
 									  // ドスパラパッドはビデオのインライン再生が不可
 									  false,
-	X_AudioSprite_disableMultiTrack = !X_WebAudio && ( X_UA[ 'iOS' ] || 4 <= X_UA[ 'AOSP' ] || X_UA[ 'ChromeWV' ] || ( X_UA[ 'WinPhone' ] && X_UA[ 'IE9' ] ) ),
-	X_AudioSprite_enableVolume      = X_HTMLAudio && ( !X_UA[ 'iOS' ] && !X_UA[ 'AOSP' ] && !X_UA[ 'OperaMobile' ] && !X_UA[ 'OperaTablet' ] ), // TODO fennec は 25以上
+	X_AudioSprite_disableMultiTrack = !X_WebAudio && ( X_UA[ 'iOS' ] || 4 <= X_UA[ 'AOSP' ] || X_UA[ 'ChromeWV' ] || ( X_UA[ 'WinPhone' ] === 7.5 ) ),
+	X_AudioSprite_enableVolume      = X_HTMLAudio && !X_UA[ 'iOS' ] && !X_UA[ 'AOSP' ] && !( X_UA[ 'Prsto' ] && X_UA[ 'Android' ] ) && !( X_UA[ 'Fennec' ] < 25 ), // TODO fennec は 25以上
 	// http://tukumemo.com/html5-audio-sp/
 	// iOS6、Android4.1から同時再生が可能になりました。
 	X_AudioSprite_maxTracks        = X_AudioSprite_useVideoForMulti ? 2 : X_AudioSprite_disableMultiTrack ? 1 : 9,

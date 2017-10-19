@@ -231,7 +231,7 @@ if( !X_UA[ 'IE' ] || 9 <= X_UA[ 'IE' ] ){
 				
 			// http://www.programming-magic.com/20090127231544/
 			// Opera で button==2の場合、コンテキストメニューイベントを発火 「ツール」->「設定」->「詳細設定」->「コンテンツ」->「Javascriptオプション」で「右クリックを制御するスクリプトを許可する」
-				if( originalType === 'mousedown' && this[ 'button' ] === 2 && X_UA[ 'Opera' ] ){
+				if( originalType === 'mousedown' && this[ 'button' ] === 2 && X_UA[ 'Prsto' ] ){
 					events = [ X_Object_copy( this ), X_Object_copy( this ) ];
 					events[ 1 ].type = 'contextmenu';
 					return events;
@@ -392,11 +392,11 @@ if( !X_UA[ 'IE' ] || 9 <= X_UA[ 'IE' ] ){
 if( document.onwheel === undefined ){
 	// DOMMoseScroll
 	if( X_UA[ 'Gecko' ] && window.MouseScrollEvent ){
-		if( 2 <= X_UA[ 'Gecko' ] || ( 1.9 <= X_UA[ 'Gecko' ] && 1 <= X_UA[ 'GeckoPatch' ] ) ){ // Gecko 1.9.1+ (firefox3.5+)
+		if( 0 <= X_Number_conpareVersion( X_UA_Gecko_Version, '1.9.1' ) ){ // Gecko 1.9.1+ (firefox3.5+)
 			console.log( 'wheel <= MozMousePixelScroll' );
 			X_Event_Rename[ 'wheel' ] = 'MozMousePixelScroll';
 		} else
-		if( 1 <= X_UA[ 'Gecko' ] || ( 0.9 <= X_UA[ 'Gecko' ] && 7 <= X_UA[ 'GeckoPatch' ] ) ){ // Gecko 0.9.7+ (NN6.2+?)
+		if( 0 <= X_Number_conpareVersion( X_UA_Gecko_Version, '0.9.7' ) ){ // Gecko 0.9.7+ (NN6.2+?)
 			console.log( 'wheel <= DOMMouseScroll' );
 			X_Event_Rename[ 'wheel' ] = 'DOMMouseScroll';
 		};
@@ -408,7 +408,7 @@ if( document.onwheel === undefined ){
 	//};
 };
 
-if( X_UA[ 'Webkit' ] || X_UA[ 'Opera' ] || X_UA[ 'Blink' ] || X_UA[ 'Khtml' ] || X_UA[ 'AOSP' ] || X_UA[ 'ChromeWV' ] ){
+if( X_UA[ 'Opera' ] || X_UA[ 'Webkit' ] || X_UA[ 'Blink' ] || X_UA[ 'Khtml' ] || X_UA[ 'AOSP' ] || X_UA[ 'ChromeWV' ] ){
 	// http://d.hatena.ne.jp/uupaa/20091231/1262202954
 	X_Event_Rename[ 'focusin'  ] = 'DOMFocusIn';
 	X_Event_Rename[ 'focusout' ] = 'DOMFocusOut';
@@ -491,7 +491,7 @@ if( !navigator.pointerEnabled ){
 		X_Event_Rename[ 'pointerleave'    ] = X_elmHtml.onmouseleave !== undefined ? 'mouseleave' : 'mouseout';
 		
 		// Opera は ブラウザ設定から右クリックの通知を許可すると mousedown で e.button==2 が返る,ｷｬﾝｾﾙは可能??
-		X_UA[ 'Opera' ] && ( X_Event_Rename[ 'contextmenu' ] = 'mousedown' );
+		X_UA[ 'Prsto' ] && ( X_Event_Rename[ 'contextmenu' ] = 'mousedown' );
 		
 		/*
 		 * buttons の無いブラウザには mouseup, mousedown を監視して、buttons フラグを更新し続ける

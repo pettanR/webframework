@@ -423,10 +423,10 @@ function X_TextRange_move( from, to ){
 	if( xnode[ '_tag' ] === 'TEXTAREA' ){
 		// http://blog.enjoyxstudy.com/entry/20060305/p1
 		
-		if( X_UA[ 'IE' ] < 9 || X_UA[ 'Opera' ] ){
+		if( X_UA[ 'IE' ] < 9 || X_UA[ 'Prsto' ] ){
 			len = ( X_UA[ 'IE' ] < 9 ? X_Node_Attr_getValueForIE( elm ) : elm.value ).length;
 			
-			if( X_UA[ 'Opera' ] ){
+			if( X_UA[ 'Prsto' ] ){
 				FocusUtility_setTemporarilyFocus( elm );
 			};
 

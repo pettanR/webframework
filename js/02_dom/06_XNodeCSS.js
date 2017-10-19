@@ -311,7 +311,7 @@ X_Node_CSS_FILTER_FIX_PROPS =
 			'transform'   : 5,
 			'dxtransform' : 7 // X.NodeAnime で使用
 		} :
-	X_UA[ 'ActiveX' ] && X_UA[ 'IE9' ] ? // == 9
+	X_UA[ 'ActiveX' ] && ( 9 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 10 ) ? // IE9
 		{
 			'textShadow' : 4
 		} :
@@ -933,7 +933,7 @@ X[ 'CSS' ] = {
  */
 
 (function(){
-	var testStyle = X_UA[ 'IE4' ] ? {} : ( /*document.documentElement ||*/ document.createElement( 'div' ) ).style,
+	var testStyle = X_UA[ 'IE' ] < 5 ? {} : ( /*document.documentElement ||*/ document.createElement( 'div' ) ).style,
 		temp      = testStyle.cssText,
 		vendors   = 'webkit,Webkit,Moz,moz,Ms,ms,O,o,khtml,Khtml'.split( ',' ),
 		searches  = (

@@ -71,7 +71,8 @@ var // Opera7.6+, Safari1.2+, khtml3.?+, Gecko0.9.7+
 	X_XHR_msXML,
 		
 	// ie11の互換モード(7,8)の msxml はいまいち動かない
-	X_XHR_createMSXML = X_UA[ 'ActiveX' ] && ( X_UA[ 'IE5x' ] || X_UA[ 'IE6' ] || X_URL_IS_LOCAL ) &&
+	X_XHR_createMSXML = X_UA[ 'ActiveX' ] &&
+						( ( 5 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 7 ) || X_URL_IS_LOCAL ) &&
 							function(){ return X_Script_createActiveXObjectSafty( X_XHR_msXMLName ); },
 
 
@@ -297,7 +298,11 @@ if( X_XHR_w3c || X_XHR_msXML ){
 					};
 					
 					if( method === 'POST' && !headers[ 'Content-Type' ] ){
-						headers[ 'Content-Type' ] = 'application/x-www-form-urlencoded';
+						if( X_Type_isObject( postdata ) ){
+							headers[ 'Content-Type' ] = 'application/x-www-form-urlencoded';
+						} else {
+							headers[ 'Content-Type' ] = 'text/plain';
+						};
 					};
 
 					for( p in headers ){
@@ -316,7 +321,7 @@ if( X_XHR_w3c || X_XHR_msXML ){
 				// send 前にフラグを立てる,回線が早いと raw.send() 内で onload -> _busy = false ののち、 _busy = true するため。
 				X_XHR._busy = true;
 
-				raw.send( X_Type_isString( postdata ) ? postdata : X_String_serialize( postdata ) );
+				raw.send( X_Type_isObject( postdata ) ? X_String_serialize( postdata ) : '' + postdata );
 
 				if( !async || raw.readyState === 4 ){
 					X_Timer_once( 32, X_XHR, [ { type : 'readystatechange' } ] );
@@ -328,10 +333,10 @@ if( X_XHR_w3c || X_XHR_msXML ){
 					if( X_XHR_progress || X_XHR._isXDR ){
 						X_XHR[ 'listen' ]( [ 'load', 'progress', 'error', 'timeout' ] ); //, 'abort'
 					} else
-					if( X_UA[ 'IE8' ] ){
+					if( X_UA[ 'IE' ] === 8 ){
 						X_XHR[ 'listen' ]( [ 'readystatechange', 'error', 'timeout' ] );
 					} else
-					if( X_UA[ 'IE7' ] ){
+					if( X_UA[ 'IE' ] === 7 ){
 						X_XHR[ 'listen' ]( [ 'readystatechange', 'error' ] );
 					} else {
 						X_XHR[ 'listen' ]( [ 'load', 'readystatechange', 'error', 'timeout' ] ); //, 'abort'
@@ -521,7 +526,7 @@ if( X_XHR_w3c || X_XHR_msXML ){
 					case 'error' :
 					//console.dir( e );
 						X_XHR._busy  = false;
-						X_XHR._error = X_UA[ 'Opera' ] || X_UA[ 'Webkit' ] ;
+						X_XHR._error = X_UA[ 'Prsto' ] || X_UA[ 'Webkit' ] ;
 						live && X_XHR[ 'asyncDispatch' ]( 32, { type : X_EVENT_ERROR, status : raw.status } );
 						break;
 

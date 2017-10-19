@@ -92,8 +92,7 @@ function XMLWrapper_get( index ){
  * @return {boolean|number|string} 内容を型変換した値
  */
 function XMLWrapper_val( queryString, type ){
-	var //attr_textContent = X_UA[ 'IE' ] < 9 || X_UA[ 'Opera' ] ? 'innerText' : X_UA[ 'IE9' ] ? 'text' : 'textContent',
-		wrapper, xml, v;
+	var wrapper, xml, v;
 	
 	switch( queryString ){
 		case 'number' :

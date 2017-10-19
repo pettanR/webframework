@@ -12,8 +12,11 @@ var X_NodeAnime_QUEUE           = [],
 	/* Opera mobile で  translateZ(0) が有効だと XY が 0 0 になる */
 	/* GPUレイヤーにいる間に要素のコンテンツを変更をすると transitionend が動かなくなるっぽい Mac safari と firefox */
 	X_NodeAnime_translateZ      = X_Node_CSS_VENDER_PREFIX[ 'perspective' ] &&
-									!X_UA[ 'OperaMobile' ] && !X_UA[ 'OperaTablet' ] &&
-									!( X_UA[ 'IE' ] === 11 ) && !( X_UA[ 'IEHost' ] === 11 ) ? ' translateZ(0)' : '',
+									!( X_UA[ 'Prsto' ] && X_UA[ 'Android' ] ) &&
+									// https://twitter.com/uupaa/status/811157467094663168
+									// Win7 IE11 と Win10 IE11 は IE11 が利用しているバックエンドが違うため、GPU叩く系のCSS/SVG/Flashの挙動が大きく異なりますよ。簡単に言うと Win7 IE11 はガビガビになる
+									// Win7-8 + IE で描画が極めて乱れていた itozyun
+									!( X_UA[ 'IE' ] && 7 <= X_UA[ 'Windows' ] && X_UA[ 'Windows' ] < 9 ) ? ' translateZ(0)' : '',
 
 // https://ics.media/entry/306
 // transform(3D)はAndroid 2.x系の標準ブラウザや、最新版のFirefoxで不具合があるので注意が必要
@@ -31,7 +34,7 @@ var X_NodeAnime_QUEUE           = [],
  *  7: アニメーション中
  */
 
-	X_NODE_ANIME_RESET = 1,
+	X_NODE_ANIME_RESET    = 1,
 	X_NODE_ANIME_STAY_GPU = 2,
 	
 	X_NodeAnime_DEFAULT = {

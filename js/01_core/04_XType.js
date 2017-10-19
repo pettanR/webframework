@@ -19,7 +19,7 @@ var X_Type_isArray =
 	 */
 	X_Type_isHTMLElement =
 		new Function( 'v',
-			( X_UA[ 'IE4' ] || X_UA[ 'MacIE' ] ) ?
+			( X_UA[ 'IE' ] < 5 || X_UA[ 'MacIE' ] ) ?
 				'return v&&v.tagName&&v.insertAdjacentHTML&&!0' : // ie4 or MacIE5.23, v.all <- error
 			X_UA[ 'NetFront' ] < 4 ?
 				'return v&&v.nodeType===1' : // instanceof not a function. netfront3.4 は html に  instanceof をすると error になる

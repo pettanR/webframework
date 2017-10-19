@@ -92,7 +92,7 @@ var X_NinjaIframe = X[ 'Util' ][ 'NinjaIframe' ] = Node[ 'inherits' ](
 				return this;
 			};
 			
-			if( X_UA[ 'IE5x' ] ){
+			if( 5 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 6 ){
 				this._iwin.location.href = 'about:blank'; // reload() では、IE5.5(IETester)で2回目移行の操作でerrorが出る(doc取得やopen,writeで)
 			} else {
 				this._iwin.location.reload();

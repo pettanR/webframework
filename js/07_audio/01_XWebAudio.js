@@ -10,7 +10,7 @@ var X_Audio_constructor = 3.1 <= X_UA[ 'Safari' ] && X_UA[ 'Safari' ] < 4 ?
 								window[ 'Audio' ] || window.HTMLAudioElement : null,
 	
 	// Blink5 Opera32 Win8 は HTMLAudio が壊れている、WebAudio は mp3 がデコードに失敗、ogg が動作
-	X_Audio_blinkOperaFix = X_UA[ 'BlinkOpera' ] && X_UA[ 'Windows' ],
+	X_Audio_blinkOperaFix = X_UA[ 'OPR' ] && X_UA[ 'Windows' ],
 
 	X_Audio_codecs;
 
@@ -55,12 +55,12 @@ if( X_Audio_constructor ){
 		// iOS3.2.3
 		X_Audio_codecs = {
 		  'mp3'  : X_UA[ 'IE' ] || X_UA[ 'Chrome' ] || ( X_UA[ 'Windows' ] && X_UA[ 'Safari' ]  ),
-		  'ogg'  : 5 <= X_UA[ 'Gecko' ] || X_UA[ 'Chrome' ] || X_UA[ 'Opera' ] ,
-		  'wav'  : X_UA[ 'Gecko' ] || X_UA[ 'Opera' ] || ( X_UA[ 'Windows' ] && X_UA[ 'Safari' ]  ),
+		  'ogg'  : 5 <= X_UA[ 'Gecko' ] || X_UA[ 'Chrome' ] || X_UA[ 'Prsto' ] ,
+		  'wav'  : X_UA[ 'Gecko' ] || X_UA[ 'Prsto' ] || ( X_UA[ 'Windows' ] && X_UA[ 'Safari' ]  ),
 		  'aac'  : X_UA[ 'IE' ] || X_UA[ 'WebKit' ],
 		  'm4a'  : X_UA[ 'IE' ] || X_UA[ 'WebKit' ],
 		  'mp4'  : X_UA[ 'IE' ] || X_UA[ 'WebKit' ],
-		  'weba' : 2 <= X_UA[ 'Gecko' ] || 10.6 <= X_UA[ 'Opera' ] // firefox4+(Gecko2+)
+		  'weba' : 2 <= X_UA[ 'Gecko' ] || 10.6 <= X_UA[ 'Prsto' ] // firefox4+(Gecko2+)
 		};
 		(function( X_Audio_codecs, k ){
 			for( k in X_Audio_codecs ){
@@ -82,12 +82,12 @@ if( X_Audio_constructor ){
 };
 
 
-var X_WebAudio_Context      =	// 4s 以下ではない iPad 2G または iPad mini 1G 以下ではない, iPod touch 4G 以下ではない
-								!X_UA[ 'iPhone_4s' ] && !X_UA[ 'iPad_2Mini1' ] && !X_UA[ 'iPod_4' ] &&
+var X_WebAudio_Context      =	// iOSではない、4s 以下ではない iPad 2G または iPad mini 1G 以下ではない, iPod touch 4G 以下ではない
+								( !X_UA[ 'iOS' ] || X_UA[ 'iPhone' ] === '5+' || X_UA[ 'iPad' ] === '3+|2min+' || X_UA[ 'iPod' ] === '5+' ) &&
 								// iOS7 以上で HTML Audio が鳴らない問題を見ていくよ
 								// !X_UA[ 'iOS' ] &&
 								// Android2 + Gecko で WebAudio が極めて不安定
-								!( X_UA[ 'Fennec' ] && X_UA[ 'Android' ] < 3 ) &&
+								!( X_UA[ 'Fennec' ] && !( 4 <= X_UA[ 'Android' ] ) ) &&
 								// AOSP でも WebAudio を不完全に実装するものがある, touch の有無も不明のため一律に切ってしまう
 								!X_UA[ 'AOSP' ] && !( X_UA[ 'ChromeWV' ] < 5 ) &&
 								// Blink HTMLAudio 調査用

@@ -53,7 +53,7 @@ var
 	X_HTMLAudio_endedFixCWV     = X_UA[ 'ChromeWV' ] || ( X_UA[ 'Blink' ] && X_UA[ 'Android' ] ),
 	
 	// Opera Mobile 12 は 2回目以降の currentTime へのセットで currentTime が更新されなくなるため、タイマーを使用する
-	X_HTMLAudio_currentTimeFix  = !!X_UA[ 'OperaMobile' ] || !!X_UA[ 'OperaTablet' ],
+	X_HTMLAudio_currentTimeFix  = ( X_UA[ 'Prsto' ] && X_UA[ 'Android' ] ),
 	// Firefox44.0.2 で音声の再生開始に難あり... 49 でも確認, あるいはCGIで動的に生成しているmp3自体に問題があるのかも
 	X_HTMLAudio_playStartFix    = X_UA[ 'Windows' ] && 44 <= X_UA[ 'Gecko' ],
 
@@ -61,26 +61,26 @@ var
 	/*
 	 * win opera12 volume, mute の変更が2度目以降できない
 	 */
-	X_HTMLAudio_volumeEnabled   = !( X_UA[ 'WinPhone' ] && X_UA[ 'IE9' ] ) && !X_UA[ 'Opera' ],
+	X_HTMLAudio_volumeEnabled   = X_UA[ 'WinPhone' ] !== 7.5 && !X_UA[ 'Prsto' ],
 	// Gecko PC + Android でseek時に再生がしばしば止まる問題の修正、iOS8でも確認
 	X_HTMLAudio_needPlayForSeek = X_UA[ 'iOS' ] || X_UA[ 'Gecko' ],
 	// 
-	X_HTMLAudio_pauseFix		= 12 <= X_UA[ 'Opera' ] && 0 < ' XP XPSP2 2003|XP64'.indexOf( X_UA[ 'Windows' ] ), // XP + Opera12 のみ?
+	X_HTMLAudio_pauseFix		= 12 <= X_UA[ 'Prsto' ] && 0 < ' XP XPSP2 2003|XP64'.indexOf( X_UA[ 'Windows' ] ), // XP + Opera12 のみ?
 
 	X_HTMLAudio_need1stTouch	= X_UA[ 'iOS' ] || 4.2 <= X_UA[ 'AOSP' ] || X_UA[ 'ChromeWV' ] || X_UA[ 'WinPhone' ] || ( X_UA[ 'Blink' ] && X_UA[ 'Android' ] ),
 
-	X_HTMLAudio_playTrigger     = ( X_UA[ 'WinPhone' ] && X_UA[ 'IE9' ] ) ? 'canplay' :
+	X_HTMLAudio_playTrigger     = ( X_UA[ 'WinPhone' ] === 7.5 ) ? 'canplay' :
 									X_UA[ 'iOS' ] < 8 ? 'suspend' :    // iOS7.x以下
 									X_UA[ 'iOS' ] ? 'loadedmetadata' : // iOS8以上は
 									X_UA[ 'Blink' ] < 32 ? 'stalled' : 'canplaythrough',
 
 	X_HTMLAudio_durationFix	    = // iOS8.1(シュミレータでは不要)
-								  X_UA[ 'iOS' ] < 8 || X_UA[ 'ChromeWV' ] || ( X_UA[ 'WinPhone' ] && X_UA[ 'IE9' ] ) ||
-								  ( X_UA[ 'Windows' ] && 12 <= X_UA[ 'Opera' ] ) || ( X_UA[ 'Blink' ] < 36 && X_UA[ 'Android' ] ),
+								  X_UA[ 'iOS' ] < 8 || X_UA[ 'ChromeWV' ] || X_UA[ 'WinPhone' ] === 7.5 ||
+								  ( X_UA[ 'Windows' ] && 12 <= X_UA[ 'Prsto' ] ) || ( X_UA[ 'Blink' ] < 36 && X_UA[ 'Android' ] ),
 
 	X_HTMLAudio_shortPlayFix	= X_UA[ 'AOSP' ],
 	
-	X_HTMLAudio_progressEnabled = !( X_UA[ 'Opera' ] && X_UA[ 'Android' ] ) && !( X_UA[ 'WinPhones' ] && X_UA[ 'IE9' ] ); // Android 4.1.1 でも遭遇
+	X_HTMLAudio_progressEnabled = !( X_UA[ 'Prsto' ] && X_UA[ 'Android' ] ) && X_UA[ 'WinPhone' ] !== 7.5; // Android 4.1.1 でも遭遇
 
 if( X_Audio_constructor ){
 	
@@ -228,7 +228,7 @@ if( X_Audio_constructor ){
 						// iem9 で常に0 raw.networkState;
 						// opera Android 12 で　buffered.end() へのアクセスはエラー　try catch も無効、iem9 は常に end(0) = 0
 						if( X_HTMLAudio_progressEnabled && this.duration && this._readyState < 3 ){
-							buf  = raw.buffered;
+							buf = raw.buffered;
 							for( i = time = 0, l = buf && buf.length; i < l; ++i ){
 								time += buf[ 'end' ]( i ) - buf[ 'start' ]( i );
 							};
@@ -372,7 +372,7 @@ if( X_Audio_constructor ){
 					} else
 					if( this._durationFixPhase & 3 ){ // === 1 | 2
 						this._durationFixPhase = 8;
-					};					
+					};
 				};
 
 				//

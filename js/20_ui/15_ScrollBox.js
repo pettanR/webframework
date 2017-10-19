@@ -3,7 +3,7 @@
  * ScrollManager
  * indicatorX, Y は再利用
  */
-var XUI_ScrollBox_useCSSP = !X_UA[ 'IE5' ],
+var XUI_ScrollBox_useCSSP = !( X_UA[ 'IE' ] < 5.5 ),
 	XUI_ScrollBox_current,
 	XUI_ScrollBox_indicatorV,
 	XUI_ScrollBox_indicatorH;
@@ -303,7 +303,7 @@ function X_UI_ScrollBox_translate( that, x, y, opt_time, opt_easing, opt_release
 	opt_easing  = opt_easing === '' ? '' : opt_easing || 'circular';
 	opt_release = 0 <= opt_release ? opt_release : 300;
 	
-	console.log( 'scr ' + y );
+	console.log( '.. scroll ' + y );
 	
 	if( !XUI_ScrollBox_useCSSP ){
 		that.xnode[ 'animate' ]({

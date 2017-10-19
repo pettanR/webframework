@@ -244,7 +244,7 @@ function X_Node_offset(){
 //------------------------------------------------------------------------------
 //  座標取得
 var X_Node_getPosition =
-	!X_UA[ 'IE4' ] && document.createElement( 'div' ).getBoundingClientRect ?
+	!( X_UA[ 'IE' ] < 5 ) && document.createElement( 'div' ).getBoundingClientRect ?
 		(
 			document.compatMode === 'CSS1Compat' && !X_UA[ 'Webkit' ] ? function( el ){
 		        var pos  = el.getBoundingClientRect(),
