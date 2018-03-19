@@ -4,7 +4,7 @@
  * @alias X.Array
  */
 X[ 'Array' ] = {
-	'copy'      : X_Array_copy
+    'copy'      : X_Array_copy
 };
 
 // renamed
@@ -18,22 +18,22 @@ X[ 'Array' ] = {
  * @return {Array}
  */
 function X_Array_copy( ary ){
-	var ret = [],
-		i = 0,
-		l = ary.length;
+    var ret = [],
+        i = 0,
+        l = ary.length;
 
-	for( ; i < l; ++i ){
-		ret[ i ] = ary[ i ];
-	};
-	return ret;
+    for( ; i < l; ++i ){
+        ret[ i ] = ary[ i ];
+    };
+    return ret;
 };
 
-/*	
+/*    
 X.matchTest = function( array1, array2 ){
-	var i = array2.length;
-	for( ; i; ){
-		if( array1.indexOf( array2[ --i ] ) === -1 ) return false;
-	};
-	return true;
+    var i = array2.length;
+    for( ; i; ){
+        if( array1.indexOf( array2[ --i ] ) === -1 ) return false;
+    };
+    return true;
 }; */
 

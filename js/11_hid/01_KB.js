@@ -9,7 +9,7 @@
  *  1. テンキーの 0～9 keyCode:96-105
  *  2. ScrollLock:145, Ins:45, PuaseBreak:19, HOME:36, PageUp:33, del:46, END:35, PageDown:34,
  *     ←↑→↓:37-40, tab:9, capsLock:240or208, Shift+capslock:20, shift:16, ctrl:17, LWIN:91, BS:8,
- *　　　　
+ *    
  *  3. RWIN:92!(Opera<9.5), alt:18, [F1]-[F12]:112-123
  * 
  */

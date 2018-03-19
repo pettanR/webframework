@@ -33,7 +33,7 @@
 	 *   1. loadeddata 等では duration が infinity で、再生後の durationchange 時に duration が判明する
 	 *   2. duration 判明後には currentTime によるシークと、現在時間の取得が可能になる。
 	 *   3. Opera12.17 Win32(XP) portable apps は勝手に再生が始まる、、、Win8+Opera では発生しない
-	 *	  -> その際には timeupdate が発行されない、、、　iframe+image+audio で使わないときは破棄する、とか。
+	 *	  -> その際には timeupdate が発行されない、、、 iframe+image+audio で使わないときは破棄する、とか。
 	 *	  -> opera11、10.54 WinXP はまとも、、、 portable が怪しい??
 	 */
 
@@ -226,7 +226,7 @@ if( X_Audio_constructor ){
 					case 'progress' :	   // 	ブラウザがコンテンツの取得を実行した場合に発生
 						// console.log( e.loaded + ' ' + e.total * 100 + '%' );
 						// iem9 で常に0 raw.networkState;
-						// opera Android 12 で　buffered.end() へのアクセスはエラー　try catch も無効、iem9 は常に end(0) = 0
+						// opera Android 12 で buffered.end() へのアクセスはエラー try catch も無効、iem9 は常に end(0) = 0
 						if( X_HTMLAudio_progressEnabled && this.duration && this._readyState < 3 ){
 							buf  = raw.buffered;
 							for( i = time = 0, l = buf && buf.length; i < l; ++i ){

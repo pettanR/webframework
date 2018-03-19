@@ -129,7 +129,7 @@ XUI_AttrClass = X_Class_create( 'XUI_AttrClass', X_Class.POOL_OBJECT );
  *  1 : 'none',
  *  2 : 'chrome',
  *  3 : 'container'
- * }　こんな object を返す。
+ * } こんな object を返す。
  */
 function XUI_createChecker( str ){
 	var ret = {},

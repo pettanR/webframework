@@ -17,7 +17,7 @@ var XUI_ChromeBox = XUI_Box.inherits(
 				node = uinodes[ --i ];
 				if( node.role === 3 ){
 					if( this.containerNode ){
-						//throw new Error( 'ContainerNode　が複数設定されています！ContainerNode はクロームボックスにひとつ、生成時に設定できます ' + node );
+						//throw new Error( 'ContainerNode が複数設定されています！ContainerNode はクロームボックスにひとつ、生成時に設定できます ' + node );
 					};
 					this.containerNode  = node.User;
 					this._containerNode = node;

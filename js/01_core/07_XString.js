@@ -7,7 +7,7 @@ http://shimax.cocolog-nifty.com/search/2006/09/post_b296.html
 // ------------ local variables -------------------------------------------- //
 // ------------------------------------------------------------------------- //
 var X_String_CRLF = String.fromCharCode( 13 ) + String.fromCharCode( 10 ), // String.fromCharCode( 13, 10 )
-	X_String_CHAR_REFS = {"&nbsp;":160,"&iexcl;":161,"&cent;":162,"&pound;":163,"&curren;":164,"&yen;":165,"&brvbar;":166,"&sect;":167,"&uml;":168,"&copy;":169,
+    X_String_CHAR_REFS = {"&nbsp;":160,"&iexcl;":161,"&cent;":162,"&pound;":163,"&curren;":164,"&yen;":165,"&brvbar;":166,"&sect;":167,"&uml;":168,"&copy;":169,
 "&ordf;":170,"&laquo;":171,
 "&not;":172,"&shy;":173,"&reg;":174,"&macr;":175,"&deg;":176,"&plusmn;":177,"&sup2;":178,"&sup3;":179,"&acute;":180,"&micro;":181,"&para;":182,
 "&middot;":183,"&cedil;":184,"&sup1;":185,"&ordm;":186,"&raquo;":187,"&frac14;":188,"&frac12;":189,"&frac34;":190,"&iquest;":191,"&Agrave;":192,
@@ -36,9 +36,9 @@ var X_String_CRLF = String.fromCharCode( 13 ) + String.fromCharCode( 10 ), // St
 };
 
 (function( refs, k ){
-	for( k in refs ){
-		refs[ k ] = String.fromCharCode( refs[ k ] );
-	};
+    for( k in refs ){
+        refs[ k ] = String.fromCharCode( refs[ k ] );
+    };
 })( X_String_CHAR_REFS );
 
 // ------------------------------------------------------------------------- //
@@ -51,20 +51,20 @@ var X_String_CRLF = String.fromCharCode( 13 ) + String.fromCharCode( 10 ), // St
  * @alias X.String
  */
 X[ 'String' ] = {
-	
-	'parse'             : X_String_parse,
-	
-	'cleanupWhiteSpace' : X_String_cleanupWhiteSpace,
-	
-	'whiteSpaceToTag'   : X_String_whiteSpaceToTag,
-	
-	'chrReferanceTo'    : X_String_chrReferanceTo,
-	
-	'toChrReferance'    : X_String_toChrReferance,
-	
-	'isNumberString'    : X_String_isNumberString,
-	
-	'serialize'         : X_String_serialize
+    
+    'parse'             : X_String_parse,
+    
+    'cleanupWhiteSpace' : X_String_cleanupWhiteSpace,
+    
+    'whiteSpaceToTag'   : X_String_whiteSpaceToTag,
+    
+    'chrReferanceTo'    : X_String_chrReferanceTo,
+    
+    'toChrReferance'    : X_String_toChrReferance,
+    
+    'isNumberString'    : X_String_isNumberString,
+    
+    'serialize'         : X_String_serialize
 };
 
 // ------------------------------------------------------------------------- //
@@ -77,27 +77,27 @@ X[ 'String' ] = {
  * @return {*}
  */
 function X_String_parse( v ){
-	var _v;
-	
-	if( X_Type_isString( v ) ){
-		switch( v ){
-			case ''          : return v;
-			//case '{}'        : return {};
-			//case '[]'        : return [];
-			case 'NaN'       : return NaN;
-			case 'null'      : return null;
-			case 'true'      : return true;
-			case 'false'     : return false;
-			case 'Infinity'  : return  1 / 0;//Number.POSITIVE_INFINITY;
-			case '-Infinity' : return -1 / 0;//Number.NEGATIVE_INFINITY;
-			//case 'void(0)'   :
-			//case 'void 0'    :
-			case 'undefined' : return;
-		};
-		_v = v.split( ' ' ).join( '' );
-		if( X_String_isNumberString( _v ) ) return _v - 0;
-	};
-	return v;
+    var _v;
+    
+    if( X_Type_isString( v ) ){
+        switch( v ){
+            case ''          : return v;
+            //case '{}'        : return {};
+            //case '[]'        : return [];
+            case 'NaN'       : return NaN;
+            case 'null'      : return null;
+            case 'true'      : return true;
+            case 'false'     : return false;
+            case 'Infinity'  : return  1 / 0;//Number.POSITIVE_INFINITY;
+            case '-Infinity' : return -1 / 0;//Number.NEGATIVE_INFINITY;
+            //case 'void(0)'   :
+            //case 'void 0'    :
+            case 'undefined' : return;
+        };
+        _v = v.split( ' ' ).join( '' );
+        if( X_String_isNumberString( _v ) ) return _v - 0;
+    };
+    return v;
 };
 
 /**
@@ -110,31 +110,31 @@ function X_String_parse( v ){
  * @return {string}
  */
 function X_String_cleanupWhiteSpace( text ){
-	var _ = ' ', __ = '  '; //, CRLF = X_String_CRLF;
-	
-	if( text == null || text === '' ) return '';
-	
-	//text.indexOf( CRLF )   !== -1 && ( text = text.split( CRLF ).join( _ ) );
-	/*text.indexOf( '\n\r' ) !== -1 && ( text = text.split( '\n\r' ).join( _ ) );
-	text.indexOf( '\t' )   !== -1 && ( text = text.split( '\t' ).join( _ ) );
-	text.indexOf( '\r' )   !== -1 && ( text = text.split( '\r' ).join( _ ) );
-	text.indexOf( '\n' )   !== -1 && ( text = text.split( '\n' ).join( _ ) );
-	text.indexOf( '\f' )   !== -1 && ( text = text.split( '\f' ).join( _ ) );
-	text.indexOf( '\b' )   !== -1 && ( text = text.split( '\b' ).join( _ ) ); */
-	
-	text = ( '' + text )
-			.split( X_String_CRLF ).join( _ )
-			.split( '\r' ).join( _ )
-			.split( '\n' ).join( _ )
-			.split( '\t' ).join( _ )
-			.split( '\f' ).join( _ )
-			.split( '\b' ).join( _ );
+    var _ = ' ', __ = '  '; //, CRLF = X_String_CRLF;
+    
+    if( text == null || text === '' ) return '';
+    
+    //text.indexOf( CRLF )   !== -1 && ( text = text.split( CRLF ).join( _ ) );
+    /*text.indexOf( '\n\r' ) !== -1 && ( text = text.split( '\n\r' ).join( _ ) );
+    text.indexOf( '\t' )   !== -1 && ( text = text.split( '\t' ).join( _ ) );
+    text.indexOf( '\r' )   !== -1 && ( text = text.split( '\r' ).join( _ ) );
+    text.indexOf( '\n' )   !== -1 && ( text = text.split( '\n' ).join( _ ) );
+    text.indexOf( '\f' )   !== -1 && ( text = text.split( '\f' ).join( _ ) );
+    text.indexOf( '\b' )   !== -1 && ( text = text.split( '\b' ).join( _ ) ); */
+    
+    text = ( '' + text )
+            .split( X_String_CRLF ).join( _ )
+            .split( '\r' ).join( _ )
+            .split( '\n' ).join( _ )
+            .split( '\t' ).join( _ )
+            .split( '\f' ).join( _ )
+            .split( '\b' ).join( _ );
 
-	while( true ){
-		text = text.split( __ );
-		if( text.length < 2 ) return text[ 0 ];
-		text = text.join( _ );
-	};
+    while( true ){
+        text = text.split( __ );
+        if( text.length < 2 ) return text[ 0 ];
+        text = text.join( _ );
+    };
 };
 
 /**
@@ -148,15 +148,15 @@ function X_String_cleanupWhiteSpace( text ){
 function X_String_whiteSpaceToTag( text ){
     if( text == null || text === '' ) return '';
     return ( '' + text )
-    	//.split( '\r\n\r\n' ).join( '<br>' )
-    	//.split( '\n\r\n\r' ).join( '<br>' )
-    	//.split( '\r\n' ).join( '<br>' )
-    	.split( X_String_CRLF ).join( '<br>' )
-    	.split( '\r' ).join( '<br>' )
-    	.split( '\n' ).join( '<br>' )
-    	.split( '\t' ).join( '&nbsp;&nbsp;&nbsp;&nbsp;' )
-    	.split( '\f' ).join( '' )
-    	.split( '\b' ).join( '' );
+        //.split( '\r\n\r\n' ).join( '<br>' )
+        //.split( '\n\r\n\r' ).join( '<br>' )
+        //.split( '\r\n' ).join( '<br>' )
+        .split( X_String_CRLF ).join( '<br>' )
+        .split( '\r' ).join( '<br>' )
+        .split( '\n' ).join( '<br>' )
+        .split( '\t' ).join( '&nbsp;&nbsp;&nbsp;&nbsp;' )
+        .split( '\f' ).join( '' )
+        .split( '\b' ).join( '' );
 };
 
 /**
@@ -168,22 +168,22 @@ function X_String_whiteSpaceToTag( text ){
  * @return {string} html文字列
  */
 function X_String_chrReferanceTo( str ){
-	var refs, k;
-	
+    var refs, k;
+    
     if( str == null || str === '' ) return '';
     if( str.indexOf( '&' ) === -1 ) return str;
     
     str = ( '' + str )
-    	.split( '&quot;' ).join( '"' )
-    	.split( '&apos;' ).join( "'" )
-    	.split( '&lt;'   ).join( '<' )
-    	.split( '&gt;'   ).join( '>' );
+        .split( '&quot;' ).join( '"' )
+        .split( '&apos;' ).join( "'" )
+        .split( '&lt;'   ).join( '<' )
+        .split( '&gt;'   ).join( '>' );
     
     if( str.indexOf( '&' ) === -1 ) return str;
     
     refs = X_String_CHAR_REFS;
     for( k in refs ){
-    	str = str.split( k ).join( refs[ k ] );
+        str = str.split( k ).join( refs[ k ] );
     };
   
     return str.split( '&amp;'  ).join( '&' ); // last!
@@ -198,7 +198,7 @@ function X_String_chrReferanceTo( str ){
  * @return {string}
  */
 function X_String_toChrReferance( str ){
-	var refs, k;
+    var refs, k;
 
     if( str == null || str === '' ) return '';
     
@@ -206,7 +206,7 @@ function X_String_toChrReferance( str ){
 
     refs = X_String_CHAR_REFS;
     for( k in refs ){
-    	str = str.split( refs[ k ] ).join( k );
+        str = str.split( refs[ k ] ).join( k );
     };
 
     return str;
@@ -217,11 +217,11 @@ function X_String_toChrReferanceForHtmlSafety( str ){
     if( str == null || str === '' ) return '';
     
     return ( '' + str )
-    	.split( '&' ).join( '&amp;' ) // first!
-    	.split( '"' ).join( '&quot;' )
-    	.split( "'" ).join( '&apos;' )
-    	.split( '<' ).join( '&lt;' )
-    	.split( '>' ).join( '&gt;' );
+        .split( '&' ).join( '&amp;' ) // first!
+        .split( '"' ).join( '&quot;' )
+        .split( "'" ).join( '&apos;' )
+        .split( '<' ).join( '&lt;' )
+        .split( '>' ).join( '&gt;' );
 };
 
 /**
@@ -231,8 +231,8 @@ function X_String_toChrReferanceForHtmlSafety( str ){
  * @return {boolean}
  */
 function X_String_isNumberString( v ){
-	var n = v - 0;
-	return '' + n === v || '' + n === '0' + v;
+    var n = v - 0;
+    return '' + n === v || '' + n === '0' + v;
 };
 
 /**
@@ -244,66 +244,66 @@ function X_String_isNumberString( v ){
  * @return {string}
  */
 function X_String_serialize( a, traditional ) {
-	var prefix,
-		list = [];
+    var prefix,
+        list = [];
 
-	// If an array was passed in, assume that it is an array of form elements.
-	//if ( X_Type_isArray( a ) && false ) {
-		// Serialize the form elements
-		//jQuery.each( a, function() {
-		//	X_String_serialize_addParam( list, this.name, this.value );
-		//});
+    // If an array was passed in, assume that it is an array of form elements.
+    //if ( X_Type_isArray( a ) && false ) {
+        // Serialize the form elements
+        //jQuery.each( a, function() {
+        //    X_String_serialize_addParam( list, this.name, this.value );
+        //});
 
-	//} else {
-		// If traditional, encode the 'old' way (the way 1.3.2 or older
-		// did it), otherwise encode params recursively.
-		for ( prefix in a ) {
-			X_String_serialize_buildParams( list, prefix, a[ prefix ], !!traditional );
-		}
-	//}
+    //} else {
+        // If traditional, encode the 'old' way (the way 1.3.2 or older
+        // did it), otherwise encode params recursively.
+        for ( prefix in a ) {
+            X_String_serialize_buildParams( list, prefix, a[ prefix ], !!traditional );
+        }
+    //}
 
-	// Return the resulting serialization
-	return list.join( '&' ).split( '%20' ).join( '+' );
+    // Return the resulting serialization
+    return list.join( '&' ).split( '%20' ).join( '+' );
 };
 
 function X_String_serialize_addParam( list, key, value ){
-	// If value is a function, invoke it and return its value
-	value = X_Type_isFunction( value ) ? value() : ( value == null ? '' : value );
-	list[ list.length ] = encodeURIComponent( key ) + '=' + encodeURIComponent( value );
+    // If value is a function, invoke it and return its value
+    value = X_Type_isFunction( value ) ? value() : ( value == null ? '' : value );
+    list[ list.length ] = encodeURIComponent( key ) + '=' + encodeURIComponent( value );
 };
 
 function X_String_serialize_buildParams( list, prefix, obj, traditional ) {
-	var name, i, l, v;
+    var name, i, l, v;
 
-	if ( X_Type_isArray( obj ) ) {
-		// Serialize array item.
-		for( i = 0, l = obj.length; i < l; ++i ){
-			v = obj[ i ];
-			if ( traditional || prefix === '[]' ) {
-				// Treat each array item as a scalar.
-				X_String_serialize_addParam( list, prefix, v );
+    if ( X_Type_isArray( obj ) ) {
+        // Serialize array item.
+        for( i = 0, l = obj.length; i < l; ++i ){
+            v = obj[ i ];
+            if ( traditional || prefix === '[]' ) {
+                // Treat each array item as a scalar.
+                X_String_serialize_addParam( list, prefix, v );
 
-			} else {
-				// Item is non-scalar (array or object), encode its numeric index.
-				X_String_serialize_buildParams(
-					list,
-					prefix + '[' + ( X_Type_isObject( v ) ? i : '' ) + ']',
-					v,
-					traditional
-				);
-			};		
-		};
+            } else {
+                // Item is non-scalar (array or object), encode its numeric index.
+                X_String_serialize_buildParams(
+                    list,
+                    prefix + '[' + ( X_Type_isObject( v ) ? i : '' ) + ']',
+                    v,
+                    traditional
+                );
+            };        
+        };
 
-	} else
-	if ( !traditional && X_Type_isObject( obj ) ) {
-		// Serialize object item.
-		for ( name in obj ) {
-			X_String_serialize_buildParams( list, prefix + '[' + name + ']', obj[ name ], traditional );
-		};
+    } else
+    if ( !traditional && X_Type_isObject( obj ) ) {
+        // Serialize object item.
+        for ( name in obj ) {
+            X_String_serialize_buildParams( list, prefix + '[' + name + ']', obj[ name ], traditional );
+        };
 
-	} else {
-		// Serialize scalar item.
-		X_String_serialize_addParam( list, prefix, obj );
-	};
+    } else {
+        // Serialize scalar item.
+        X_String_serialize_addParam( list, prefix, obj );
+    };
 };
 

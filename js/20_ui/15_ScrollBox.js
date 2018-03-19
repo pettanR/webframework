@@ -555,7 +555,7 @@ function X_UI_ScrollBox_onEnd( e ){
 	// we scrolled less than 10 pixels
 	if( !this.moved ){
 		this[ 'dispatch' ]( X_EVENT_CANCELED );
-		//console.log( 'we scrolled less than 10 pixels　' + e.pageY );
+		//console.log( 'we scrolled less than 10 pixels ' + e.pageY );
 		return ret | X_CALLBACK_PREVENT_DEFAULT | X_CALLBACK_RELEASE_POINTER;
 	};
 

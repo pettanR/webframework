@@ -4,7 +4,7 @@
  * @alias X.Number
  */
 X[ 'Number' ] = {
-	'conpareVersion'      : X_Number_conpareVersion
+    'conpareVersion'      : X_Number_conpareVersion
 };
 
 /**
@@ -18,21 +18,21 @@ X[ 'Number' ] = {
  * @return {number} 比較結果
  */
  function X_Number_conpareVersion( v1, v2 ){
-	var i = 0,
-		l, n1, n2;
-	
-	v1 = v1.split( '.' );
-	v2 = v2.split( '.' );	
-	
-	l = Math.min( v1.length, v2.length );
+    var i = 0,
+        l, n1, n2;
+    
+    v1 = v1.split( '.' );
+    v2 = v2.split( '.' );    
+    
+    l = Math.min( v1.length, v2.length );
 
-	for( ; i < l; ++i ){
-		n1 = parseFloat( v1[ i ] );
-		n2 = parseFloat( v2[ i ] );
-		if( n1 !== n2 ){
-			return n1 > n2 ? 1 : -1;
-		};
-	};
-	if( v1.length === v2.length ) return 0;
-	return v1.length > v2.length ? 1 : -1;
+    for( ; i < l; ++i ){
+        n1 = parseFloat( v1[ i ] );
+        n2 = parseFloat( v2[ i ] );
+        if( n1 !== n2 ){
+            return n1 > n2 ? 1 : -1;
+        };
+    };
+    if( v1.length === v2.length ) return 0;
+    return v1.length > v2.length ? 1 : -1;
 };

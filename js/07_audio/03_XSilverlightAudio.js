@@ -4,7 +4,7 @@
  * https://code.google.com/p/uupaa-js/source/browse/trunk/0.8/src/Audio/SilverlightAudio.js?r=568
  *
  * Silverlight 4 → 5における不具合の状況
- *　http://www.slideshare.net/wakabayashiy/silverlight-4-5 
+ * http://www.slideshare.net/wakabayashiy/silverlight-4-5 
  * 
  * IE10以降でSilverlightでF5押したらフリーズする不具合と対処
  * http://katsuyuzu.hatenablog.jp/entry/2014/01/11/003550
@@ -57,7 +57,7 @@ if( X_Plugin_SILVER_LIGHT_VERSION ){
 				!X_SLAudio_uid && X_TEMP.slaudioInit();
 				
 				/*
-				 *　［Silverlight 2］JavaScriptコードからSilverlightのオブジェクトを利用するには？［C#、VB］
+				 * ［Silverlight 2］JavaScriptコードからSilverlightのオブジェクトを利用するには？［C#、VB］
 				 * http://www.atmarkit.co.jp/fdotnet/dotnettips/902slobjcallfromjs/slobjcallfromjs.html
 				 * このページのサンプルは sl5+firefox32 環境で動いている。xaml を js から利用する形ではなく、.xap を sl4 以下で作るのがよさそう.
 				 */

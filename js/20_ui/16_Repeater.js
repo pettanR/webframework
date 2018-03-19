@@ -96,7 +96,7 @@ var XUI_Repeater = XUI_Box.inherits(
 				// itemNodes[ i ] hide
 			};
 			
-			// TODO contentHeight は　attr を無視する -> 未表示領域につくるアイテム数 GPU の有無で変わる
+			// TODO contentHeight は attr を無視する -> 未表示領域につくるアイテム数 GPU の有無で変わる
 			this.contentHeight = l * ( itemH + gapY ) - gapY;
 		},
 		
@@ -141,7 +141,7 @@ X.UI.Repeater = X.UI.Box.inherits(
 			};
 			
 			// dataProvider
-			// itemBase　parent に追加されている uinode は不可
+			// itemBase parent に追加されている uinode は不可
 			// minHeight=300% height=auto
 			X_Pair_create( this,
 				XUI_Repeater(
