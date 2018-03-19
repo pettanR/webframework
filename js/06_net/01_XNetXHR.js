@@ -297,7 +297,11 @@ if( X_XHR_w3c || X_XHR_msXML ){
                     };
                     
                     if( method === 'POST' && !headers[ 'Content-Type' ] ){
-                        headers[ 'Content-Type' ] = 'application/x-www-form-urlencoded';
+                        if( X_Type_isObject( postdata ) ){
+                            headers[ 'Content-Type' ] = 'application/x-www-form-urlencoded';
+                        } else {
+                            headers[ 'Content-Type' ] = 'text/plain';
+                        };
                     };
 
                     for( p in headers ){
@@ -316,7 +320,7 @@ if( X_XHR_w3c || X_XHR_msXML ){
                 // send 前にフラグを立てる,回線が早いと raw.send() 内で onload -> _busy = false ののち、 _busy = true するため。
                 X_XHR._busy = true;
 
-                raw.send( X_Type_isString( postdata ) ? postdata : X_String_serialize( postdata ) );
+                raw.send( X_Type_isObject( postdata ) ? X_String_serialize( postdata ) : '' + postdata );
 
                 if( !async || raw.readyState === 4 ){
                     X_Timer_once( 32, X_XHR, [ { type : 'readystatechange' } ] );
@@ -521,7 +525,7 @@ if( X_XHR_w3c || X_XHR_msXML ){
                     case 'error' :
                     //console.dir( e );
                         X_XHR._busy  = false;
-                        X_XHR._error = X_UA[ 'Opera' ] || X_UA[ 'Webkit' ] ;
+                        X_XHR._error = X_UA[ 'Opera' ] || X_UA[ 'Webkit' ];
                         live && X_XHR[ 'asyncDispatch' ]( 32, { type : X_EVENT_ERROR, status : raw.status } );
                         break;
 
