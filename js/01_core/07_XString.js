@@ -247,6 +247,47 @@ function X_String_serialize( a, traditional ) {
     var prefix,
         list = [];
 
+    function X_String_serialize_addParam( list, key, value ){
+        // If value is a function, invoke it and return its value
+        value = X_Type_isFunction( value ) ? value() : ( value == null ? '' : value );
+        list[ list.length ] = encodeURIComponent( key ) + '=' + encodeURIComponent( value );
+    };
+    
+    function X_String_serialize_buildParams( list, prefix, obj, traditional ) {
+        var name, i, l, v;
+    
+        if ( X_Type_isArray( obj ) ) {
+            // Serialize array item.
+            for( i = 0, l = obj.length; i < l; ++i ){
+                v = obj[ i ];
+                if ( traditional || prefix === '[]' ) {
+                    // Treat each array item as a scalar.
+                    X_String_serialize_addParam( list, prefix, v );
+    
+                } else {
+                    // Item is non-scalar (array or object), encode its numeric index.
+                    X_String_serialize_buildParams(
+                        list,
+                        prefix + '[' + ( X_Type_isObject( v ) ? i : '' ) + ']',
+                        v,
+                        traditional
+                    );
+                };        
+            };
+    
+        } else
+        if ( !traditional && X_Type_isObject( obj ) ) {
+            // Serialize object item.
+            for ( name in obj ) {
+                X_String_serialize_buildParams( list, prefix + '[' + name + ']', obj[ name ], traditional );
+            };
+    
+        } else {
+            // Serialize scalar item.
+            X_String_serialize_addParam( list, prefix, obj );
+        };
+    };
+
     // If an array was passed in, assume that it is an array of form elements.
     //if ( X_Type_isArray( a ) && false ) {
         // Serialize the form elements
@@ -264,46 +305,5 @@ function X_String_serialize( a, traditional ) {
 
     // Return the resulting serialization
     return list.join( '&' ).split( '%20' ).join( '+' );
-};
-
-function X_String_serialize_addParam( list, key, value ){
-    // If value is a function, invoke it and return its value
-    value = X_Type_isFunction( value ) ? value() : ( value == null ? '' : value );
-    list[ list.length ] = encodeURIComponent( key ) + '=' + encodeURIComponent( value );
-};
-
-function X_String_serialize_buildParams( list, prefix, obj, traditional ) {
-    var name, i, l, v;
-
-    if ( X_Type_isArray( obj ) ) {
-        // Serialize array item.
-        for( i = 0, l = obj.length; i < l; ++i ){
-            v = obj[ i ];
-            if ( traditional || prefix === '[]' ) {
-                // Treat each array item as a scalar.
-                X_String_serialize_addParam( list, prefix, v );
-
-            } else {
-                // Item is non-scalar (array or object), encode its numeric index.
-                X_String_serialize_buildParams(
-                    list,
-                    prefix + '[' + ( X_Type_isObject( v ) ? i : '' ) + ']',
-                    v,
-                    traditional
-                );
-            };        
-        };
-
-    } else
-    if ( !traditional && X_Type_isObject( obj ) ) {
-        // Serialize object item.
-        for ( name in obj ) {
-            X_String_serialize_buildParams( list, prefix + '[' + name + ']', obj[ name ], traditional );
-        };
-
-    } else {
-        // Serialize scalar item.
-        X_String_serialize_addParam( list, prefix, obj );
-    };
 };
 

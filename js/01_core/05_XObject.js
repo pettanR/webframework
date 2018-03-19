@@ -7,7 +7,7 @@
  * @param {object} obj 
  * @return {boolean} name が定義されている(値が undefined や null でも) -> true
  */
-var X_Object_inObject = !X_Script_gte15 ?
+var X_Object_inObject = !X_Script_gte15 ? // TODO JScript で判定
     (function( name, obj, _ ){
         name += ''; // 数値も許可
         if( obj[ name ] ) return true; // quick
@@ -106,38 +106,37 @@ function X_Object_clear( obj, k ){
  * @param {object|Array} src コピー元のオブジェクトです。
  * @return {object|Array}
  */
-function X_Object_deepCopy( src ){
-    function X_Object_deepCopy_( src, objSrc, objCopy, n ){
-        var ret, i, k;
-        
-        if( !src ){ // 0, "", null, undefined, NaN, false
-            return src;
-        } else
-        if( X_Type_isArray( src ) ){
-            i = objSrc.indexOf( src );
-            if( i !== -1 ) return objCopy[ i ];
-            objSrc[ ++n ] = src;
-            objCopy[ n ]  = ret = [];
-        } else
-        if( X_Type_isObject( src ) ){
-            i = objSrc.indexOf( src );
-            if( i !== -1 ) return objCopy[ i ];
-            objSrc[ ++n ] = src;
-            objCopy[ n ]  = ret = {};
-        } else {
-            // string, number, true
-            return src;
-        };
-        for( k in src ){
-            //if( X_EMPTY_OBJECT[ k ] ) continue;
-            ret[ k ] = X_Object_deepCopy_( src[ k ], objSrc, objCopy, n );
-        };
-        return ret;
-    };
-
-    return X_Object_deepCopy_( src, [], [], -1 ); 
+function X_Object_deepCopy( src ){        
+    return X_Object_deepCopy_( src, [], [], -1 );
 };
 
+function X_Object_deepCopy_( src, objSrc, objCopy, n ){
+    var ret, i, k;
+    
+    if( !src ){ // 0, "", null, undefined, NaN, false
+        return src;
+    } else
+    if( X_Type_isArray( src ) ){
+        i = objSrc.indexOf( src );
+        if( i !== -1 ) return objCopy[ i ];
+        objSrc[ ++n ] = src;
+        objCopy[ n ]  = ret = [];
+    } else
+    if( X_Type_isObject( src ) ){
+        i = objSrc.indexOf( src );
+        if( i !== -1 ) return objCopy[ i ];
+        objSrc[ ++n ] = src;
+        objCopy[ n ]  = ret = {};
+    } else {
+        // string, number, true
+        return src;
+    };
+    for( k in src ){
+        //if( X_EMPTY_OBJECT[ k ] ) continue;
+        ret[ k ] = X_Object_deepCopy_( src[ k ], objSrc, objCopy, n );
+    };
+    return ret;
+};
 
 /**
  * object が空か？調べます。 object でない場合、undefined が返る

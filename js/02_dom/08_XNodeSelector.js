@@ -422,7 +422,26 @@ function X_Node_Selector__parse( query, last ){
                         //console.log( l + ' >> ' + xnodes.length + ' tag:' + tagName );
                     };
             };
-            
+
+            function X_Node_Selector__fetchElements( list, xnodes, tag, merge ){
+                var l      = xnodes.length,
+                    i      = 0,
+                    child, uid, _tag, _xnodes;
+        
+                for( ; i < l; ++i ){ // for( ; child = xnodes[ ++i ]; )
+                    child = xnodes[ i ];
+                    uid   = child[ '_uid' ];
+                    _tag  = child[ '_tag' ];
+                    if( !merge[ uid ] && _tag ){
+                        merge[ uid ] = true;
+                        ( !tag || tag === _tag ) && ( list[ list.length ] = child );
+                        if( ( _xnodes = child[ '_xnodes' ] ) && ( 1 < _xnodes.length || ( _xnodes[ 0 ] && _xnodes[ 0 ][ '_tag' ] ) ) ){
+                            X_Node_Selector__fetchElements( list, _xnodes, tag, merge );
+                        };
+                    };
+                };
+            };
+
             isStart = false;
             
             //alert( 'pre-selector:' + ( xnodes && xnodes.length ) )
@@ -601,55 +620,38 @@ function X_Node_Selector__parse( query, last ){
                     xnodes[ ++n ] = xnode;
                 };
             };
+            // TODO Tree に接続していない場合でも、 scope の順番で
             xnodes = X_Node_Selector__sortElementOrder( [], xnodes, hasRoot ? [ HTML ] : HTML[ '_xnodes' ] );
+        };
+
+        function X_Node_Selector__sortElementOrder( newList, list, xnodes ){
+            var l = xnodes.length,
+                i = 0,
+                j, child, _xnodes;
+    
+            for( ; i < l; ++i ){
+                child = xnodes[ i ];
+                if( !child[ '_tag' ] ) continue;
+    
+                j = list.indexOf( child );
+                if( j !== -1 ){
+                    newList[ newList.length ] = child;
+                    if( list.length === 2 ){
+                        newList[ newList.length ] = list[ j === 0 ? 1 : 0 ];
+                        return newList;
+                    };
+                    list.splice( j, 1 );
+                };
+    
+                if( ( _xnodes = child[ '_xnodes' ] ) && X_Node_Selector__sortElementOrder( newList, list, _xnodes ) ){
+                    return newList;
+                };
+            };
         };
 
         return xnodes.length === 1 ? xnodes[ 0 ] : new X_NodeList( xnodes );
     };
-    
-    function X_Node_Selector__sortElementOrder( newList, list, xnodes ){
-        var l = xnodes.length,
-            i = 0,
-            j, child, _xnodes;
 
-        for( ; i < l; ++i ){
-            child = xnodes[ i ];
-            if( !child[ '_tag' ] ) continue;
-
-            j = list.indexOf( child );
-            if( j !== -1 ){
-                newList[ newList.length ] = child;
-                if( list.length === 2 ){
-                    newList[ newList.length ] = list[ j === 0 ? 1 : 0 ];
-                    return newList;
-                };
-                list.splice( j, 1 );
-            };
-
-            if( ( _xnodes = child[ '_xnodes' ] ) && X_Node_Selector__sortElementOrder( newList, list, _xnodes ) ){
-                return newList;
-            };
-        };
-    };
-
-    function X_Node_Selector__fetchElements( list, xnodes, tag, merge ){
-        var l      = xnodes.length,
-            i      = 0,
-            child, uid, _tag, _xnodes;
-
-        for( ; i < l; ++i ){ // for( ; child = xnodes[ ++i ]; )
-            child = xnodes[ i ];
-            uid   = child[ '_uid' ];
-            _tag  = child[ '_tag' ];
-            if( !merge[ uid ] && _tag ){
-                merge[ uid ] = true;
-                ( !tag || tag === _tag ) && ( list[ list.length ] = child );
-                if( ( _xnodes = child[ '_xnodes' ] ) && ( 1 < _xnodes.length || ( _xnodes[ 0 ] && _xnodes[ 0 ][ '_tag' ] ) ) ){
-                    X_Node_Selector__fetchElements( list, _xnodes, tag, merge );
-                };
-            };
-        };
-    };
 /*
     function X_Node_Selector__fetchElements( list, parent, tag, merge ){
         

@@ -162,10 +162,10 @@ function X_Node_Attr_objToAttrText( that, skipNetworkForElmCreation ){
  * node.attr( 'src', url );
  */
 function X_Node_attr( nameOrObj /* v */ ){
-    var attrs = this[ '_attrs' ], newAttrs, f, k, elm, v;
+    var attrs = this[ '_attrs' ], tag = this[ '_tag' ], newAttrs, f, k, elm, v;
     
     if( nameOrObj && X_Type_isObject( nameOrObj ) ){
-        if( !this[ '_tag' ] ) return this;
+        if( !tag ) return this;
         
         attrs || ( attrs = this[ '_attrs' ] = {} );
         newAttrs = this[ '_newAttrs' ] || ( this[ '_newAttrs' ] = {} );
@@ -182,7 +182,7 @@ function X_Node_attr( nameOrObj /* v */ ){
         return this;
     } else
     if( 1 < arguments.length ){
-        if( !this[ '_tag' ] ) return this;
+        if( !tag ) return this;
         
         // setter
         if( X_Node_Attr_setAttr( this, attrs || ( this[ '_attrs' ] = {} ), this[ '_newAttrs' ] || ( this[ '_newAttrs' ] = {} ), nameOrObj, arguments[ 1 ] ) === true ){
@@ -193,7 +193,7 @@ function X_Node_attr( nameOrObj /* v */ ){
         return this;
     } else
     if( X_Type_isString( nameOrObj ) ){
-        if( !this[ '_tag' ] ) return;
+        if( !tag ) return;
         
         // getter
         switch( nameOrObj ){
@@ -204,13 +204,13 @@ function X_Node_attr( nameOrObj /* v */ ){
                 return this[ '_className' ];
             case 'tag' :
             case 'tagName' :
-                return this[ '_tag' ];
+                return tag;
             case 'style' :
             case 'cssText' :
                 return this[ 'cssText' ]();
 
             case 'src' : // src は遷移して変化する, name も?
-                if( this[ '_tag' ] !== 'IFRAME' ) break;
+                if( tag !== 'IFRAME' ) break;
                 if( this[ '_newAttrs' ] && X_Object_inObject( nameOrObj, this[ '_newAttrs' ] ) ) return this[ '_newAttrs' ][ nameOrObj ];
                 if( elm = X_UA_DOM.IE4 ? this[ '_rawObject' ] || X_Node__ie4getRawNode( this ) : this[ '_rawObject' ] ){
                     if( !attrs ) attrs = this[ '_attrs' ] = {};
@@ -226,16 +226,16 @@ function X_Node_attr( nameOrObj /* v */ ){
                     elm.parentNode && elm.selectedIndex;
                 };
             case 'value' :
-                if( this[ '_tag' ] === 'INPUT' && X_Node_Attr_STATIC_VALUE_TYPES[ attrs[ 'type' ] ] ) break;
+                if( tag === 'INPUT' && X_Node_Attr_STATIC_VALUE_TYPES[ attrs[ 'type' ] ] ) break;
             case 'checked' :
             case 'disabled' :            
             case 'selectedIndex' :
-                if( X_Node_Attr_HAS_VALUE[ this[ '_tag' ] ] ){
+                if( X_Node_Attr_HAS_VALUE[ tag ] ){
                     if( this[ '_newAttrs' ] && X_Object_inObject( nameOrObj, this[ '_newAttrs' ] ) ) return this[ '_newAttrs' ][ nameOrObj ];
                     if( elm = X_UA_DOM.IE4 ? this[ '_rawObject' ] || X_Node__ie4getRawNode( this ) : this[ '_rawObject' ] ){
                         if( !attrs ) attrs = this[ '_attrs' ] = {};
                         
-                        if( this[ '_tag' ] === 'TEXTAREA' && nameOrObj === 'value' && X_UA[ 'IE' ] < 9 ){
+                        if( tag === 'TEXTAREA' && nameOrObj === 'value' && X_UA[ 'IE' ] < 9 ){
                             return attrs[ nameOrObj ] = X_Node_Attr_getValueForIE( elm );
                         };
                         return attrs[ nameOrObj ] = elm[ nameOrObj ]; // getAttribute( nameOrObj )?
