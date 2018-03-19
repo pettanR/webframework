@@ -21,7 +21,7 @@ var X_GadgetXHR_canUse         = 5.5 <= X_UA[ 'IE' ] || !X_UA[ 'IE' ],
 	
 	X_GadgetXHR_iframeName     = 'gadgetProxy_' + ( Math.random() * 100000 | 0 ),
 	
-	X_GadgetXHR_GADGET_XML_URL = 'http://googledrive.com/host/0B4Y86MXyTfuoVUkwTE54T3V1V1U',
+	X_GadgetXHR_GADGET_XML_URL = 'http://pettanr.github.io/webframework/gadget/X.Net.XHRGadget.xml',
 	
 	// https://kldleov8fp2dl82hphfmor8riij82tof-a-sites-opensocial.googleusercontent.com/gadgets/ifr
 	X_GadgetXHR_GADGET_URL     = 'http://www.ig.gmodules.com/gadgets/ifr?url=' + encodeURIComponent( X_GadgetXHR_GADGET_XML_URL ) + '&nocache=1',

@@ -5,7 +5,7 @@ var gadgets_io_makeRequest = gadgets[ 'io' ][ 'makeRequest' ],
 	gadgets_json_parse     = gadgets[ 'json' ][ 'parse' ],
 	gadgets_json_stringify = gadgets[ 'json' ][ 'stringify' ],
 
-	whiteList         = [ 'http://127.0.0.1:8020' ],
+	whiteList         = [ 'http://127.0.0.1:8020', 'https://pettanr.github.io/' ],
 	receivedTaskID    = 0,
 	hashString        = ( location.hash || '#{}' ).substr( 1 ),
 	initParams        = gadgets_json_parse( decodeURIComponent( hashString ) ),
