@@ -101,6 +101,9 @@ var X_HTMLParser_CHARS = {
                     } else
                     if( index === false ){
                         return;
+                    } else {
+                        // 解析できなかったhtmlタグをテキストとして扱う
+                        html = '&lt;' + html.substr( 1 );
                     };
                 };
 
@@ -120,7 +123,7 @@ var X_HTMLParser_CHARS = {
                 return;
             };
             
-            if( async && startTime + X_Timer_INTERVAL_TIME <= X_Timer_now() && html ){
+            if( async && html && startTime + X_Timer_INTERVAL_TIME <= X_Timer_now() ){
                 handler.progress( 1 - html.length / async[ 0 ] );
                 X_Timer_once( 0, X_HTMLParser_exec, [ html, handler, async ] );
                 return;
