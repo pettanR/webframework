@@ -637,7 +637,7 @@ function X_Node_css( nameOrObj /* value */ ){
     var args = arguments,
         css  = this[ '_css' ],
         bad  = !this[ '_tag' ] || X_Dom_DTD_MOVE_TO_HEAD[ this[ '_tag' ] ] || this[ '_tag' ] === 'SCRIPT',
-        p, name, v, plain, camelize, flags;
+        p, name, v, plain, camelize, flags, changed;
 
 // setter:object
     if( X_Type_isObject( nameOrObj ) ){
@@ -652,8 +652,10 @@ function X_Node_css( nameOrObj /* value */ ){
             name = camelize( p );
             v    = nameOrObj[ p ];
             if( css[ name ] === v ) continue;
+            changed = true;
             flags = X_Node_CSS_setStyle( css, flags, name, v );
         };
+        if( !changed ) return this;
         flags |= X_NodeFlags_DIRTY_CSS | X_NodeFlags_OLD_CSSTEXT;
         this[ '_flags' ] = flags;
         flags & X_NodeFlags_IN_TREE && X_Node_reserveUpdate();
