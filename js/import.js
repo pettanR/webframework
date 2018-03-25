@@ -1,4 +1,6 @@
-﻿var basePath = '';
+var forceNoChashe = 0;
+var basePath = '';
+
 (function(){
     var src = document.scripts[ document.scripts.length - 1 ].src;
     basePath = src.split( 'js/' )[ 0 ];
@@ -6,6 +8,7 @@
 
 document.write( [
     '<script src="' + basePath +
+
         'js/01_core/00_builtin.js',
         'js/01_core/01_X.js',
         'js/01_core/02_XUA.js',
@@ -26,7 +29,6 @@ document.write( [
         'js/01_core/16_XTimer.js',
         'js/01_core/17_ExecuteAtEnd.js',
         'js/01_core/18_FocusUtility.js',
-
         'js/01_core/20_XSystem.js',
         'js/01_core/21_XViewPort.js',    
         'js/01_core/22_XLogger.js',
@@ -45,8 +47,6 @@ document.write( [
         'js/02_dom/10_XNodeAnime.js',
         'js/02_dom/20_XNode.js',
         'js/02_dom/22_XTreeBuilder.js',
-        'js/02_dom/30_XTextRange.js',
-
         'js/03_plugin/00_XPlugin.js',
 
         //'js/04_backend/00_XBackend.js',
@@ -55,7 +55,10 @@ document.write( [
         'js/05_util/01_XNinjaIframe.js',
         'js/05_util/02_XJSON.js',
         'js/05_util/03_XUtilImage.js',
-        
+        'js/05_util/04_XXML.js',
+        //'js/05_util/05_XEmbed.js',
+        'js/05_util/06_XWindow.js',
+
         'js/06_net/00_XNet.js',
         'js/06_net/01_XNetXHR.js',
         'js/06_net/02_XNetJSONP.js',
@@ -68,12 +71,24 @@ document.write( [
         'js/07_audio/01_XWebAudio.js',
         'js/07_audio/02_XHTMLAudio.js',
         'js/07_audio/03_XSilverlightAudio.js',
+        'js/07_audio/05_XWMPAudio.js',
         'js/07_audio/10_XAudioSprite.js',
+        
+        'js/08_domRange/00_global.js',
+        'js/08_domRange/01_localVariables.js',
+        'js/08_domRange/02_TextRange.js',
+        'js/08_domRange/10_RangeFromSelection.js',
+        'js/08_domRange/11_RangeFromIndex.js',
+        'js/08_domRange/12_RangeFromPoint.js',
+        'js/08_domRange/13_LineRangeFromIndex.js',
+        'js/08_domRange/14_LineRangeFromLast.js',
+        'js/08_domRange/15_LineRangeFromPoint.js',
 
-        'js/11_hid/01_KB.js'
+        'js/11_hid/01_KB.js',
 
+        'js/onReachEndOfScript.js'    
     + '"></script>'
-].join( '"></script><script src="' + basePath ));
+].join( ( forceNoChashe ? '?ts=' + Math.random() : '' ) + '"></script><script src="' + basePath ));
 
 
 
