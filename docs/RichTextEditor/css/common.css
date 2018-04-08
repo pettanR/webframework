@@ -1,0 +1,120 @@
+
+	html {
+		font-size                : 100%; /* 1 */
+		-webkit-text-size-adjust : 100%; /* 2 */
+		   -moz-text-size-adjust : 100%; /* 2 */
+		    -ms-text-size-adjust : 100%; /* 2 */
+		        text-size-adjust : 100%; /* 2 */
+	}
+
+	html,
+	body {
+		width    : 100%;
+		height   : 100%;
+		margin   : 0;
+		padding  : 0; /* opera 8 */
+		border   : 0;
+		-webkit-user-select: initial !important;
+		-moz-user-select: initial !important;
+		-ms-user-select: initial !important;
+		-o-user-select: initial !important;
+		user-select: initial !important;
+	}
+	body, textarea {
+		font-family:'ヒラギノ角ゴ Pro W3','Hiragino Kaku Gothic Pro','メイリオ',Meiryo,'ＭＳ Ｐゴシック',sans-serif;
+	}
+
+	.hidden-iframe,
+	.hidden-system-node {
+		position   : absolute;
+		left       : 0;
+		top        : 0;
+		visibility : hidden;
+	}
+
+	.articleBody {
+		width       : 30em;
+		max-width   : 96%;
+		line-height : 1.9;
+		margin      : 1em 2%;
+	}
+	img {
+		max-width   : 100%;
+	}
+		.box:after {
+			content    : "."; 
+			display    : block; 
+			height     : 0; 
+			font-size  : 0;	
+			clear      : both; 
+			visibility : hidden;
+		}
+		* html .box { height : 1%; }
+	
+			.box img {
+				float  : left;
+				margin : 0 1em 1em 0;
+			}
+		
+		h1, p, textarea, dt, dd {
+			margin  : 0 0 1em;
+			padding : 0;
+			border  : 0;
+
+		/* //_{@ie55,@ie6,@ie7,@ie8,@ie9,@modern */
+			word-wrap   : break-word;    /* IE 5.5+, Firefox3.5, Safari 1, Opera 10.5 */
+		/* //_}@ie55,@ie6,@ie7,@ie8,@ie9,@modern */
+		/* //_{#ie8-win,@ie9,@modern */
+			word-break  : break-all;     /* IE 5+ */
+		/* //_}#ie8-win,@ie9,@modern */
+		}
+		
+		form {
+			position    : relative;
+		}
+
+		textarea {
+			position   : absolute;
+			width      : 100%;
+			top        : 0;
+			left       : 0;
+
+			pointer-events : auto;
+		
+			/* //_{@modern */
+			resize     : none;
+			/* //_}@modern */
+
+			display     : block;
+			background  : #eef;
+			line-height : 1.9;
+			overflow    : hidden;
+			font-size   : 100%;
+			font-size   : inherit;
+		}
+		textarea:focus { outline : 0 }
+		
+		.hideForEdit {
+			position   : absolute;
+			width      : 100%;
+			top        : 0;
+			left       : 0;
+			/* z-index    : -1;
+			visibility : hidden; */
+		        user-select         : none;
+		   -moz-user-select         : none;
+		 -khtml-user-select         : none;
+		-webkit-user-select         : none;
+
+		/* this makes the element blocking in IE10 >, you could experiment with the value
+		   see for more options this issue; https://github.com/EightMedia/hammer.js/issues/241 */
+		    touch-action            : none;
+		-ms-touch-action            : none;
+		        touch-callout       : none;
+		-webkit-touch-callout       : none;
+		    content-zooming         : none;
+		-ms-content-zooming         : none;
+		        user-drag           : none;
+		 -khtml-user-drag           : none;
+		-webkit-user-drag           : none;
+		}

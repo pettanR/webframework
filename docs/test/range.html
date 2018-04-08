@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja" class="js-disabled notranslate" xmlns:v="urn:schemas-microsoft-com:vml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    
+<title>TextRange</title>
+<meta name="msapplication-tap-highlight" content="no">
+<meta name="HandheldFriendly" content="true">
+<meta name="mobileoptimized" content="0">
+
+<!-- for ie & chrome frame -->
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta http-equiv="imagetoolbar" content="no">
+
+<!-- for smartphone -->
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<!-- maximum-scale=1 初代iPod touch で必要, minimal-ui は iOS7.1 only, dynamic-viewport は operaで可能  -->
+<meta name="viewport" content="width=device-width,target-densitydpi=medium-dpi,initial-scale=1,maximum-scale=1">
+
+<style>
+    .hidden-system-node {
+        position   : absolute;
+        left       : 0;
+        top        : 0;
+        visibility : hidden;
+    }
+    #txt {
+        margin : 5em;
+        width  : 6em;
+        white-space : pre;           /* CSS 2.0 */
+        white-space : -pre-wrap;     /* Opera 4-6 */
+        white-space : -o-pre-wrap;   /* Opera 7 */
+        white-space : -moz-pre-wrap; /* Mozilla */
+        white-space : -webkit-pre-wrap; /* Chrome, Safari */
+            /* white-space : -hp-pre-wrap;  HP Printers */                
+            white-space : pre-wrap;      /* CSS 2.1 */
+            /* white-space : pre-line;      CSS 3.0 */
+            word-wrap   : break-word;    /* IE 5.5+ */
+            word-break  : break-all;
+    }
+    html, body {
+        margin : 0;
+        padding : 0;
+        border : 0;
+        -webkit-user-select: initial !important;
+  -moz-user-select: initial !important;
+  -ms-user-select: initial !important;
+  -o-user-select: initial !important;
+  user-select: initial !important;
+    }
+    span { color : red }
+</style>
+
+<script type="text/javascript" src="../full.js"></script>
+
+<script>
+    X(function(){
+        X('#txt').listen( 'click', onClick );
+        
+        X.KB.listen( 'keydown', onKeyDown );
+    });
+    function onClick(e){
+        draw( this, this.createRange( 'point', e.pageX, e.pageY ) );
+    };
+
+    function draw( xnode, r ){
+        var o = r && r.getOffset(),
+            b = r && r.getRect(),
+            t = xnode.text();
+        
+        r && X('#out').text(
+            'from:' + ( o.from ) +
+            ', to:' + ( o.to ) +
+            ', char:"' + t.substring( o.from, o.to ) +
+            '", len:' + t.length );
+        r && r.select();
+        false && b && X.Doc.body.createAt( 0, 'div' ).css(
+            {
+                'position'   : 'absolute',
+                'left'       : b.x + 'px',
+                'top'        : b.y + 'px',
+                'width'      : b.width + 'px',
+                'height'     : b.height + 'px',
+                'background' : '#ccc'
+            }
+        );
+        b && X('#ta').attr( 'value', X.JSON.stringify( b ) );
+    };
+
+    function onKeyDown(e){
+        if( e.keyName === 'BS' ) return X.Callback.PREVENT_DEFAULT | X.Callback.STOP_PROPAGATION;
+        //if( e.keyName ) return;
+    
+        var key = String.fromCharCode( e.charCode ),
+            range = X('#ta').createRange('selection');
+
+        range && range.text( key );
+        // return X.Callback.PREVENT_DEFAULT | X.Callback.STOP_PROPAGATION;
+    };
+    function lineIndex( index ){
+        draw( X('#txt'), X('#txt').createRange( 'line-index', index ) );
+    };
+    function lineLast( index ){
+        draw( X('#txt'), X('#txt').createRange( 'line-last', index ) );
+    };
+</script>
+
+<noscript>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+</noscript>
+</head>
+<body>
+    <div id="txt">ABCDEFGHIJKL
+        <span>MNOPQRS</span>
+        
+        TUVWXY<b>z</b></div>
+    <div id="out"></div>
+    <p>
+            <input type="button" value="lineIndex( 0 )" onclick="lineIndex( 0 )">
+            <input type="button" value="lineIndex( 1 )" onclick="lineIndex( 1 )">
+            <input type="button" value="lineIndex( 2 )" onclick="lineIndex( 2 )">
+            <input type="button" value="lineIndex( 3 )" onclick="lineIndex( 3 )"></p>
+            <p>
+            <input type="button" value="lineLast( 0 )" onclick="lineLast( 0 )">
+            <input type="button" value="lineLast( 1 )" onclick="lineLast( 1 )">
+            <input type="button" value="lineLast( 2 )" onclick="lineLast( 2 )">
+            <input type="button" value="lineLast( 3 )" onclick="lineLast( 3 )"></p>
+<form>
+    <textarea id="ta" cols="80" rows="10">
+Hello, world.
+TextRange
+    </textarea>
+</form>
+</body>
+</html>
