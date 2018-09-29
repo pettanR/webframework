@@ -71,7 +71,7 @@ if( !X_UA[ 'IE' ] || 9 <= X_UA[ 'IE' ] ){
         // ポインター イベントの更新
         if( e.pointerType ||
             // IE11 の IE10 モードで click イベントの pointerType が undefined
-            ( X_UA[ 'IE' ] === 10 && type === 'click' && ( e.pointerType = 'mouse' ) ) ){
+            ( X_UA[ 'IE' ] === 10 && type === 'click' && ( e.pointerType = 4 ) ) ){
             // PointerEvent;
             if( X_Dom_Event_convertMSPointerType ){
                 this[ 'pointerType' ]   = X_Dom_Event_convertMSPointerType[ e.pointerType ];
