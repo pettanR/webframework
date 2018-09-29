@@ -1,40 +1,39 @@
 
-(function( window, document, setInterval, clearInterval, gadgets ){
+(function( window, document, location, setInterval, clearInterval, gadgets ){
+'use strict';
 
 var gadgets_io_makeRequest = gadgets[ 'io' ][ 'makeRequest' ],
     gadgets_json_parse     = gadgets[ 'json' ][ 'parse' ],
     gadgets_json_stringify = gadgets[ 'json' ][ 'stringify' ],
 
-    whiteList         = [ 'http://127.0.0.1:8020', 'https://pettanr.github.io/' ],
+    whiteList         = [ 'http://127.0.0.1:8020', 'https://pettanr.github.io/', 'http://my-http-proxy-856.appspot.com/' ],
     receivedTaskID    = 0,
     hashString        = ( location.hash || '#{}' ).substr( 1 ),
     initParams        = gadgets_json_parse( decodeURIComponent( hashString ) ),
+    targetFrameOrigin = initParams[ 'tfo' ],
+    usePostMessage    = !!targetFrameOrigin,
     proxyImageSrc     = initParams[ 'img' ],
     maxQueryLength    = initParams[ 'len' ] || 1000,
     detectionInterval = initParams[ 'itv' ] || 1000,
-    decodeHashString  = initParams[ 'gck' ] ? unescape : decodeURIComponent, // gecko
+    decodeHashString  = initParams[ 'gck' ] ? unescape : decodeURIComponent,
     eventTypeError    = initParams[ 'err' ] || 'error',
     eventTypeSuccess  = initParams[ 'suc' ] || 'success',
-
-// TODO postmassage
-    postMessageKey    = initParams[ 'pmk' ] || 0,
-// TODO onhashchange
-    useOnHashChange   = window.onhashchange,
+    useOnHashChange   = window.onhashchange !== undefined,
 
     // 分割転送モード
     numReceive = 0, receivedBatches = [],
-    canResponse = false, responseBatches = [],
+    canResponse, responseBatches = [],
     
     proxyIframe, sendDataType, timerID;
 
 while( true ){
     if( !whiteList.length ) return alert( 'whitelist error!' );
-    if( proxyImageSrc.indexOf( whiteList.pop() ) === 0 ) break;
+    if( ( targetFrameOrigin || proxyImageSrc ).indexOf( whiteList.pop() ) === 0 ) break;
 };
 
 onunload = function(){
     timerID && clearInterval( timerID );
-    
+
     try {
         // http://kojikoji75.hatenablog.com/entry/2013/12/15/223839
         if( proxyIframe ) proxyIframe.closed || proxyIframe.open('about:blank','_self').close();
@@ -44,21 +43,25 @@ onunload = function(){
 };
 
 gadgets[ 'util' ][ 'registerOnLoadHandler' ](function(){
+    // reciver
     if( useOnHashChange ){
         onhashchange = detectHashChange;
     } else {
         timerID = setInterval( detectHashChange, detectionInterval );
     };
-    
-    proxyIframe = document.createElement( 'iframe' );
-    document.body.appendChild( proxyIframe );
-    proxyIframe.src = proxyImageSrc + '#ready';
+
+    // sender
+    if( !usePostMessage ){
+        proxyIframe = document.createElement( 'iframe' );
+        document.body.appendChild( proxyIframe );
+    };
+    sendMessage( 'ready' );
 });
 
 // init ここまで
 
 function detectHashChange(){
-    var params, n;
+    var n;
 
     if( location.hash !== '#' + hashString ){
 
@@ -132,7 +135,11 @@ function detectHashChange(){
  * 親フレームはこの hash の変化を監視して、続くタスクの送信を行う。
  */
 function sendMessage( msg ){
-    proxyIframe.src = proxyImageSrc + '#' + msg;
+    if( usePostMessage ){
+        parent.postMessage( msg, targetFrameOrigin );
+    } else {
+        proxyIframe.src = proxyImageSrc + '#' + msg;
+    };
     canResponse = false;
 };
 
@@ -187,8 +194,9 @@ function doRequest( obj ){
 };
 
 function onRequestComplete( response ){
-    var data = response[ 'text' ] || response[ 'json' ] || '',
-        rc   = response[ 'rc' ],
+    var data   = response[ 'text' ] || response[ 'json' ] || '',
+        rc     = response[ 'rc' ],
+        encode = usePostMessage ? String : encodeURIComponent,
         str, l, sendStr, errors, error, ev;
     
     //console && console.dir && console.dir( response );
@@ -215,7 +223,7 @@ function onRequestComplete( response ){
     errors = errors || response[ 'errors' ];
     error  = errors && errors.length;
     
-    if( error || rc < 200 || 400 < rc ){
+    if( error || rc < 200 || 400 <= rc ){
         ev = {
             type      : eventTypeError,
             status    : rc || response[ 'code' ] || 400,
@@ -237,10 +245,10 @@ function onRequestComplete( response ){
     
     while( sendStr.length ){
         l   = maxQueryLength;
-        str = encodeURIComponent( sendStr.substr( 0, l ) );
+        str = encode( sendStr.substr( 0, l ) );
         while( maxQueryLength < str.length ){
             l   = l * ( 2 + l / str.length ) / 3 | 0;
-            str = encodeURIComponent( sendStr.substr( 0, l ) );
+            str = encode( sendStr.substr( 0, l ) );
             //console.log( l );
         };
         responseBatches.push( str );
@@ -264,5 +272,4 @@ function onRequestComplete( response ){
     sendResponse();
 };
 
-})( window, document, setInterval, clearInterval, window[ 'gadgets' ] );
-
+})( window, document, location, setInterval, clearInterval, window[ 'gadgets' ] );
