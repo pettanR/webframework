@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ja" class="js-disabled">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		
+	<title>Audioテスト</title>
+	
+	<meta name="HandheldFriendly" content="true">
+	<meta name="mobileoptimized" content="0">
+	
+	<!-- for ie & chrome frame -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta http-equiv="imagetoolbar" content="no">
+	
+	<!-- for smartphone -->
+	<meta name="format-detection" content="telephone=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	
+	<!-- maximum-scale=1 初代iPod touch で必要, dynamic-viewport は operaで可能  -->
+	<meta name="viewport" id="dynamic-viewport" content="width=device-width,target-densitydpi=device-dpi,initial-scale=1,user-scalable=0,maximum-scale=1,minimum-scale=1">
+
+	<style>
+		.hidden-system-node {
+			position   : absolute;
+			left       : 0;
+			top        : 0;
+			visibility : hidden;
+		}
+	</style>
+	<script>document.write( '<script type="text/javascript" src="../full.js?ts=' + Math.random() + '"><\/script>' );</script>
+<script>
+var SpritePlayer, bgmID = -1;
+
+window.onerror = function( a, b, c ){
+    alert( a + ' ' + b + ' ' + c );
+};
+
+X( function(){
+    var k, ary = [],
+        ua = X.UA || {};
+
+    for( k in ua ){
+        ary[ ary.length ] = k + ( ua[ k ] !== true ? '=' + ua[ k ] : '' );
+    };
+
+    X('#userAgent').html(
+        '<h1>ua</h1>' +
+        '<p>' + ary.join( ' , ' )
+    );
+
+    X( '#init1' ).listen( 'click', function(){ X.Timer.once( 2000, init, [ 1 ] );} );
+    X( '#init2' ).listen( 'click', function(){ X.Timer.once( 2000, init, [ 2 ] );} );
+    X( '#init4' ).listen( 'click', function(){ X.Timer.once( 2000, init, [ 3 ] );} );
+    X( '#init8' ).listen( 'click', function(){ X.Timer.once( 2000, init, [ 4 ] );} );
+    
+    X.Timer.once( 7000, init, [ 1 ] );
+} );
+
+function init( numTracks ) {
+	if( SpritePlayer ) return;
+	
+    var param = {
+            urls      : [ "./mario.mp3", "./mario_CBR.mp3#CBR=1", "./mario.m4a", "./mario.ogg" ],// L-06C m4a を取りに行くと停まる、、、
+            numTracks : numTracks,
+            volume    : 1,
+
+        // --- BGM ---
+            //BGM_Mute:           ["0:00", "0:10",   true],
+            BGM_OverWorld:      ["0:15", "0:53.2", true],
+            BGM_HarryUp:        ["1:00", "1:28.2", true, "1:02.88"],
+        // --- SE ---
+            SE_Jump:            ["2:00", "2:00.576"],
+            SE_HiJump:          ["2:02", "2:02.56"],
+            SE_Bump:            ["2:04", "2:04.22"],
+            SE_Kick:            ["2:06", "2:06.2"],
+            SE_Coin:            ["2:08", "2:08.98"],
+            SE_BrakeBlock:      ["2:10", "2:10.55"],
+            SE_FireBall:        ["2:12", "2:12.12"],
+            SE_Stomp:           ["2:14", "2:14.3"],
+            SE_1up:             ["2:16", "2:16.84"],
+            SE_PowerUp:         ["2:18", "2:19"],
+            SE_ItemGlow:        ["2:20", "2:20.57"],
+            SE_Pipe:            ["2:22", "2:22.77"],
+            SE_Vine:            ["2:24", "2:25.1"],
+            SE_Pole:            ["2:26", "2:27.1"],
+            SE_FireWorks:       ["2:28", "2:28.42"],
+            SE_KoopaFire:       ["2:40", "2:41.1"],
+            SE_KoopaFalls:      ["2:44", "2:45"],
+            // --- Jingle ---
+            Z_GameOver:         ["2:48", "2:52"],
+            Z_MarioDie:         ["2:54", "2:56.7"],
+            Z_Pause:            ["3:00", "3:00.8"],
+            Z_StageClear:       ["3:04", "3:09.49"],
+            Z_WorldClear:       ["3:12", "3:18.12"]
+        };
+
+    SpritePlayer = X.AudioSprite( param ).listen( X.Event.BACKEND_READY, function(e){
+	    X('#init-block').css( 'display', 'none' );
+	    
+    	if( e.needTouchForPlay ){
+    		// WebAudio は タッチで再生開始
+	    	X('#touch-first').css( 'display', '' ).text( 'WebAudio:再生開始にユーザーのタッチが必要です。' ).listen( 'click', function(){
+				this.kill();
+	    		SpritePlayer.listen( X.Event.READY, function(){
+		    		setup( e.backendName + ' x' + SpritePlayer.numTracks + ' ' + e.source );
+		    		X( '#logger' ).create( 'div' ).text( '-- Ready --' );
+	    		} ).pause(); // loadIn1stTouch
+	    	});
+    	} else
+    	if( e.needTouchForLoad ){
+    		// HTMLAudio は タッチでロード開始。
+	    	X('#touch-first').css( 'display', '' ).text( 'HTMLAudio:ロード開始にユーザーのタッチが必要です。' ).listen( 'click', function(){
+				this.kill();
+	    		SpritePlayer.listen( X.Event.READY, function(){
+		    		setup( e.backendName + ' x' + SpritePlayer.numTracks + ' ' + e.source );
+		    		X( '#logger' ).create( 'div' ).text( '-- Ready --' );
+	    		} ).pause(); // loadIn1stTouch
+	    	});
+    	} else {
+	    	console.log( 'iOS 以外 ' + e.backendName );
+	    	SpritePlayer.listen( X.Event.READY, function(){
+	    		
+	    		setup( e.backendName + ' x' + SpritePlayer.numTracks + ' ' + e.source );
+	    		X( '#logger' ).create( 'div' ).text( '-- Ready --' );
+	    	} );
+	    };
+    } ).listen( X.Event.BACKEND_NONE, function(e){
+    	alert( 'backend none' );
+    } ).listen( X.Event.DEBUG, function(e){
+    	var log = X( '#logger' );
+    	if( 60 < log.numChildren() ) log.empty();
+    	log.create( 'div' ).text( 'track' + e.trackID + ', ' + ceil( e.current ) + '/' + ceil( e.duration ) + ' ' + e.rawEvent );
+    } );
+
+	function ceil( v ){
+		return ( v * 100 | 0 ) / 100;
+	}
+};
+
+function setup( text ){
+	X('#init-block').css( 'display', '' ).text( text );
+	X('#buttons').css( 'display', '' ).find('input').listen( 'pointerdown', onClick );
+	
+	X.Timer.once( 1000, SpritePlayer, SpritePlayer.play, [ 'Z_WorldClear' ] );
+};
+
+function onClick(){
+	var v = this.attr( 'value' ) || this.text(), r;
+	
+	switch( v ){
+		case 'pause' :
+			0 <= bgmID && SpritePlayer.pause( bgmID );
+			X( '#logger' ).create( 'div' ).text( v );
+			break;
+		
+		default :
+			switch( v.substr( 0, 2 ) ){
+				case 'BG' :
+					bgmID = SpritePlayer.play( v );
+					break;
+				
+				case 'SE' :
+					SpritePlayer.play( v );
+					break;
+				
+				case 'Z_' :
+					0 <= bgmID && SpritePlayer.pause( bgmID );
+					bgmID = -1;
+					SpritePlayer.play( v );
+					break;
+			};
+			X( '#logger' ).create( 'div' ).text( v );
+			
+	};
+	return X.Callback.PREVENT_DEFAULT | X.Callback.STOP_PROPAGATION;
+};
+</script>
+</head>
+<body>
+    <div id="userAgent"></div>
+	<p>original : <a href="http://uupaa.github.io/UnitePlayer.js/demo/mario/mario.htm" target="_blank">Uniteplayer.js mario sequencer demo</a></p>
+	<p id="init-block">
+		<button id="init1">トラック1</button>
+		<button id="init2">トラック2</button>
+		<button id="init4">トラック3</button>
+		<button id="init8">トラック4</button>
+	</p>
+	<p id="touch-first" style="display:none;"></p>
+	<p id="buttons" style="display:none;">
+<input type="button" value="BGM_OverWorld">
+<input type="button" value="BGM_HarryUp"> | 
+<input type="button" value="pause">
+<input type="button" value="vol-0.1">
+<input type="button" value="vol+0.1">
+<input type="button" value="seek-10">
+<input type="button" value="seek+10">
+<br>
+SE:<br>
+<input type="button" value="SE_Jump">
+<input type="button" value="SE_HiJump">
+<input type="button" value="SE_Bump">
+<input type="button" value="SE_Kick">
+<input type="button" value="SE_Coin">
+<input type="button" value="SE_BrakeBlock">
+<input type="button" value="SE_FireBall">
+<input type="button" value="SE_Stomp">
+<input type="button" value="SE_1up">
+<input type="button" value="SE_PowerUp">
+<input type="button" value="SE_ItemGlow">
+<input type="button" value="SE_Pipe">
+<input type="button" value="SE_Vine">
+<input type="button" value="SE_Pole">
+<input type="button" value="SE_FireWorks">
+<input type="button" value="SE_KoopaFire">
+<input type="button" value="SE_KoopaFalls">
+<br>
+Jingle:<br>
+<input type="button" value="Z_GameOver">
+<input type="button" value="Z_MarioDie">
+<input type="button" value="Z_Pause">
+<input type="button" value="Z_StageClear">
+<input type="button" value="Z_WorldClear">
+	</p>
+<div id="logger"></div>
+</body>
+</html>
