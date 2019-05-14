@@ -10,7 +10,7 @@ X_TEMP._isCleanupTarget = function( elm ){
 
 if( X_UA[ 'MacIE' ] ){
 
-    X_TEMP._fixed_remove = function( node, xnode ){
+    X_TEMP._fixed_remove = function( node ){
         var parent   = node.parentNode, l;
 
         node.nodeType !== 3 && alert( node.nodeType + '\n' + ( node.outerHTML || node.data ) );
@@ -88,7 +88,7 @@ if( X_UA[ 'MacIE' ] ){
     };
     
 } else
-if( X_UA[ 'Opera7' ] ){
+if( X_UA[ 'Opera' ] < 8 ){
 
     X_TEMP._fixed_remove = function( node ){
         if( node.nodeType === 1 || node.nodeType === 3 ){
@@ -161,7 +161,7 @@ X_TEMP._onPreInit =
                     // ブロック要素直下のスペースだけは削除？？
                 default :
                     //console.log( 'Remove type: ' + node.nodeType + ' value: ' + node.nodeValue );
-                    if( !X_UA[ 'Opera7' ] /*&& !X_UA[ 'MacIE' ] */ ){
+                    if( !( X_UA[ 'Opera' ] < 8 ) /*&& !X_UA[ 'MacIE' ] */ ){
                         elm.removeChild( node );
                     } else {
                         X_TEMP._fixed_remove( node );
@@ -344,7 +344,7 @@ X_TEMP.bindElementToXnode =
                 elm = elems[ current.j ];
                 tag = elm.tagName && elm.tagName.toUpperCase();
                 if( ( elm.nodeType !== 1 && elm.nodeType !== 3 ) || tag === '!' || ( tag && tag.charAt( 0 ) === '/' ) ){
-                    if( !X_UA[ 'Opera7' ] && !X_UA[ 'MacIE' ] ){
+                    if( !( X_UA[ 'Opera' ] < 8 ) && !X_UA[ 'MacIE' ] ){
                         elm.parentNode.removeChild( elm );
                     } else {
                         X_TEMP._fixed_remove( elm );
@@ -355,8 +355,7 @@ X_TEMP.bindElementToXnode =
                 if( xnode[ '_tag' ] ){
                     if( elm.nodeType === 3 ){
                         if( !( text = elm.data ) || ( text = X_String_cleanupWhiteSpace( text ) ) === ' ' ){
-                            //alert( text.charCodeAt( 0 ) );
-                            if( !X_UA[ 'Opera7' ] && !X_UA[ 'MacIE' ] ){
+                            if( !( X_UA[ 'Opera' ] < 8 ) && !X_UA[ 'MacIE' ] ){
                                 elm.parentNode.removeChild( elm );
                             } else {
                                 X_TEMP._fixed_remove( elm );

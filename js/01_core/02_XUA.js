@@ -384,7 +384,7 @@ var X_UA = X[ 'UA' ] = {},
          */
             X_UA[ 'Edge' ]  = v;
 
-        if( dav.indexOf( 'Mobile' ) ){
+        if( 0 < dav.indexOf( 'Mobile' ) ){
             /**
              * Microsoft Edge for Windows 10 Mobile
              * @alias X.UA.EdgeMobile

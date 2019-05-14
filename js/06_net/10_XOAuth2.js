@@ -29,10 +29,7 @@ oauth2 = X.OAuth2({
     'tokenEndpoint'     : 'https://accounts.google.com/o/oauth2/token',
     'redirectURI'       : X.URL.cleanup( document.location.href ), // 専用の軽量ページを用意してもよいが、現在のアドレスでも可能, gif は？
     'scopes'            : [ 'https://www.googleapis.com/auth/blogger' ],
-    'refreshMargin'     : 300000,
-    // canuse
-    'authorizeWindowWidth'  : 500,
-    'authorizeWindowHeight' : 500
+    'refreshMargin'     : 300000
 }).listen( [ X.Event.NEED_AUTH, X.Event.CANCELED, X.Event.SUCCESS, X.Event.ERROR, X.Event.PROGRESS ], updateOAuth2State );
 
 // XHR 時に oauth2 を渡す
@@ -104,7 +101,7 @@ X[ 'OAuth2' ] = X_EventDispatcher[ 'inherits' ](
              */
             'requestAuth' : function(){
                 var e = X_EventDispatcher_CURRENT_EVENTS[ X_EventDispatcher_CURRENT_EVENTS.length - 1 ],
-                    w, h, pair;
+                    /* w, h, */ pair;
                 
                 // TODO pointer event 内か？チェック
                 if( !e || !e[ 'pointerType' ] ){
@@ -119,8 +116,9 @@ X[ 'OAuth2' ] = X_EventDispatcher[ 'inherits' ](
                 
                 if( pair.net || pair.oauth2State ) return;
 
-                w   = pair[ 'authorizeWindowWidth' ]  || 500;
-                h   = pair[ 'authorizeWindowHeight' ] || 500;
+                // Google の OAuth パネルで下に切れるコンテンツが表示できない問題に遭遇。以降はタブで表示されるようにする。
+                /* w   = pair[ 'authorizeWindowWidth' ]  || 500;
+                h   = pair[ 'authorizeWindowHeight' ] || 500; */
 
                 X_OAUTH2_authWindow = X_Window( {
                     'url' : X_URL_create( pair[ 'authorizeEndpoint' ],
@@ -131,12 +129,12 @@ X[ 'OAuth2' ] = X_EventDispatcher[ 'inherits' ](
                                 'scope'         : ( pair[ 'scopes' ] || [] ).join( ' ' )
                             }
                         ),
-                    'name'   : 'oauthauthorize',
+                    'name'   : 'oauthauthorize' /*,
                     'params' : 'width=' + w
                         + ',height=' + h
                         + ',left=' + ( screen.width  - w ) / 2
                         + ',top='  + ( screen.height - h ) / 2
-                        + ',menubar=no,toolbar=no'
+                        + ',menubar=no,toolbar=no' */
                 } )[ 'listen' ]( X_EVENT_UNLOAD, this, X_OAuth2_detectAuthPopup );
                 
                 X_OAUTH2_authTimerID = X_Timer_add( 333, 0, this, X_OAuth2_detectAuthPopup );

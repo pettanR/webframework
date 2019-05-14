@@ -273,6 +273,25 @@ function X_Node_Selector__parse( query, last ){
             uid, tmp, xnode, filter, key, op, val, toLower, useName,
             links, className, attr, flag;
 
+        function X_Node_Selector__fetchElements( list, xnodes, tag, merge ){
+            var l = xnodes.length,
+                i = 0,
+                child, uid, _tag, _xnodes;
+    
+            for( ; i < l; ++i ){ // for( ; child = xnodes[ ++i ]; )
+                child = xnodes[ i ];
+                uid   = child[ '_uid' ];
+                _tag  = child[ '_tag' ];
+                if( !merge[ uid ] && _tag ){
+                    merge[ uid ] = true;
+                    ( !tag || tag === _tag ) && ( list[ list.length ] = child );
+                    if( ( _xnodes = child[ '_xnodes' ] ) && ( 1 < _xnodes.length || ( _xnodes[ 0 ] && _xnodes[ 0 ][ '_tag' ] ) ) ){
+                        X_Node_Selector__fetchElements( list, _xnodes, tag, merge );
+                    };
+                };
+            };
+        };
+
         /*@+debug[*/
         if( X_ViewPort_readyState < X_EVENT_XDOM_READY ){
             alert( 'not ready! use X.ViewPort.listenOnce( X_EVENT_XDOM_READY, callback )' );
@@ -421,25 +440,6 @@ function X_Node_Selector__parse( query, last ){
                         X_Node_Selector__fetchElements( xnodes, parents, isAll ? '' : tagName, merge );
                         //console.log( l + ' >> ' + xnodes.length + ' tag:' + tagName );
                     };
-            };
-
-            function X_Node_Selector__fetchElements( list, xnodes, tag, merge ){
-                var l      = xnodes.length,
-                    i      = 0,
-                    child, uid, _tag, _xnodes;
-        
-                for( ; i < l; ++i ){ // for( ; child = xnodes[ ++i ]; )
-                    child = xnodes[ i ];
-                    uid   = child[ '_uid' ];
-                    _tag  = child[ '_tag' ];
-                    if( !merge[ uid ] && _tag ){
-                        merge[ uid ] = true;
-                        ( !tag || tag === _tag ) && ( list[ list.length ] = child );
-                        if( ( _xnodes = child[ '_xnodes' ] ) && ( 1 < _xnodes.length || ( _xnodes[ 0 ] && _xnodes[ 0 ][ '_tag' ] ) ) ){
-                            X_Node_Selector__fetchElements( list, _xnodes, tag, merge );
-                        };
-                    };
-                };
             };
 
             isStart = false;

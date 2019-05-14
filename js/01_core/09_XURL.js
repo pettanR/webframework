@@ -18,7 +18,7 @@ var X_URL_BASE_URL = ( function( parts ){
     
     X_URL_IS_LOCAL = X_URL_IS_FILE || location.hostname === 'localhost' || location.hostname === '127.0.0.1',
     
-    X_URL_PARAMS = X_URL_paramToObj( location.search.slice( 1 ) );
+    X_URL_PARAMS   = X_URL_paramToObj( location.search.slice( 1 ) );
 
 // ------------------------------------------------------------------------- //
 // --- interface ----------------------------------------------------------- //
@@ -59,7 +59,9 @@ X[ 'URL' ] = {
     'toAbsolutePath' : X_URL_toAbsolutePath,
     
     'objToParam'     : X_URL_objToParam,
-    
+
+    'paramToObj'     : X_URL_paramToObj,
+
     'isSameDomain'   : X_URL_isSameDomain,
     
     'isSameProtocol' : X_URL_isSameProtocol,
@@ -207,6 +209,12 @@ function X_URL_create( url, params ){
     return url + ( url.indexOf( '?' ) !== -1 ? '&' : '?' ) + params;
 };
 
+/**
+ * url パラメータを object にします。
+ * @alias X.URL.paramToObj
+ * @param {string}
+ * @return {object}
+ */
 function X_URL_paramToObj( str ){
     var i   = 0,
         obj = {},

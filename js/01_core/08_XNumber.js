@@ -34,5 +34,6 @@ X[ 'Number' ] = {
         };
     };
     if( v1.length === v2.length ) return 0;
+    // TODO 末尾が .000 の場合
     return v1.length > v2.length ? 1 : -1;
 };

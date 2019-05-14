@@ -1,16 +1,36 @@
 
 
 var FocusUtility_lastElmFocused;
-var FocusUtility_docActiveElmSupport = X_UA[ 'IE' ] || document.activeElement !== undefined;
+// iframe 内でフォーカスの無い時に activeElement に障るとエラーに
+var FocusUtility_docActiveElmSupport = ( X_UA[ 'IE' ] && window.parent === window ) || document.activeElement !== undefined;
 var FocusUtility_fixActiveElm;
 
-// http://www.codingforums.com/javascript-programming/19503-determining-focus-ns6-ie6-context-sensitive-help.html
 // https://developer.mozilla.org/ja/docs/Web/API/Document/activeElement
 // IE 4+, Chrome 2+, Safari 4+, Firefox 3+ Opera 9.6+
+if( !FocusUtility_docActiveElmSupport ){
+    if( document.addEventListener ){
+        // http://www.codingforums.com/javascript-programming/19503-determining-focus-ns6-ie6-context-sensitive-help.html
+        document.addEventListener( 'focus', function( event ){
+            var tgt = event.target;
+    
+            FocusUtility_fixActiveElm = ( tgt.nodeType === 3 ) ? tgt.parentNode : tgt;
+        }, false );
+        document.addEventListener( 'blur', function( event ){
+            var tgt = event.target;
+    
+            tgt = ( tgt.nodeType === 3 ) ? tgt.parentNode : tgt;
+            if( tgt === FocusUtility_fixActiveElm ) FocusUtility_fixActiveElm = null;
+        }, false );        
+    } else if( document.attachEvent ){
+        
+    };
+};
 
 function FocusUtility_getFocusedElement(){
-    return FocusUtility_fixActiveElm ||
-        (
+    if( !FocusUtility_docActiveElmSupport ){
+        return FocusUtility_fixActiveElm;
+    };
+    return (
             X_Script_gte15 ?
                 X_Script_try( X_Object_find, [ document, 'activeElement' ] ) :
                 // ieは iframe 内で focus がない場合に activeElement に触ると エラーになる

@@ -18,7 +18,7 @@
  */
 var X_Plugin_FLASH_VERSION =
         !X_UA[ 'IE' ] || !X_UA[ 'ActiveX' ] ? parseFloat( X_Object_find( navigator, 'plugins>Shockwave Flash>version' ) || 0 ) :
-        !X_UA[ 'IE4' ] && !X_UA[ 'IE5' ] && X_UA[ 'ActiveX' ] ? (function(){
+        !( X_UA[ 'IE' ] < 5.5 ) & X_UA[ 'ActiveX' ] ? (function(){
                 var obj = X_Script_createActiveXObjectSafty( 'ShockwaveFlash.ShockwaveFlash' );
                 
                 return parseFloat( obj && obj[ 'GetVariable' ]( '$version' ).split( 'WIN ' )[ 1 ] ) || 0;
@@ -42,7 +42,7 @@ var X_Plugin_FLASH_VERSION =
     X_Plugin_UNITY_VERSION =    
         !X_UA[ 'IE' ] || !X_UA[ 'ActiveX' ] ?
             parseFloat( X_Object_find( navigator, 'plugins>Unity Player>version' ) || 0 ) :
-        !X_UA[ 'IE4' ] && !X_UA[ 'IE5' ] && X_UA[ 'ActiveX' ] ? (function(){
+        !( X_UA[ 'IE' ] < 5.5 ) && X_UA[ 'ActiveX' ] ? (function(){
                 var obj = X_Script_createActiveXObjectSafty( 'UnityWebPlayer.UnityWebPlayer.1' );
 
                 return obj ? parseFloat( obj[ 'GetPluginVersion' ]() ) : 0;
@@ -79,7 +79,7 @@ var X_Plugin_FLASH_VERSION =
                 };
                 return 0;
             })( navigator.plugins ) :
-            !X_UA[ 'IE4' ] && !X_UA[ 'IE5' ] && X_UA[ 'ActiveX' ] ? (function(){
+            !( X_UA[ 'IE' ] < 5.5 ) && X_UA[ 'ActiveX' ] ? (function(){
                     var obj = QuickTimeCheckObject.QuickTimeCheck.1' ),
                         ver = obj && obj[ 'QuickTimeVersion' ].toString( 16 );
 

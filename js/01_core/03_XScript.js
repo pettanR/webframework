@@ -19,7 +19,7 @@ X[ 'Script' ] = {
      * @type {boolean}
      */
     'VBS'       : X_Script_VBS_ENABLED
-    // git, strict mode, asm.js, 
+    // JIT strict mode, asm.js
 };
 
 if( X_Script_VBS_ENABLED ){

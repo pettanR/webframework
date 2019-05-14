@@ -353,7 +353,7 @@ function X_Node_CSS_objToIEFilterText( that, opt_css, opt_cssList ){
                 params = [ 0, 0, 0, 0 ]; // offset-x, offset-y, blur-radius, spread-radius
                 for( i = 0, l = ary.length; i < l; ++i ){
                     v = ary[ i ];
-                    num = i < 4 && parsetFloat( v );
+                    num = i < 4 && parseFloat( v );
                     
                     if( num === num ){
                         vu = X_Node_CSS__splitValueAndUnit( v );

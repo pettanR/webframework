@@ -91,7 +91,7 @@ X_TEMP.X_JSONP_params = {
                 // http://d.hatena.ne.jp/cnrd/20080518/1211099169
                 // 最近の仕様変更(引数のtargetOriginとかMessageEventのoriginとか)にはまだ対応してないみたい 
             
-                if( X_UA[ 'Opera' ] ){
+                if( X_UA[ 'Prsto' ] ){
                     html = [
                         ( window[ 'JSON' ] ? '' : '<script src="' + json2Path + '"></script>' ),
                         '<script>',
@@ -104,50 +104,7 @@ X_TEMP.X_JSONP_params = {
                     ];
                     X_JSONP_maxOnloadCount = 2;
                 } else
-                if( X_UA[ 'IE8' ] ){
-                    html = [
-                        '<script', charset, ' id="jp"></script>',
-                        '<script>',
-                            'onunload=function(){clearTimeout(id)};',
-                            'nw=0;', // なぜか必要,,,
-                            'function ', callback, '(o){nw-=+new Date;parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',parent.X.JSON.stringify(o),-nw)}',
-                            //'function ', callback, '(o){if(nw){nw-=+new Date;postMessage("', X_JSONP_SEND_MSG_KEY,' "+nw+"|"+parent.JSON.stringify(o).replace(/\\\\u([a-fA-F0-9]{4})/g,function(a,b){return String.fromCharCode(parseInt(b,16))}),"*");nw=0}}',            
-                            'function tm(){jp.src="', url ,'";nw=+new Date}',
-                            'id=setTimeout(tm,16);',
-                        '</script>'
-                        
-                        /* 以下のコードは XP ie8 では動くけど、win8 IE11(8モード)で動かない 開発の便宜を取って,setTimeout を挟む
-                        '<script>',
-                            'function ', callback, '(o){window.parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',window.parent.JSON.stringify(o))}',
-                        '</script>',
-                        '<script src="', url, '"></script>' */
-                    ];
-                    X_JSONP_maxOnloadCount = 2;
-                } else
-                if( X_UA[ 'IE9' ] ){
-                    html = [
-                        '<script', charset, ' id="jp"></script>',
-                        '<script>',
-                            'onunload=function(){clearTimeout(id)};',
-                            'function ', callback, '(o){nw-=+new Date;parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw)}',
-                            'function tm(){jp.src="', url ,'";nw=+new Date}',
-                            'id=setTimeout(tm,16);',
-                        '</script>'
-                    ];
-                    X_JSONP_maxOnloadCount = 2;
-                } else
-                if( window[ 'JSON' ] ){
-                    html = [    
-                        '<script>',
-                            'nw=+new Date;',
-                            'function ', callback, '(o){if(nw){nw-=+new Date;parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw);nw=0}}',
-                            //'function ', callback, '(o){if(nw){nw-=+new Date;parent.postMessage("', X_JSONP_SEND_MSG_KEY,' "+nw+"|"+JSON.stringify(o),"', location.origin, '");nw=0}}',
-                        '</script>',
-                        '<script', charset, ' src="', url, '"></script>'
-                    ];
-                    X_JSONP_maxOnloadCount = 1;
-                } else
-                if( X_UA[ 'IE4' ] || X_UA[ 'MacIE' ] ){
+                if( X_UA[ 'IE' ] < 5 || X_UA[ 'MacIE' ] ){
                     html = [
                         '<script id="jn"></script>',
                         '<script', charset, ' id="jp"></script>',
@@ -174,6 +131,49 @@ X_TEMP.X_JSONP_params = {
                         '</script>'
                     ];
                     X_JSONP_maxOnloadCount = 3;
+                } else
+                if( X_UA[ 'IE' ] < 9 ){
+                    html = [
+                        '<script', charset, ' id="jp"></script>',
+                        '<script>',
+                            'onunload=function(){clearTimeout(id)};',
+                            'nw=0;', // なぜか必要,,,
+                            'function ', callback, '(o){nw-=+new Date;parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',parent.X.JSON.stringify(o),-nw)}',
+                            //'function ', callback, '(o){if(nw){nw-=+new Date;postMessage("', X_JSONP_SEND_MSG_KEY,' "+nw+"|"+parent.JSON.stringify(o).replace(/\\\\u([a-fA-F0-9]{4})/g,function(a,b){return String.fromCharCode(parseInt(b,16))}),"*");nw=0}}',            
+                            'function tm(){jp.src="', url ,'";nw=+new Date}',
+                            'id=setTimeout(tm,16);',
+                        '</script>'
+                        
+                        /* 以下のコードは XP ie8 では動くけど、win8 IE11(8モード)で動かない 開発の便宜を取って,setTimeout を挟む
+                        '<script>',
+                            'function ', callback, '(o){window.parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',window.parent.JSON.stringify(o))}',
+                        '</script>',
+                        '<script src="', url, '"></script>' */
+                    ];
+                    X_JSONP_maxOnloadCount = 2;
+                } else
+                if( X_UA[ 'IE' ] < 10 ){
+                    html = [
+                        '<script', charset, ' id="jp"></script>',
+                        '<script>',
+                            'onunload=function(){clearTimeout(id)};',
+                            'function ', callback, '(o){nw-=+new Date;parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw)}',
+                            'function tm(){jp.src="', url ,'";nw=+new Date}',
+                            'id=setTimeout(tm,16);',
+                        '</script>'
+                    ];
+                    X_JSONP_maxOnloadCount = 2;
+                } else
+                if( window[ 'JSON' ] ){
+                    html = [    
+                        '<script>',
+                            'nw=+new Date;',
+                            'function ', callback, '(o){if(nw){nw-=+new Date;parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw);nw=0}}',
+                            //'function ', callback, '(o){if(nw){nw-=+new Date;parent.postMessage("', X_JSONP_SEND_MSG_KEY,' "+nw+"|"+JSON.stringify(o),"', location.origin, '");nw=0}}',
+                        '</script>',
+                        '<script', charset, ' src="', url, '"></script>'
+                    ];
+                    X_JSONP_maxOnloadCount = 1;
                 } else {
                     html = [
                         '<script>',

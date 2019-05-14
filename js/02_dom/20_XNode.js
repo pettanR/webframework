@@ -504,10 +504,10 @@ function X_Node_createTextAt( index, text ){
 /**
  * 選択されたテキストへの参照やテキスト座標情報
  * @alias Node.prototype.createRange
- * @return {TextRange} 新規作成されたテキストレンジ
+ * @return {TextRange|null} 新規作成されたテキストレンジ
  */
 function X_Node_createRange( a, b, c ){
-    return X_TextRange( this, a, b, c );
+    return X_TextRange( this, a, b, c ) || null;
 };
 
 /**
@@ -1415,7 +1415,7 @@ function X_Node_startUpdate( time ){
                         // elm.parentNode.tagName for ie7
                         xnodeOrElm.parentNode && xnodeOrElm.parentNode.tagName && xnodeOrElm.parentNode.removeChild( xnodeOrElm );
                     } else {
-                        xnodeOrElm.parentNode && xnodeOrElm.parentNode.tagName && X_TEMP._fixed_remove( xnodeOrElm, that );
+                        xnodeOrElm.parentNode && xnodeOrElm.parentNode.tagName && X_TEMP._fixed_remove( xnodeOrElm );
                     };
                 };
             } else {
@@ -2141,7 +2141,7 @@ var X_Node__actualRemove =
                 // elm.parentNode.tagName for ie7
                 !isChild && elm.parentNode && elm.parentNode.tagName && elm.parentNode.removeChild( elm );
             } else {
-                !isChild && elm.parentNode && elm.parentNode.tagName && X_TEMP._fixed_remove( elm, that );
+                !isChild && elm.parentNode && elm.parentNode.tagName && X_TEMP._fixed_remove( elm );
             };
         }) :
     X_UA_DOM.IE4 ?

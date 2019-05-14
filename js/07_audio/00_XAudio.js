@@ -290,6 +290,7 @@ function X_Audio_onEndedDetection( e, xaudio, sourceList, option, source, ext, s
         // HTMLAudio
         if( this.backendID === 2 ) _e[ 'needTouchForLoad' ] = X_HTMLAudio_need1stTouch;
 
+        // TODO キャンセル可能に
         xaudio[ 'asyncDispatch' ]( _e );            
     } else {
         console.log( 'No ' + source + ' ' + this.backendName );
