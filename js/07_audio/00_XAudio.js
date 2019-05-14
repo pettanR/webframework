@@ -53,7 +53,7 @@ X_TEMP.onSystemReady.push(
  * <p>ハッシュフラグメント以下にデータを書くことで、各オーディオバックエンドが再生可能性の判断にあたって参考にするデータを渡すことができます。
  * <dl>
  * <dt>CBR=1<dd>audio が固定ビットレートであることを示す。Android 用 Opera12- は可変ビットレートの mp3 を正しくシークできない。
- * [ 'snd.mp3', 'snd.mp3#CBR=1' ] と指定すると、Android 用 Opera12- では CBR な mp3 が、他の環境ではよりファイルサイズの小さい VBR な mp3 が使用される。(未実装)
+ * [ 'snd.mp3', 'snd.mp3#CBR=1' ] と指定すると、Android 用 Opera12- では CBR な mp3 が、他の環境ではよりファイルサイズの小さい VBR な mp3 が使用される。
  * <dt>ext=mp3<dd>パスに拡張子が含まれない場合、または上書き指定したい場合に指定する
  * 
  * @alias X.Audio

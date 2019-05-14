@@ -588,9 +588,14 @@ if( X_Audio_constructor ){
 		 *  - FireFox3.6, Android 2.3.6については、src変更後、load()を呼び出さないと切り替わらなかった。iPhoneはload()が不要。
 		 */	
 			detect : function( proxy, ext, hash ){
-			// TODO hash.CBR
-			// 得意度で返す
-				proxy[ 'asyncDispatch' ]( { type : X_EVENT_COMPLETE, canPlay : X_Audio_codecs[ ext ] } );
+            // TODO 得意度で返す
+
+                if( X_UA[ 'Android' ] && X_UA[ 'Prsto' ] && ext === 'mp3' ){
+                    // Android Opera12 は可変ビットレートのmp3を正しくシークできない。固定ビットレートを使用する。
+                    proxy[ 'asyncDispatch' ]( { type : X_EVENT_COMPLETE, canPlay : !!hash[ 'CBR' ] } );
+                } else {
+                    proxy[ 'asyncDispatch' ]( { type : X_EVENT_COMPLETE, canPlay : X_Audio_codecs[ ext ] } );
+                };
 			},
 			
 			klass : X_HTMLAudio
