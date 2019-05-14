@@ -96,10 +96,8 @@ function startEdit( target, byTouch ){
     lastKeyName       = '';
     target.text( lastTextareaValue );
 
-    range = xnodeTextarea
-        .css( { height : target.height() + 'px' } )
-        .createRange( 'index', 0, len )
-            .text( lastTextareaValue );
+    xnodeForm.css( { height : target.height() + 'px' } )
+    range = xnodeTextarea.createRange( 'index', 0, len ).text( lastTextareaValue );
     offset && range.move( offset.from, offset.to ).select();
 
     if( !timerID ){
@@ -133,7 +131,7 @@ function checkTextarea(){
     if( lastTextareaValue !== v ){
         lastTextareaValue = v;
         v = X.String.whiteSpaceToTag( v ) || 'X';
-        xnodeTextarea.css( { height : xnodeCurrent.text( v ).height() + 'px' } );
+        xnodeForm.css( { height : xnodeCurrent.text( v ).height() + 'px' } );
         if( scrollAfterInput ){
             range = xnodeTextarea.createRange( 'selection' );
             from  = range.getOffset().from;
