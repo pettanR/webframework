@@ -22,7 +22,7 @@ var X_Event_Rename    = {},
 		
 		// X_UA[ 'Prsto' ]
 		'contextmenu' : function( eventDispatcher ){
-			eventDispatcher[ 'listen' ]( 'mousedown', contextmenu_proxy );
+			eventDispatcher[ 'listen' ]( 'mousedown', X_Event_proxy.contextmenu_proxy );
 		},
 		
 			contextmenu_proxy : function( e ){

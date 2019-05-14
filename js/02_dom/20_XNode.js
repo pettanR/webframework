@@ -1415,7 +1415,7 @@ function X_Node_startUpdate( time ){
 						// elm.parentNode.tagName for ie7
 						xnodeOrElm.parentNode && xnodeOrElm.parentNode.tagName && xnodeOrElm.parentNode.removeChild( xnodeOrElm );
 					} else {
-						xnodeOrElm.parentNode && xnodeOrElm.parentNode.tagName && X_TEMP._fixed_remove( xnodeOrElm, that );
+						xnodeOrElm.parentNode && xnodeOrElm.parentNode.tagName && X_TEMP._fixed_remove( xnodeOrElm );
 					};
 				};
 			} else {
@@ -2144,7 +2144,7 @@ var X_Node__actualRemove =
 				// elm.parentNode.tagName for ie7
 				!isChild && elm.parentNode && elm.parentNode.tagName && elm.parentNode.removeChild( elm );
 			} else {
-				!isChild && elm.parentNode && elm.parentNode.tagName && X_TEMP._fixed_remove( elm, that );
+				!isChild && elm.parentNode && elm.parentNode.tagName && X_TEMP._fixed_remove( elm );
 			};
 		}) :
 	X_UA_DOM.IE4 ?

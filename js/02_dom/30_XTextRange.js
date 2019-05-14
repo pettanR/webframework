@@ -107,7 +107,7 @@ function X_TextRange_getRawRange( tr ){
 				X_TextRange_range,
 		selection = X_TextRange_selection, 
 		elm, isPoint,
-		texts, i, offset, j, l, x, y, rect, top, btm, left;
+		texts, i, offset, text, j, l, x, y, rect, top, btm, left;
 	
 	if( xnode[ '_flags' ] & X_NodeFlags_IN_TREE ){
 		
@@ -357,7 +357,7 @@ function X_TextRange_getOffset(){
 };
 
 function X_TextRange_text( v ){
-	var xnode = this.xnode, elm, val, offset, from, to;
+	var xnode = this.xnode, elm, val, offset, from, to, range;
 	
 	if( v === undefined ){
 		
