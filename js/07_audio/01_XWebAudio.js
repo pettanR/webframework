@@ -1,8 +1,8 @@
 var X_Audio_constructor = 3.1 <= X_UA[ 'Safari' ] && X_UA[ 'Safari' ] < 4 ?
 								function( s, a ){
-									//a = document.createElement( 'audio' );
-									//a.src = s;
-									//a.load();
+									a = document.createElement( 'audio' );
+									a.src = s;
+									a.load();
 									return a;
 								} :
 						// Android1.6 + MobileOpera12 HTMLAudio はいるが呼ぶとクラッシュする
@@ -93,9 +93,9 @@ var X_WebAudio_Context      =	// iOSではない、4s 以下ではない iPad 2G
 								// Blink HTMLAudio 調査用
 								//!X_UA[ 'Blink' ] &&
 								// Firefox40.0.5 + Windows8 で音声が途中から鳴らなくなる
-								// Firefox41.0.1 + Windows8 で音声が途中から鳴らなくなる
-								!( 40 <= X_UA[ 'Gecko' ] && /* X_UA[ 'Gecko' ] < 48 && */ X_UA[ 'Windows' ] ) &&
-								!X_UA[ 'Edge' ] &&
+								// Firefox41.0.1 + Windows8 で音声が途中から鳴らなくなる -> 案件のmp3が不正なメタデータを含んでいたのが原因！
+								/* !( 40 <= X_UA[ 'Gecko' ] && X_UA[ 'Gecko' ] < 48 && X_UA[ 'Windows' ] ) &&
+								!X_UA[ 'Edge' ] &&  -> 何故?? */
 								( window[ 'AudioContext' ] || window[ 'webkitAudioContext' ] || window[ 'mozAudioContext' ] ),		
 	X_WebAudio_context,
 	X_WebAudio_BUFFER_LIST  = [],
