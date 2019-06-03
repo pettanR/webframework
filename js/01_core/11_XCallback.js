@@ -54,6 +54,3 @@ X[ 'Callback' ] = {
 	 */
 	'RELEASE_POINTER'  : X_CALLBACK_RELEASE_POINTER
 };
-
-console.log( 'X.Core.Callback' );
-

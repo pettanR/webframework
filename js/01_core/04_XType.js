@@ -121,7 +121,7 @@ X[ 'Type' ] = {
 		if( v && v.constructor === window.Image ) return true;
 		if( v && window.HTMLImageElement && v.constructor === window.HTMLImageElement ) return true; // ie6- は constructor が undef、HTMLImageElement が undef なので、HTMLElement の存在確認が必要
 		if( X_UA[ 'WebKit' ] < 525.13 ){ // Safari3-
-			if( v && v.src !== undefined && v.onload !== undefined && X_Type_isNumber( v.height ) && X_Type_isNumber( v.width ) && X_Type_isBoolean( v.complete ) ){
+			if( v && !X_Type_isUndefined( v.src ) && !X_Type_isUndefined( v.onload ) && X_Type_isNumber( v.height ) && X_Type_isNumber( v.width ) && X_Type_isBoolean( v.complete ) ){
 				return true;
 			};
 		};
@@ -146,5 +146,3 @@ X[ 'Type' ] = {
 	function X_Type_isUndefined( v ){
 		return v === undefined;
 	};
-
-console.log( 'X.Core.Type' );

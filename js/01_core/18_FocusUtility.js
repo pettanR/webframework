@@ -50,4 +50,3 @@ function FocusUtility_restoreFocus(){
 	};
 	FocusUtility_lastElmFocused = null;
 };
-
