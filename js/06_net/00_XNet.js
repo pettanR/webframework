@@ -119,19 +119,17 @@ X[ 'Net' ] = X_EventDispatcher[ 'inherits' ](
 					} else
 					//}+netform
 					if( !( type = X_NET_NAME_TO_ID[ opt[ 'type' ] ] ) ){
-						//{+dev
-						alert( 'X.Net args error' );
-						//}+dev
-						return;
+						if( X_IS_DEV ){
+                            X_error( 'X.Net : Invalid type=' +  opt[ 'type' ] );
+                            return;
+                        };
 					} else {
 						url = opt[ 'url' ];
 					};
-					//{+dev
-					if( !X_Type_isString( url ) ){
-						alert( 'X.Net args error' );
+					if( X_IS_DEV && !X_Type_isString( url ) ){
+						X_error( 'X.Net : Invalid url=' + url );
 						return;
 					};
-					//}+dev
 				} else
 				if( X_Type_isString( urlOrObject ) ){
 					url = urlOrObject;
@@ -142,11 +140,11 @@ X[ 'Net' ] = X_EventDispatcher[ 'inherits' ](
 						type = X_NET_TYPE_XHR;
 						opt  = { 'url' : url, 'method' : 'GET' };
 					};
-				//{+dev	
 				} else {
-					alert( 'X.Net args error' );
-					return;
-				//}+dev
+                    if( X_IS_DEV ){
+                        X_error( 'X.Net : Args error!' );
+                        return;
+                    };
 				};
 				
 				// auth の退避

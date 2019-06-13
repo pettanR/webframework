@@ -43,7 +43,7 @@ function X_Util_Image_getActualDimension( XnodeOrImageElemOrSrc ){
 		img    = X_UA_DOM.IE4 ? X_Node__ie4getRawNode( xnode ) : xnode[ '_rawObject' ];
 		remove = true;
 	} else {
-		if( XnodeOrImageElemOrSrc.constructor === Node ){
+		if( XnodeOrImageElemOrSrc.constructor === X_Node ){
 			xnode = XnodeOrImageElemOrSrc;
 			img   = X_UA_DOM.IE4 ? X_Node__ie4getRawNode( xnode )[ '_rawObject' ] : xnode[ '_rawObject' ];
 		} else
@@ -62,7 +62,7 @@ function X_Util_Image_getActualDimension( XnodeOrImageElemOrSrc ){
 	// for Firefox, Safari, Google Chrome
 	if( img.naturalWidth ) return [ img.naturalWidth, img.naturalHeight ];
 
-	if( 5 <= X_UA[ 'IE' ] ){// for IE
+	if( 5 <= ( X_UA.Trident || X_UA.TridentMobile ) ){// for IE
 		run  = img.runtimeStyle;
 		memW = run.width;
 		memH = run.height;

@@ -18,32 +18,37 @@ function X( v ){
 	};
 };
 
-//{+DEV
-if( !window['console'] || ( window.parent && window.parent.log ) ){
-	console = {
-		log : function(a){
-				var elm;
-				//alert(a);
-				if( window.parent ){
-					elm = parent.document.all ? parent.document.all.log : parent.log || parent.document.getElementById( 'log' );
-					elm && ( elm.innerHTML = a + '<br>' + elm.innerHTML );
-				};
-			}
-	};	
-};
-
-if( !console.dir ) console.dir = function(){};
-//+DEV}
-
-//{-AUDIO
-//-AUDIO}
-
-var undefined,
+var // undefined,
 	X_EMPTY_OBJECT = {},
 	X_TEMP = { onSystemReady : [] },
 	X_emptyFunction = new Function,
 	X_shortcutFunction,
-	X_shortcutContext;
+    X_shortcutContext,
+    
+    X_HAS_DEV_TOOL = !!window.console,
+    /** @define {boolean} */
+    X_IS_DEV = false;
+
+if( X_IS_DEV ){
+    if( !X_HAS_DEV_TOOL ){
+        console = {
+            log : X_emptyFunction,
+            dir : X_emptyFunction
+        };
+    };  
+} else {
+    if( X_HAS_DEV_TOOL ){
+        console.log = console.dir = function(){};
+    };
+};
+
+function X_error( msg ){
+    if( X_HAS_DEV_TOOL ){
+        eval( 'throw "' + msg + '"' );
+    } else {
+        alert( msg );
+    };
+};
 
 /**
  * バージョン文字列:"0.6.xxx"

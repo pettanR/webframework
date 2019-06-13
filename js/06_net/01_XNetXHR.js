@@ -57,13 +57,13 @@ this.req = new ActiveXObject( activex );
  */
 var // Opera7.6+, Safari1.2+, khtml3.?+, Gecko0.9.7+
 	// ie9- ではローカルリソースには MSXML を使う
-	X_XHR_createW3C   = window[ 'XMLHttpRequest' ] && function(){ return X_XHR_w3c || ( X_XHR_w3c = new XMLHttpRequest() ); },
+	X_XHR_createW3C   = window.XMLHttpRequest && function(){ return X_XHR_w3c || ( X_XHR_w3c = new XMLHttpRequest() ); },
 	X_XHR_w3c         = X_XHR_createW3C && X_XHR_createW3C(),
 	X_XHR_cors        = X_XHR_w3c && X_XHR_w3c.withCredentials !== undefined,
 	X_XHR_progress    = X_XHR_w3c && X_XHR_w3c.onprogress !== undefined,
 	X_XHR_upload      = X_XHR_w3c && !!X_XHR_w3c.upload,
 	
-	X_XHR_createXDR   = window[ 'XDomainRequest' ] && function(){ return X_XHR_xdr || ( X_XHR_xdr = new XDomainRequest() ); },
+	X_XHR_createXDR   = window.XDomainRequest && function(){ return X_XHR_xdr || ( X_XHR_xdr = new XDomainRequest() ); },
 	X_XHR_xdr         = X_XHR_createXDR && X_XHR_createXDR(),
 
 	X_XHR_msXMLVer    = 0,
@@ -71,13 +71,13 @@ var // Opera7.6+, Safari1.2+, khtml3.?+, Gecko0.9.7+
 	X_XHR_msXML,
 		
 	// ie11の互換モード(7,8)の msxml はいまいち動かない
-	X_XHR_createMSXML = X_UA[ 'ActiveX' ] &&
-						( ( 5 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 7 ) || X_URL_IS_LOCAL ) &&
+	X_XHR_createMSXML = X_UA_ActiveX &&
+						( ( 5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 7 ) || X_URL_IS_LOCAL ) &&
 							function(){ return X_Script_createActiveXObjectSafty( X_XHR_msXMLName ); },
 
 
 	
-	X_XHR_neverReuse  = X_UA[ 'IE' ] < 9, // ie7,8 の xhr はリユース不可。msxml はリユース可能。
+	X_XHR_neverReuse  = ( X_UA.Trident || X_UA.TridentMobile ) < 9, // ie7,8 の xhr はリユース不可。msxml はリユース可能。
 	
 	X_XHR_TYPE_FLASH  = 8,
 	X_XHR_TYPE_GADGET = 16;
@@ -117,7 +117,7 @@ X[ 'XHR' ] = {
  */
 	'FLASH'       : 4 <= X_Plugin_FLASH_VERSION ? 8 : 0,
 	
-	'GADGET'      : 5.5 <= X_UA[ 'IE' ] || !X_UA[ 'IE' ] ? 16 : 0,
+	'GADGET'      : 5.5 <= ( X_UA.Trident || X_UA.TridentMobile ) || !( X_UA.Trident || X_UA.TridentMobile ) ? 16 : 0,
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
@@ -230,7 +230,7 @@ if( X_XHR_w3c || X_XHR_msXML ){
 				if( raw.responseType !== undefined && X_XHR._dataType ){
 					if( X_XHR._dataType === 'json' ){
 						// firefox9- は moz-json
-						raw.responseType = X_UA[ 'Gecko' ] < 10 ? 'moz-json' : X_UA[ 'Gecko' ] ? 'json' : ''; // Iron 37 でエラー
+						raw.responseType = ( X_UA.Gecko || X_UA.Fennec ) < 10 ? 'moz-json' : ( X_UA.Gecko || X_UA.Fennec ) ? 'json' : ''; // Iron 37 でエラー
 					} else {
 						raw.responseType = X_XHR._dataType;
 					};
@@ -288,7 +288,7 @@ if( X_XHR_w3c || X_XHR_msXML ){
 					} */
 
 					// http://8note.phpapps.jp/jquery-ajax%E3%81%A7%E3%81%AE412%E3%82%A8%E3%83%A9%E3%83%BC/
-					if( 'document json text'.indexOf( X_XHR._dataType ) !== -1 && X_UA[ 'Safari' ] ){
+					if( 'document json text'.indexOf( X_XHR._dataType ) !== -1 && X_UA.WebKit ){
 						headers[ 'If-Modified-Since' ] = 'Thu, 01 Jun 1970 00:00:00 GMT';
 					};
 					
@@ -306,8 +306,6 @@ if( X_XHR_w3c || X_XHR_msXML ){
 					};
 
 					for( p in headers ){
-						//if( X_EMPTY_OBJECT[ p ] ) continue;
-						//console.log( headers[ p ] );
 						headers[ p ] !== undefined && raw.setRequestHeader( p, headers[ p ] + '' ); // Opera8.01+, MSXML3+
 					};
 				};
@@ -333,10 +331,10 @@ if( X_XHR_w3c || X_XHR_msXML ){
 					if( X_XHR_progress || X_XHR._isXDR ){
 						X_XHR[ 'listen' ]( [ 'load', 'progress', 'error', 'timeout' ] ); //, 'abort'
 					} else
-					if( X_UA[ 'IE' ] === 8 ){
+					if( ( X_UA.Trident || X_UA.TridentMobile ) === 8 ){
 						X_XHR[ 'listen' ]( [ 'readystatechange', 'error', 'timeout' ] );
 					} else
-					if( X_UA[ 'IE' ] === 7 ){
+					if( ( X_UA.Trident || X_UA.TridentMobile ) === 7 ){
 						X_XHR[ 'listen' ]( [ 'readystatechange', 'error' ] );
 					} else {
 						X_XHR[ 'listen' ]( [ 'load', 'readystatechange', 'error', 'timeout' ] ); //, 'abort'
@@ -402,7 +400,23 @@ if( X_XHR_w3c || X_XHR_msXML ){
 			handleEvent : function( e ){
 				var raw  = X_XHR[ '_rawObject' ],
 					live = !X_XHR._canceled,
-					headers, status, text, data;
+					headers, status, data;
+
+                function escapeForOldSafariAndKHTML( data ){
+                    var esc;
+                    /*
+                    * http://www.kawa.net/works/js/jkl/parsexml.html
+                    * http://www.kawa.net/works/js/jkl/archive/jkl-parsexml-0.22.zip line:671
+                    *
+                    // Safari and Konqueror cannot understand the encoding of text files.*/
+                    if( data && ( X_UA.WebKit < 420 || X_UA.KHTML < 4 ) ){
+                        esc = escape( data );
+                        if ( !esc.match( '%u' ) && esc.match( '%' ) ){
+                            data = decodeURIComponent( esc );
+                        };
+                    };
+                    return data;
+                };
 
 				switch( e && e.type || 'readystatechange' ){
 					/*
@@ -467,42 +481,33 @@ if( X_XHR_w3c || X_XHR_msXML ){
 							( status < 100 && ( status = 200 ) ) ||
 				            ( 200 <= status && status < 400 ) ||
 				            //status === 304 ||
-				            ( status === 1223 && ( status = 204 ) ) ||
-				            ( X_UA[ 'Webkit' ] && status === undefined ) // safari: /webkit/.test(userAgent)
+                            ( status === 1223 && ( status = 204 ) ) ||
+                            // https://techblog.kayac.com/application-cache-cache-manifest-advent-calendar-2012.html
+                            // Android 2.1, 2.2, 4.1に関してはキャッシュ対象ファイルをXHRで取得しようとするとxhr.status === 0になる症状が確認されたので注意してください。
+                            ( status === 0 && X_UA.AOSP ) ||
+				            ( X_UA.WebKit && status === undefined ) // safari: /webkit/.test(userAgent)
 						){
-							/*
-							 * opera8, safari2, khtml3 で utf8 日本語文字列の文字化け
-							 * 
-							 * http://www.kawa.net/works/js/jkl/parsexml.html
-							
-							text = raw[ 'responseText' ];
-						    //  Safari and Konqueror cannot understand the encoding of text files.
-						    if( text && ( X_UA[ 'Webkit' ] < 420 || X_UA[ 'KHTML' ] < 4 ) ){
-						        text = escape( text );
-						        if ( !text.match( '%u' ) && esc.match( '%' ) ){
-						            text = decodeURIComponent( text );
-						        };
-						    };
-							 */
-							
 							// parse json, html, xml, text, script, css
 							switch( X_XHR._dataType ){
 								case 'text' :
-									data = X_Script_try( X_Object_find, [ raw, 'responseText' ] );
+                                    data = X_Script_try( X_Object_find, [ raw, 'responseText' ] );
+                                    data = escapeForOldSafariAndKHTML( data );
 									break;
 								case 'json' :
-									data = X_Script_try( X_Object_find, [ raw, 'response' ] ) || X_Script_try( X_Object_find, [ raw, 'responseText' ] );
+                                    data = X_Script_try( X_Object_find, [ raw, 'response' ] ) || X_Script_try( X_Object_find, [ raw, 'responseText' ] );
 									// eval() を使っているけど JSON の無いブラウザは XDomain な XHR はできないのでよしとする。
 									// XDomain な XHR の際は Flash 等で代替し、その中に Json parser も組み込む。
 									// http://d.hatena.ne.jp/sshi/20060904/p1
-									if( X_Type_isString( data ) ) data = X_JSON_parseTrustableString( data );
+									if( X_Type_isString( data ) ){
+                                        data = X_JSON_parseTrustableString( escapeForOldSafariAndKHTML( data ) );
+                                    };
 									break;
 								case 'document' :
 									data = raw[ 'responseXML' ] || raw[ 'response' ] || raw[ 'responseText' ]; // とりあえず
 									break;
 								case 'blob' :
 								case 'arraybuffer' :
-									// TODO resoponceBody if( X_UA[ 'IE' ] < 10 )
+									// TODO resoponceBody if( ( X_UA.Trident || X_UA.TridentMobile ) < 10 )
 									// http://d.hatena.ne.jp/maachang/20130221/1361427565
 									data = raw[ 'response' ] || raw[ 'responseText' ]; // とりあえず
 									break;
@@ -526,13 +531,13 @@ if( X_XHR_w3c || X_XHR_msXML ){
 					case 'error' :
 					//console.dir( e );
 						X_XHR._busy  = false;
-						X_XHR._error = X_UA[ 'Prsto' ] || X_UA[ 'Webkit' ] ;
+						X_XHR._error = X_UA.Presto || X_UA.PrestoMobile || X_UA.WebKit ;
 						live && X_XHR[ 'asyncDispatch' ]( 32, { type : X_EVENT_ERROR, status : raw.status } );
 						break;
 
 					case 'timeout' : // Gecko 12.0 https://developer.mozilla.org/ja/docs/XMLHttpRequest/Synchronous_and_Asynchronous_Requests
 						X_XHR._busy  = false;
-						X_XHR._error = !!X_UA[ 'Gecko' ];
+						X_XHR._error = !!( X_UA.Gecko || X_UA.Fennec );
 						X_XHR[ 'asyncDispatch' ]( { type : X_EVENT_ERROR, 'timeout' : true, status : 408 } );
 						break;
 				};

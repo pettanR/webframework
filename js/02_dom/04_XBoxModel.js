@@ -31,7 +31,7 @@ X_ViewPort[ 'listenOnce' ]( X_EVENT_INIT, function(){
 	 */
 	if( X_Node_CSS_Support[ 'boxShadow' ] &&
 		node[ 'cssText' ](
-				X_Node_CSS_uncamelize( X_Node_CSS_VENDER_PREFIX[ 'boxShadow' ] ) + ':10px 10px 0 0 #000;width:10px;'
+				X_Node_CSS_uncamelize( X_Node_CSS_VENDER_PREFIX.boxShadow ) + ':10px 10px 0 0 #000;width:10px;'
 			)[ 'width' ]() !== 10
 	){
 	 	console.log( node[ 'cssText' ]() + node[ 'width' ]() );
@@ -244,9 +244,9 @@ function X_Node_offset(){
 //------------------------------------------------------------------------------
 //  座標取得
 var X_Node_getPosition =
-	!( X_UA[ 'IE' ] < 5 ) && document.createElement( 'div' ).getBoundingClientRect ?
+	!( ( X_UA.Trident || X_UA.TridentMobile ) < 5 ) && X_elmHtml.getBoundingClientRect ?
 		(
-			document.compatMode === 'CSS1Compat' && !X_UA[ 'Webkit' ] ? function( el ){
+			document.compatMode === 'CSS1Compat' && !X_UA.WebKit ? function( el ){
 		        var pos  = el.getBoundingClientRect(),
 		        	html = X_elmHtml;
 		        return  {   x:(pos.left + html.scrollLeft - html.clientLeft)
@@ -258,7 +258,7 @@ var X_Node_getPosition =
 	                    ,   y:(pos.top  +   window.pageYOffset)   };
 			}
 		) :
-	X_UA[ 'Opera' ] < 10 ?
+	( X_UA.Presto || X_UA.PrestoMobile ) < 10 ?
 		function( el ){
             var ex  =   0;
             var ey  =   0;

@@ -101,7 +101,7 @@ function X_FormSender_iframeListener( e ){
 			};
 			break;
 		case 'ninjaerror' :
-			console.log( 'iframe onerror' );
+			// console.log( 'iframe onerror' );
 			X_FormSender[ 'asyncDispatch' ]( X_EVENT_ERROR );
 			break;
 	};

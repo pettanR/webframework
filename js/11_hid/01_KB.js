@@ -247,7 +247,7 @@ var X_KB_SPECIALS = eval( // IE5- 対策
 
 X_ViewPort[ 'listen' ]( [ X_EVENT_VIEW_ACTIVATE, X_EVENT_VIEW_DEACTIVATE ], X_kbManager );
 
-if( X_UA[ 'IE' ] < 9 ){
+if( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ){
 	X_ViewPort_document[ 'listen' ]( [ 'keyup', 'keydown', 'keypress' ], X_kbManager );
 } else {
 	X_ViewPort[ 'listen' ]( [ 'keyup', 'keydown', 'keypress' ], X_kbManager );

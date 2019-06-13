@@ -8,7 +8,7 @@ X_TEMP._isCleanupTarget = function( elm ){
 		( X_Dom_DTD_CLEANUP_TAGS[ tag ] || cname.indexOf( ' cleanup-target ' ) !== -1 );
 };
 
-if( X_UA[ 'MacIE' ] ){
+if( X_UA.Tasman ){
 
 	X_TEMP._fixed_remove = function( node, xnode ){
 		var parent   = node.parentNode, l;
@@ -88,7 +88,7 @@ if( X_UA[ 'MacIE' ] ){
 	};
 	
 } else
-if( X_UA[ 'Opera' ] < 8 ){
+if( ( X_UA.Presto || X_UA.PrestoMobile ) < 8 ){
 
 	X_TEMP._fixed_remove = function( node ){
 		if( node.nodeType === 1 || node.nodeType === 3 ){
@@ -122,7 +122,7 @@ X_TEMP._onPreInit =
 	
 	// TODO
 	// textarea の内容を控えて、消す。xnode tree 構築後に復帰。でないと、html パースでこける
-	//X_UA[ 'MacIE' ] && alert( body.innerHTML );
+	//X_UA.Tasman && alert( body.innerHTML );
 	// cleanup tree	
 	function cleanUpTree( elm, skip ){
 		var nodes      = X_Array_copy( elm.childNodes ),
@@ -161,7 +161,7 @@ X_TEMP._onPreInit =
 					// ブロック要素直下のスペースだけは削除？？
 				default :
 					//console.log( 'Remove type: ' + node.nodeType + ' value: ' + node.nodeValue );
-					if( !( X_UA[ 'Opera' ] < 8 ) /*&& !X_UA[ 'MacIE' ] */ ){
+					if( !( X_UA.Presto < 8 ) /*&& !X_UA.Tasman */ ){
 						elm.removeChild( node );
 					} else {
 						X_TEMP._fixed_remove( node );
@@ -171,13 +171,13 @@ X_TEMP._onPreInit =
 		};
 	};
 
-	cleanUpTree( X_UA[ 'MacIE' ] ? ( copy = body.cloneNode( true ) ) : body );
+	cleanUpTree( X_UA.Tasman ? ( copy = body.cloneNode( true ) ) : body );
 
-	if( X_UA[ 'MacIE' ] ){
+	if( X_UA.Tasman ){
 		document.write( html = copy.innerHTML );
 	} else {
 		// body の属性値の取得
-		if( X_UA[ 'IE' ] <= 8 ){
+		if( ( X_UA.Trident || X_UA.TridentMobile ) <= 8 ){
 			html = body.innerHTML.split( X_String_CRLF ).join( '' ); // 不要な改行が入る
 		} else {
 			html = body.innerHTML;
@@ -312,7 +312,7 @@ X_TEMP.asyncCreateTree = function( parent, elems, elmProgress, async ){
 	console.log( 'xtree 作成完了' );
 	X_ViewPort[ 'asyncDispatch' ]( X_EVENT_XTREE_READY );
 	
-	if( X_UA[ 'IE' ] < 6 ){
+	if( ( X_UA.Trident || X_UA.TridentMobile ) < 6 ){
 		// IE5.01 でビルド時間が短い時に　removeChild を通るとエラー!
 		elmProgress.outerHTML = '';
 	} else {
@@ -344,7 +344,7 @@ X_TEMP.bindElementToXnode =
 				elm = elems[ current.j ];
 				tag = elm.tagName && elm.tagName.toUpperCase();
 				if( ( elm.nodeType !== 1 && elm.nodeType !== 3 ) || tag === '!' || ( tag && tag.charAt( 0 ) === '/' ) ){
-					if( !( X_UA[ 'Opera' ] < 8 ) && !X_UA[ 'MacIE' ] ){
+					if( !( X_UA.Presto < 8 ) && !X_UA.Tasman ){
 						elm.parentNode.removeChild( elm );
 					} else {
 						X_TEMP._fixed_remove( elm );
@@ -355,7 +355,7 @@ X_TEMP.bindElementToXnode =
 				if( xnode[ '_tag' ] ){
 					if( elm.nodeType === 3 ){
 						if( !( text = elm.data ) || ( text = X_String_cleanupWhiteSpace( text ) ) === ' ' ){
-							if( !( X_UA[ 'Opera' ] < 8 ) && !X_UA[ 'MacIE' ] ){
+							if( !( X_UA.Presto < 8 ) && !X_UA.Tasman ){
 								elm.parentNode.removeChild( elm );
 							} else {
 								X_TEMP._fixed_remove( elm );

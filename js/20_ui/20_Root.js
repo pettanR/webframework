@@ -1,6 +1,6 @@
 var XUI_rootData         = null,
 	XUI_xnodeIneraction  = null,
-	XUI_mousemoveFix     = X_UA[ 'WinPhone' ] === 7.5,
+	XUI_mousemoveFix     = X_UA.WindowsPhone === 7.5,
 	XUI_mousemoveFixOn   = 0,
 	XUI_mousemoveFixX    = 0,
 	XUI_mousemoveFixY    = 0,
@@ -48,7 +48,7 @@ function X_UI_eventRellay( e ){
 	
 	XUI_interactionBusy = true;
 
-	//X_UA[ 'iOS' ] < 5 && console.log( e.type + ':[' + x + ',' + y + ']' );
+	//( X_UA.SafariMobile || X_UA.iOSWebView ) < 5 && console.log( e.type + ':[' + x + ',' + y + ']' );
 
 	if( XUI_mousemoveFix ){
 		if( e.type === 'scroll' ){
@@ -176,7 +176,7 @@ var XUI_Root = XUI_Box.inherits(
 			
 			// hover や rollover rollout のための move イベントの追加
 			// TODO この切り替えを ViewPort へ
-			XUI_xnodeIneraction = ( X_UA[ 'IE' ] < 9 ? X_ViewPort_document : X_UA[ 'Opera' ] < 8 ? X_Node_body : X_UA[ 'iOS' ] < 5 ? XUI_xnodeInteractionOverlay : X_ViewPort );
+			XUI_xnodeIneraction = ( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ? X_ViewPort_document : X_UA.Presto < 8 ? X_Node_body : ( X_UA.SafariMobile || X_UA.iOSWebView ) < 5 ? XUI_xnodeInteractionOverlay : X_ViewPort );
 			
 			if( XUI_mousemoveFix ){
 				XUI_xnodeInteractionOverlay[ 'listen' ]( [ 'scroll', 'mouseup' ], X_UI_eventRellay )[ 'create' ]( 'div' );

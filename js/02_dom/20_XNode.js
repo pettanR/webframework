@@ -6,7 +6,7 @@
  * @constructs Node
  * @extends {EventDispatcher}
  */
-var	Node = X[ 'Node' ] = X_EventDispatcher[ 'inherits' ](
+var	X_Node = X[ 'Node' ] = X_EventDispatcher[ 'inherits' ](
 	'X.Node',
 	X_Class.NONE,
 	{
@@ -146,22 +146,18 @@ var	Node = X[ 'Node' ] = X_EventDispatcher[ 'inherits' ](
 		 * @alias Node.prototype._anime
 		 */
 		'_anime'     : null,
-		
-	/*
-	 * TODO Node の継承ができない！
-	 */
+
 		'Constructor' : function( v ){
 			// TODO uid = X_Node_CHASHE.indexOf( null ), uid === -1 ? X_Node_CHASHE.length : uid;
 			var uid = X_Node_CHASHE.length,
 				css, xnodes, xnode, parent;
 			
-			// TODO 継承クラスで this.Super('DIV') ができない！ -> サブクラスから呼ばれた場合も
-			if( X_Node_newByTag || this.constructor !== Node ){
+			if( X_Node_newByTag || this.constructor !== X_Node ){
 				X_Node_newByTag = false;
 				this[ '_tag' ]  = v.toUpperCase();
 				arguments[ 1 ] && this[ 'attr' ]( arguments[ 1 ] );
 				css = arguments[ 2 ];
-				css && this[ X_Type_isString( css ) ? 'cssText' : 'css' ]( css );
+				css && ( X_Type_isString( css ) ? this[ 'cssText' ]( css ) : this[ 'css' ]( css ) );
 			} else
 			if( X_Node_newByText ){
 				X_Node_newByText = false;
@@ -315,12 +311,12 @@ var X_NodeType_XNODE       = 1,
 	X_NodeType_DOCUMENT    = 9,
 	X_NodeType_IMAGE       = 10,
 	
-	X_Node_strictElmCreation    = !X_UA[ 'MacIE' ] && X_UA[ 'IE' ] <= 8,
+	X_Node_strictElmCreation    = !X_UA.Tasman && ( X_UA.Trident || X_UA.TridentMobile ) <= 8,
 	
-	X_Node_documentFragment     = document.createDocumentFragment && ( !X_UA[ 'IE' ] || 5.5 <= X_UA[ 'IE' ] ) && document.createDocumentFragment(),
+	X_Node_documentFragment     = document.createDocumentFragment && ( !( X_UA.Trident || X_UA.TridentMobile ) || 5.5 <= ( X_UA.Trident || X_UA.TridentMobile ) ) && document.createDocumentFragment(),
 	
 	// 子の生成後に リアル文書 tree に追加する
-	X_Node_addTreeAfterChildren = !( X_UA[ 'IE' ] < 9 ),
+	X_Node_addTreeAfterChildren = !( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ),
 	
 	X_Node_displayNoneFixForIE5 = !!X_NodeFlags_IE5_DISPLAY_NONE_FIX,
 	
@@ -341,7 +337,7 @@ var X_NodeType_XNODE       = 1,
 				return root.isXML = root[ '_rawObject' ].createElement( 'p' ).tagName !== root[ '_rawObject' ].createElement( 'P' ).tagName;
 			}),
 	X_Node_CHASHE     = [],
-	X_Node_none       = X_Node_CHASHE[ 0 ] = Node(),
+	X_Node_none       = X_Node_CHASHE[ 0 ] = X_Node(),
 	X_Node_html, // = <html>
 	X_Node_head, // = <head>
 	X_Node_body, // = <body>
@@ -360,7 +356,7 @@ function X_Node_getType( v ){
 	if( !v ) return 0;
 	if( v === window ) return X_NodeType_WINDOW;
 	if( v === document ) return X_NodeType_DOCUMENT;
-	if( v.constructor === Node ) return X_NodeType_XNODE;
+	if( v.constructor === X_Node ) return X_NodeType_XNODE;
 	if( v.constructor === X_NodeList ) return X_NodeType_XNODE_LIST;
 	if( X_Type_isHTMLElement( v ) ) return X_NodeType_RAW_HTML;
 	if( v.nodeType === 3 ) return X_NodeType_RAW_TEXT;
@@ -368,7 +364,7 @@ function X_Node_getType( v ){
 		return '<' === v.charAt( 0 ) && v.charAt( v.length - 1 ) === '>' ? X_NodeType_HTML_STRING : X_NodeType_STRING;
 	};
 	// Node サブクラスのインスタンス
-	if( v[ 'instanceOf' ] && v[ 'instanceOf' ]( Node ) ) return X_NodeType_XNODE;
+	if( v[ 'instanceOf' ] && v[ 'instanceOf' ]( X_Node ) ) return X_NodeType_XNODE;
 	return 0;
 };
 function X_Node_getXNode( v ){
@@ -523,7 +519,7 @@ function X_Node_clone( opt_clone_children ){
 	
 	if( this[ '_tag' ] ){
 		X_Node_newByTag = true;
-		xnode = Node( this[ '_tag' ], X_Object_copy( this[ '_attrs' ] ), X_Object_copy( this[ '_css' ] ) )
+		xnode = X_Node( this[ '_tag' ], X_Object_copy( this[ '_attrs' ] ), X_Object_copy( this[ '_css' ] ) )
 			[ 'attr' ]( { 'id' : this[ '_id' ] } )
 			[ 'className' ]( this[ '_className' ] );
 		
@@ -542,7 +538,7 @@ function X_Node_clone( opt_clone_children ){
 		return xnode;
 	};
 	X_Node_newByText = true;
-	return Node( this[ '_text' ] );
+	return X_Node( this[ '_text' ] );
 };
 
 /**
@@ -570,7 +566,7 @@ function X_Node_append( v ){
 	switch( X_Node_getType( v ) ){
 		case X_NodeType_RAW_HTML :
 		case X_NodeType_RAW_TEXT :
-			v = Node( v );
+			v = X_Node( v );
 			break;
 		case X_NodeType_HTML_STRING :
 		case X_NodeType_STRING :
@@ -580,7 +576,7 @@ function X_Node_append( v ){
 		if( v.parent === this && xnodes[ xnodes.length - 1 ] === v ) return this;
 			v[ 'remove' ]();
 			// IE4 でテキストノードの追加、FIXED 済でない場合、親に要素の追加を通知
-			if( X_UA[ 'IE' ] < 5 && !v[ '_tag' ] && ( ( this[ '_flags' ] & X_NodeFlags_IE4_FIXED ) === 0 ) ) this[ '_flags' ] |= X_NodeFlags_IE4_DIRTY_CHILDREN;
+			if( ( X_UA.Trident || X_UA.TridentMobile ) < 5 && !v[ '_tag' ] && ( ( this[ '_flags' ] & X_NodeFlags_IE4_FIXED ) === 0 ) ) this[ '_flags' ] |= X_NodeFlags_IE4_DIRTY_CHILDREN;
 			break;
 		default :
 			return this;
@@ -636,7 +632,7 @@ function X_Node_appendAt( start, v ){
 	switch( X_Node_getType( v ) ){
 		case X_NodeType_RAW_HTML :
 		case X_NodeType_RAW_TEXT :
-			v = Node( v );
+			v = X_Node( v );
 			break;
 		case X_NodeType_HTML_STRING :
 		case X_NodeType_STRING :
@@ -656,7 +652,7 @@ function X_Node_appendAt( start, v ){
 				v[ 'remove' ]();
 			};
 			// IE4 でテキストノードの追加、FIXED 済でない場合、親に要素の追加を通知
-			if( X_UA[ 'IE' ] < 5 && !v[ '_tag' ] && ( ( this[ '_flags' ] & X_NodeFlags_IE4_FIXED ) === 0 ) ) this[ '_flags' ] |= X_NodeFlags_IE4_DIRTY_CHILDREN;
+			if( ( X_UA.Trident || X_UA.TridentMobile ) < 5 && !v[ '_tag' ] && ( ( this[ '_flags' ] & X_NodeFlags_IE4_FIXED ) === 0 ) ) this[ '_flags' ] |= X_NodeFlags_IE4_DIRTY_CHILDREN;
 			break;
 		default :
 			return this;
@@ -689,7 +685,7 @@ function X_Node_appendAt( start, v ){
 function X_Node_appendTo( parent, opt_index ){
 	switch( X_Node_getType( parent ) ){
 		case X_NodeType_RAW_HTML :
-			parent = Node( parent );
+			parent = X_Node( parent );
 			break;
 		case X_NodeType_HTML_STRING :
 			parent = X_HtmlParser_parse( parent, true );
@@ -739,7 +735,7 @@ function X_Node_prev( v ){
  * ノードの直後の要素を取得。または直後に挿入。挿入する要素が先にいる兄弟でも正しく動作する。
  * @alias Node.prototype.next
  * @param {Node|string|HTMLElement|TextNode} [v] HTMLElement と TextNode は内部のみ。
- * @return {Node} 自身。チェインメソッド
+ * @return {Node|undefined} getter の場合は Node か undefined が返る。setter の場合は自身。チェインメソッド。
  * @example childNode.next( prevNode );
  */
 function X_Node_next( v ){
@@ -1334,7 +1330,7 @@ function X_Node_call( name /*, opt_args... */ ){
 		};
 		return raw[ name ]();		
 	} else
-	if( X_UA[ 'IE' ] < 9 && ( X_Type_isUnknown( func ) || X_Type_isObject( func ) ) ){
+	if( ( X_UA.Trident || X_UA.TridentMobile ) < 9 && ( X_Type_isUnknown( func ) || X_Type_isObject( func ) ) ){
 		// typeof func === unknown に対策
 		// http://la.ma.la/blog/diary_200509031529.htm		
 		if( l ){
@@ -1411,7 +1407,7 @@ function X_Node_startUpdate( time ){
 					xnodeOrElm.removeAttribute( 'id' ); // ?
 					xnodeOrElm.outerHTML = ''; // xnodeOrElm.remove() ?
 				} else {
-					if( !X_UA[ 'MacIE' ] ){
+					if( !X_UA.Tasman ){
 						// elm.parentNode.tagName for ie7
 						xnodeOrElm.parentNode && xnodeOrElm.parentNode.tagName && xnodeOrElm.parentNode.removeChild( xnodeOrElm );
 					} else {
@@ -1427,7 +1423,7 @@ function X_Node_startUpdate( time ){
 	
 	// 強制的に再描画を起こす, 但し activeElement からフォーカスが外れるため復帰する
 	// IE5mode win10 で 確認
-	if( 5 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 5.5 ){
+	if( 5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 ){
 		active = FocusUtility_getFocusedElement();
 		X_elmBody.style.visibility = 'hidden';
 	};
@@ -1439,7 +1435,7 @@ function X_Node_startUpdate( time ){
 		X_Node__commitUpdate( X_Node_body, X_Node_body[ '_rawObject' ].parentNode, null, X_Node_body[ '_flags' ], 1, xnodesIEFilterFixAfter = [] );
 	};
 
-	if( 5 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 5.5 ){
+	if( 5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 ){
 		X_elmBody.style.visibility = '';
 		active && active.parentNode && FocusUtility_setTemporarilyFocus( active );
 	};
@@ -1458,7 +1454,7 @@ function X_Node_startUpdate( time ){
 
 	// time を視て X.Timer 経由の場合、即座に発火する。
 	// width() 等で強制的にツリーを構築している場合、UPDATE イベントのコールバックで要素を変更しサイズを取ると無限ループになる,これを防ぐため asyncDispatch とする
-	X_System[ '_listeners' ] && X_System[ '_listeners' ][ X_EVENT_UPDATED ] && X_System[ time ? 'dispatch' : 'asyncDispatch' ]( X_EVENT_UPDATED );
+	X_System[ '_listeners' ] && X_System[ '_listeners' ][ X_EVENT_UPDATED ] && ( time ? X_System[ 'dispatch' ]( X_EVENT_UPDATED ) : X_System[ 'asyncDispatch' ]( X_EVENT_UPDATED ) );
 	
 	X_ViewPort[ '_listeners' ] && X_ViewPort[ '_listeners' ][ X_EVENT_AFTER_UPDATE ] && X_ViewPort[ 'asyncDispatch' ]( X_EVENT_AFTER_UPDATE );
 };
@@ -1532,13 +1528,13 @@ var X_Node__commitUpdate =
 			if( !elm ){
 				if( !that[ '_tag' ] ){
 					that[ '_flags' ] &= X_Node_BitMask_RESET_DIRTY;
-					if( X_UA[ 'IE' ] < 8 ){
+					if( ( X_UA.Trident || X_UA.TridentMobile ) < 8 ){
 						// \n -> \r\n に変換しないと pre タグで改行されない  win10ie7(ie11 emu) で確認
 						elm = document.createTextNode( X_String_chrReferanceTo( that[ '_text' ] ).split( '\n' ).join( X_String_CRLF ) );
 					} else {
 						elm = document.createTextNode( X_String_chrReferanceTo( that[ '_text' ] ) );
 					};
-					if( !X_UA[ 'IE' ] ){
+					if( !( X_UA.Trident || X_UA.TridentMobile ) ){
 						elm[ 'UID' ] = that[ '_uid' ];
 					};
 				} else
@@ -1594,7 +1590,7 @@ var X_Node__commitUpdate =
 						
 						// http://outcloud.blogspot.jp/2010/09/iframe.html
 						// この問題は firefox3.6 で確認
-						if( X_UA[ 'Gecko' ] ){
+						if( ( X_UA.Gecko || X_UA.Fennec ) ){
 							if( that[ '_tag' ] === 'IFRAME' && ( !that[ '_attrs' ] || !that[ '_attrs' ][ 'src' ] ) ){
 								//elm.contentWindow.location.replace = elm.src = 'about:blank';
 								that[ 'attr' ]( 'src', 'about:blank' );
@@ -1657,7 +1653,7 @@ var X_Node__commitUpdate =
 					parentElement.insertBefore( elm, nextElement ) :
 					parentElement.appendChild( elm );
 				
-				if( X_UA[ 'Gecko' ] && that[ '_tag' ] === 'IFRAME' && elm.contentWindow ){
+				if( ( X_UA.Gecko || X_UA.Fennec ) && that[ '_tag' ] === 'IFRAME' && elm.contentWindow ){
 					// tree に追加されるまで contentWindow は存在しない。
 					elm.contentWindow.location.replace = elm.src;
 				};
@@ -1813,7 +1809,7 @@ var X_Node__updateRawNode =
 
 			// textNode
 			if( !that[ '_tag' ] ){
-				if( X_UA[ 'IE' ] < 8 ){
+				if( ( X_UA.Trident || X_UA.TridentMobile ) < 8 ){
 					// \n -> \r\n に変換しないと pre タグで改行されない  win10ie7(ie11 emu) で確認
 					elm.data = X_String_chrReferanceTo( that[ '_text' ] ).split( '\n' ).join( X_String_CRLF );
 				} else {
@@ -1839,7 +1835,7 @@ var X_Node__updateRawNode =
 						elm.setAttribute( 'class', that[ '_className' ] ) :
 						( elm.className = that[ '_className' ] )
 					) :
-					( elm.className && elm.removeAttribute( X_UA[ 'IE' ] < 8 ? 'className' : 'class' ) ); // className は ie7-		
+					( elm.className && elm.removeAttribute( ( X_UA.Trident || X_UA.TridentMobile ) < 8 ? 'className' : 'class' ) ); // className は ie7-		
 			};
 			
 			// attr
@@ -1852,8 +1848,8 @@ var X_Node__updateRawNode =
 					switch( that[ '_tag' ] + k ){
 						case 'TEXTAREAvalue' :
 							// IETester 5.5 ではエラーが出なかった．MultipulIE5.5 ではエラーが出たので
-							// MultipleIE6 でもここを通す。X_UA[ 'ieExeComError' ] の場合 MultipleIE6
-							if( ( !X_UA[ 'MacIE' ] && 5 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 5 ) || ( X_UA[ 'ieExeComError' ] && 6 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 7 ) ){
+							// MultipleIE6 でもここを通す。X_Script_ie6ExeComError の場合 MultipleIE6
+							if( ( !X_UA.Tasman && 5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 5 ) || X_Script_ie6ExeComError ){
 								elm.firstChild ?
 									( elm.firstChild.data = v || '' ) :
 									elm.appendChild( document.createTextNode( v || '' ) );
@@ -1864,7 +1860,7 @@ var X_Node__updateRawNode =
 						case 'IFRAMEsrc' :
 							// http://outcloud.blogspot.jp/2010/09/iframe.html
 							// この問題は firefox3.6 で確認
-							if( X_UA[ 'Gecko' ] && elm.contentWindow ){
+							if( ( X_UA.Gecko || X_UA.Fennec ) && elm.contentWindow ){
 								elm.contentWindow.location.replace = elm.src = v || '';
 								continue;
 							};
@@ -1874,7 +1870,7 @@ var X_Node__updateRawNode =
 							// http://d.hatena.ne.jp/NeoCat/20080921/1221940658
 							// こちらに名前をsetしないとtargetが動作しない
 							// これってあとから name を変更できないバグでは? itozyun
-							// if( X_UA[ 'IE' ] ) elm.name = elm.contentWindow.name = v || '';
+							// if( ( X_UA.Trident || X_UA.TridentMobile ) ) elm.name = elm.contentWindow.name = v || '';
 					};
 					
 					//if( X_EMPTY_OBJECT[ k ] ) continue;
@@ -1905,11 +1901,11 @@ var X_Node__updateRawNode =
 			// style
 			if( that[ '_flags' ] & X_NodeFlags_DIRTY_CSS ){
 				if( that[ '_flags' ] & X_NodeFlags_OLD_CSSTEXT ? X_Node_CSS_objToCssText( that ) : that[ '_cssText' ] ){
-					X_UA[ 'Opera' ] < 9 || X_UA[ 'Gecko' ] < 1 ? // Opera7, 8, NN6
+					( X_UA.Presto || X_UA.PrestoMobile ) < 9 || X_UA.Gecko < 1 ? // Opera7, 8, NN6
 						elm.setAttribute( 'style', that[ '_cssText' ] ) :
 						( elm.style.cssText = that[ '_cssText' ] );
 				} else {
-					if( X_UA[ 'IE' ] < 6 || X_UA[ 'WebKit' ] < 528 ){  // IE5.5以下 Safari3.2 で必要
+					if( ( X_UA.Trident || X_UA.TridentMobile ) < 6 || X_UA.WebKit < 528 ){  // IE5.5以下 Safari3.2 で必要
 						elm.style.cssText = '';
 					} else {
 						elm.removeAttribute( 'style' );
@@ -2140,7 +2136,7 @@ var X_Node__actualRemove =
 				};
 			};
 			
-			if( !X_UA[ 'MacIE' ] ){
+			if( !X_UA.Tasman ){
 				// elm.parentNode.tagName for ie7
 				!isChild && elm.parentNode && elm.parentNode.tagName && elm.parentNode.removeChild( elm );
 			} else {
@@ -2188,4 +2184,3 @@ var X_Node__actualRemove =
 		(function(){});
 
 X_ViewPort[ 'listenOnce' ]( X_EVENT_UNLOAD, X_Node__actualRemove, [ X_Node_html, true ] );
-

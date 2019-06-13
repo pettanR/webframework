@@ -79,8 +79,8 @@ function X_Closure_create( thisObject, opt_callback, opt_args /* [ listener || (
 		ret  = X_CLOSURE_POOL_LIST[ l - 1 ]; --X_CLOSURE_POOL_LIST.length; // ret = X_CLOSURE_POOL_LIST.pop();
 		_obj = ret( X_Closure_COMMAND_BACK );
 		
-		_obj.cbKind       = obj.cbKind;
-		_obj.funcName       = obj.funcName;
+		_obj.cbKind     = obj.cbKind;
+		_obj.funcName   = obj.funcName;
 		_obj.func       = obj.func;
 		_obj.context    = obj.context;
 		_obj.supplement = obj.supplement;
@@ -117,7 +117,6 @@ function X_Closure_classifyCallbackArgs( arg1, arg2, arg3, alt_context ){
 		};
 	} else
 	if( X_Type_isFunction( arg2 ) ){
-		//console.log( 'X_Closure_classifyCallbackArgs : arg1 が ' + arg1 + 'です' ); ie4 で error
 		if( alt_context ){
 			obj  = { context : alt_context, func : arg2, cbKind : X_CLOSURE_THIS_FUNC };
 		} else {
@@ -132,9 +131,10 @@ function X_Closure_classifyCallbackArgs( arg1, arg2, arg3, alt_context ){
 		obj  = { context : alt_context, cbKind : X_CLOSURE_HANDLEEVENT };
 		arg3 = arg1;
 	} else {
-		console.log( '不正 ' + arg1 );
-		console.dir( arg1 );
-		return;
+        if( X_IS_DEV ){
+            X_error( 'X.Closure.create : Invalid args! arguments[0]=' + arg1 );
+            return;
+        };
 	};
 	
 	if( X_Type_isArray( arg3 )){

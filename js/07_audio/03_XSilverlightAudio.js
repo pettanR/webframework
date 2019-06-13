@@ -22,7 +22,7 @@ if( X_Plugin_SILVER_LIGHT_VERSION ){
 		// http://blog.yuhiisk.com/archive/2014/12/20/dynamic-loading-and-complete-processing-of-script.html
 		var s;
 		
-		if( X_UA[ 'IE' ] < 9 ){
+		if( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ){
 			s = document.createElement( '<script id="silverlightaudio" type="text/xaml"></script>' );
 		} else {
 			s = document.createElement( 'script' );

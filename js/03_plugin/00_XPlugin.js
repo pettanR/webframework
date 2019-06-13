@@ -17,8 +17,8 @@
  * flash player 11.1, Win2k, Android 2.x-4.x
  */
 var X_Plugin_FLASH_VERSION =
-		!X_UA[ 'IE' ] || !X_UA[ 'ActiveX' ] ? parseFloat( X_Object_find( navigator, 'plugins>Shockwave Flash>version' ) || 0 ) :
-		!( X_UA[ 'IE' ] < 5.5 ) & X_UA[ 'ActiveX' ] ? (function(){
+		!( X_UA.Trident || X_UA.TridentMobile ) || !X_UA_ActiveX ? parseFloat( X_Object_find( navigator, 'plugins>Shockwave Flash>version' ) || 0 ) :
+		!( ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 ) & X_UA_ActiveX ? (function(){
 			    var obj = X_Script_createActiveXObjectSafty( 'ShockwaveFlash.ShockwaveFlash' );
 			    
 				return parseFloat( obj && obj[ 'GetVariable' ]( '$version' ).split( 'WIN ' )[ 1 ] ) || 0;
@@ -26,8 +26,8 @@ var X_Plugin_FLASH_VERSION =
 			0,
 
 	X_Plugin_SILVER_LIGHT_VERSION =	
-		!X_UA[ 'IE' ] || !X_UA[ 'ActiveX' ] ? parseFloat( X_Object_find( navigator, 'plugins>Silverlight Plug-In>version' ) || 0 ) :
-		X_UA[ 'ActiveX' ] && 6 <= X_UA[ 'IE' ] ? (function(){
+		!( X_UA.Trident || X_UA.TridentMobile ) || !X_UA_ActiveX ? parseFloat( X_Object_find( navigator, 'plugins>Silverlight Plug-In>version' ) || 0 ) :
+		X_UA_ActiveX && 6 <= ( X_UA.Trident || X_UA.TridentMobile ) ? (function(){
 			    var obj = X_Script_createActiveXObjectSafty( 'AgControl.AgControl' ),
 			    	i = obj ? 5 : 0;
 
@@ -40,9 +40,9 @@ var X_Plugin_FLASH_VERSION =
 
 //http://docs.unity3d.ru/Manual/Detecting%20the%20Unity%20Web%20Player%20using%20browser%20scripting.html
 	X_Plugin_UNITY_VERSION =	
-		!X_UA[ 'IE' ] || !X_UA[ 'ActiveX' ] ?
+		!( X_UA.Trident || X_UA.TridentMobile ) || !X_UA_ActiveX ?
 			parseFloat( X_Object_find( navigator, 'plugins>Unity Player>version' ) || 0 ) :
-		!( X_UA[ 'IE' ] < 5.5 ) && X_UA[ 'ActiveX' ] ? (function(){
+		!( ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 ) && X_UA_ActiveX ? (function(){
 			    var obj = X_Script_createActiveXObjectSafty( 'UnityWebPlayer.UnityWebPlayer.1' );
 
 			    return obj ? parseFloat( obj[ 'GetPluginVersion' ]() ) : 0;
@@ -51,7 +51,7 @@ var X_Plugin_FLASH_VERSION =
 
 	X_Plugin_GEARS_ENABLED =
 		window.GearsFactory ||
-		( X_UA[ 'ActiveX' ] && 6 <= X_UA[ 'IE' ] ?
+		( X_UA_ActiveX && 6 <= ( X_UA.Trident || X_UA.TridentMobile ) ?
 			(function(){
 			    return X_Script_createActiveXObjectSafty( 'Gears.Factory' );
 			})() :
@@ -62,7 +62,7 @@ var X_Plugin_FLASH_VERSION =
 // Windows Media Player 7 がクライアントにインストールされている場合に、自動的に Web ページに埋め込む方法
 // TODO GeckoActiveXObject
 	X_Plugin_WMP_VERSION =	
-		!X_UA[ 'IE' ] || !X_UA[ 'ActiveX' ] ? 0 :
+		!( X_UA.Trident || X_UA.TridentMobile ) || !X_UA_ActiveX ? 0 :
 		(function(){
 			    var obj = X_Script_createActiveXObjectSafty( 'WMPlayer.OCX.7' );
 
@@ -73,13 +73,13 @@ var X_Plugin_FLASH_VERSION =
 	// QuickTime Plug-in 7.7.6
 	/*
 	X_Plugin_QUICKTIME_VERSION =
-			!X_UA[ 'IE' ] || !X_UA[ 'ActiveX' ] ? (function( plugins, k ){
+			!( X_UA.Trident || X_UA.TridentMobile ) || !X_UA_ActiveX ? (function( plugins, k ){
 				for( k in plugins ){
 					if( k.indexOf( 'QuickTime' ) === 0 ) return parseFloat( k.substr( 18 ) ) || 0;
 				};
 				return 0;
 			})( navigator.plugins ) :
-			!( X_UA[ 'IE' ] < 5.5 ) && X_UA[ 'ActiveX' ] ? (function(){
+			!( ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 ) && X_UA_ActiveX ? (function(){
 				    var obj = QuickTimeCheckObject.QuickTimeCheck.1' ),
 				    	ver = obj && obj[ 'QuickTimeVersion' ].toString( 16 );
 

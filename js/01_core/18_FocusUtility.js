@@ -1,7 +1,7 @@
 
 
 var FocusUtility_lastElmFocused;
-var FocusUtility_docActiveElmSupport = X_UA[ 'IE' ] || document.activeElement !== undefined;
+var FocusUtility_docActiveElmSupport = ( X_UA.Trident || X_UA.TridentMobile ) || document.activeElement !== undefined;
 var FocusUtility_fixActiveElm;
 
 // http://www.codingforums.com/javascript-programming/19503-determining-focus-ns6-ie6-context-sensitive-help.html

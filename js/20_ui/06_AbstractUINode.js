@@ -1,4 +1,4 @@
-// TODO -> Node[ 'inherits' ]
+// TODO -> X_Node[ 'inherits' ]
 var XUI_AbstractUINode = X_EventDispatcher[ 'inherits' ](
 	'X.UI._AbstractUINode',
 	X_Class.ABSTRACT,
@@ -378,8 +378,8 @@ var XUI_AbstractUINode = X_EventDispatcher[ 'inherits' ](
 		updateLayout : function(){
 			var x = this.boxX + ( this.parentData ? this.parentData.paddingL : 0 ),
 				y = this.boxY + ( this.parentData ? this.parentData.paddingT : 0 ),
-				w = X_UA[ 'IE' ] < 6 ? this.boxWidth  : this.contentWidth, // IE6 の互換モードも
-				h = X_UA[ 'IE' ] < 6 ? this.boxHeight : this.contentHeight;
+				w = ( X_UA.Trident || X_UA.TridentMobile ) < 6 ? this.boxWidth  : this.contentWidth, // IE6 の互換モードも
+				h = ( X_UA.Trident || X_UA.TridentMobile ) < 6 ? this.boxHeight : this.contentHeight;
 
 			this.xnode
 				[ 'css' ]( 'left',        x ? x + 'em' : 0 ) // 親の padding 分ずらす
@@ -1009,17 +1009,23 @@ X.UI.AbstractUINode = X_Class_create(
 						f = list[ i ];
 						switch( f.cbKind ){
 							case X_CLOSURE_THIS_FUNC :
-								newNode[ f.once ? 'listenOnce' : 'listen' ]( type, f.context === this ? newNode : f.context, f.func, f.supplement );
+                                f.once ?
+                                    newNode[ 'listenOnce' ]( type, f.context === this ? newNode : f.context, f.func, f.supplement ) :
+                                    newNode[ 'listen' ]( type, f.context === this ? newNode : f.context, f.func, f.supplement );
 								break;
 							case X_CLOSURE_HANDLEEVENT :
-								newNode[ f.once ? 'listenOnce' : 'listen' ]( type, f.context === this ? newNode : f.context, f.supplement );
+                                f.once ?
+                                    newNode[ 'listenOnce' ]( type, f.context === this ? newNode : f.context, f.supplement ) :
+                                    newNode[ 'listen' ]( type, f.context === this ? newNode : f.context, f.supplement );
 								break;
 							/*
 							case X_CLOSURE_FUNC_ONLY :
 								if( f.lock ){
 									newNode[ 'listen' ]( type, f.func, f.supplement );
 								} else {
-									newNode[ f.once ? 'listenOnce' : 'listen' ]( type, f.func, f.supplement );
+                                    f.once ?
+                                        newNode[ 'listenOnce' ]( type, f.func, f.supplement ) :
+                                        newNode[ 'listen' ]( type, f.func, f.supplement );
 								};
 								break;
 							default :

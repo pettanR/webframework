@@ -12,7 +12,7 @@ var X_JSON = X[ 'JSON' ] =
 						// http://blog.livedoor.jp/dankogai/archives/51503830.html		
 						// Ajax - IE8にもJSON入ってます。使えるとは限らないけど
 						// Compatibility mode (別名Quirks mode) では、JSONオブジェクトは無効になります。iframeもだめです
-( 8 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 9 ) ? {
+( 8 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 9 ) ? {
 	'stringify' : function( o ){
 		return unescape( JSON.stringify( o ) );
 	},

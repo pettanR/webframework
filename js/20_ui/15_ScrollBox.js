@@ -3,7 +3,7 @@
  * ScrollManager
  * indicatorX, Y は再利用
  */
-var XUI_ScrollBox_useCSSP = !( X_UA[ 'IE' ] < 5.5 ),
+var XUI_ScrollBox_useCSSP = !( ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 ),
 	XUI_ScrollBox_current,
 	XUI_ScrollBox_indicatorV,
 	XUI_ScrollBox_indicatorH;
@@ -334,7 +334,7 @@ function X_UI_ScrollBox_translate( that, x, y, opt_time, opt_easing, opt_release
 					});		
 	};
 
-	if( X_UA[ 'IE' ] < 6 ){
+	if( ( X_UA.Trident || X_UA.TridentMobile ) < 6 ){
 		XUI_ScrollBox_indicatorV && XUI_ScrollBox_indicatorV[ 'css' ]( 'left', ( scrollBoxW - that.fontSize * 0.6 | 0 ) + 'px' );
 		XUI_ScrollBox_indicatorH && XUI_ScrollBox_indicatorH[ 'css' ]( 'top' , ( scrollBoxH - that.fontSize * 0.6 | 0 ) + 'px' );
 	};

@@ -1,4 +1,4 @@
-var X_Audio_constructor = 3.1 <= X_UA[ 'Safari' ] && X_UA[ 'Safari' ] < 4 ?
+var X_Audio_constructor = 525 <= X_UA.WebKit && X_UA.WebKit < 528 ? // 3.1 <= Safari < 4
 								function( s, a ){
 									a = document.createElement( 'audio' );
 									a.src = s;
@@ -6,11 +6,11 @@ var X_Audio_constructor = 3.1 <= X_UA[ 'Safari' ] && X_UA[ 'Safari' ] < 4 ?
 									return a;
 								} :
 						// Android1.6 + MobileOpera12 HTMLAudio はいるが呼ぶとクラッシュする
-						  !( X_UA[ 'Android' ] < 2 ) ?
+						  !( X_UA.Android < 2 ) ?
 								window[ 'Audio' ] || window.HTMLAudioElement : null,
 	
-	// Blink5 Opera32 Win8 は HTMLAudio が壊れている、WebAudio は mp3 がデコードに失敗、ogg が動作
-	X_Audio_blinkOperaFix = X_UA[ 'OPR' ] && X_UA[ 'Windows' ],
+	// Blink5 Opera32 Win8 は HTMLAudio が壊れている、WebAudio は mp3 がデコードに失敗、ogg が動作 -> mp3 に問題がある可能性…
+	X_Audio_blinkOperaFix = X_UA.Opera && X_UA.Chromium && ( X_UA.Win32 || X_UA.Win64 ),
 
 	X_Audio_codecs;
 
@@ -54,13 +54,13 @@ if( X_Audio_constructor ){
 	} else {
 		// iOS3.2.3
 		X_Audio_codecs = {
-		  'mp3'  : X_UA[ 'IE' ] || X_UA[ 'Chrome' ] || ( X_UA[ 'Windows' ] && X_UA[ 'Safari' ]  ),
-		  'ogg'  : 5 <= X_UA[ 'Gecko' ] || X_UA[ 'Chrome' ] || X_UA[ 'Prsto' ] ,
-		  'wav'  : X_UA[ 'Gecko' ] || X_UA[ 'Prsto' ] || ( X_UA[ 'Windows' ] && X_UA[ 'Safari' ]  ),
-		  'aac'  : X_UA[ 'IE' ] || X_UA[ 'WebKit' ],
-		  'm4a'  : X_UA[ 'IE' ] || X_UA[ 'WebKit' ],
-		  'mp4'  : X_UA[ 'IE' ] || X_UA[ 'WebKit' ],
-		  'weba' : 2 <= X_UA[ 'Gecko' ] || 10.6 <= X_UA[ 'Prsto' ] // firefox4+(Gecko2+)
+		  'mp3'  : ( X_UA.Trident || X_UA.TridentMobile ) || ( X_UA.Chromium || X_UA.ChromiumMobile ) || ( ( X_UA.Win32 || X_UA.Win64 ) && X_UA.WebKit  ),
+		  'ogg'  : 5 <= ( X_UA.Gecko || X_UA.Fennec ) || ( X_UA.Chromium || X_UA.ChromiumMobile ) || ( X_UA.Presto || X_UA.PrestoMobile ),
+		  'wav'  : ( X_UA.Gecko || X_UA.Fennec ) || ( X_UA.Presto || X_UA.PrestoMobile ) || ( ( X_UA.Win32 || X_UA.Win64 ) && X_UA.WebKit  ),
+		  'aac'  : ( X_UA.Trident || X_UA.TridentMobile ) || X_UA.WebKit,
+		  'm4a'  : ( X_UA.Trident || X_UA.TridentMobile ) || X_UA.WebKit,
+		  'mp4'  : ( X_UA.Trident || X_UA.TridentMobile ) || X_UA.WebKit,
+		  'weba' : 2 <= ( X_UA.Gecko || X_UA.Fennec ) || 10.6 <= ( X_UA.Presto || X_UA.PrestoMobile ) // firefox4+(Gecko2+)
 		};
 		(function( X_Audio_codecs, k ){
 			for( k in X_Audio_codecs ){
@@ -82,24 +82,22 @@ if( X_Audio_constructor ){
 };
 
 
-var X_WebAudio_Context      =	// iOSではない、4s 以下ではない iPad 2G または iPad mini 1G 以下ではない, iPod touch 4G 以下ではない
-								( !X_UA[ 'iOS' ] || X_UA[ 'iPhone' ] === '5+' || X_UA[ 'iPad' ] === '3+|2min+' || X_UA[ 'iPod' ] === '5+' ) &&
-								// iOS7 以上で HTML Audio が鳴らない問題を見ていくよ
-								// !X_UA[ 'iOS' ] &&
+var X_WebAudio_Context      = (
+                                  !( X_UA.SafariMobile || X_UA.iOSWebView ) ||     // iOSではない、または
+                                  (
+                                      ( !X_UA.iPhone || 6 <= X_UA.iPhone.min ) &&  // iPhone 4s 以下ではない
+                                      ( !X_UA.iPad   || 3 <= X_UA.iPad.min   ) &&  // iPad 2G または iPad mini 1G 以下ではない
+                                      ( !X_UA.iPod   || 5 <= X_UA.iPod.min   )     // iPod touch 4G 以下ではない                                        
+                                  )
+                              ) &&
 								// Android2 + Gecko で WebAudio が極めて不安定
-								!( X_UA[ 'Fennec' ] && !( 4 <= X_UA[ 'Android' ] ) ) &&
+								!( X_UA.Fennec && !( 4 <= X_UA.Android ) ) &&
 								// AOSP でも WebAudio を不完全に実装するものがある, touch の有無も不明のため一律に切ってしまう
-								!X_UA[ 'AOSP' ] && !( X_UA[ 'ChromeWV' ] < 5 ) &&
-								// Blink HTMLAudio 調査用
-								//!X_UA[ 'Blink' ] &&
-								// Firefox40.0.5 + Windows8 で音声が途中から鳴らなくなる
-								// Firefox41.0.1 + Windows8 で音声が途中から鳴らなくなる -> 案件のmp3が不正なメタデータを含んでいたのが原因！
-								/* !( 40 <= X_UA[ 'Gecko' ] && X_UA[ 'Gecko' ] < 48 && X_UA[ 'Windows' ] ) &&
-								!X_UA[ 'Edge' ] &&  -> 何故?? */
+								!X_UA.AOSP && !( X_UA.ChromeWebView < 5 ) &&
 								( window[ 'AudioContext' ] || window[ 'webkitAudioContext' ] || window[ 'mozAudioContext' ] ),		
 	X_WebAudio_context,
 	X_WebAudio_BUFFER_LIST  = [],
-	X_WebAudio_need1stTouch	= X_UA[ 'iOS' ],
+	X_WebAudio_need1stTouch	= ( X_UA.SafariMobile || X_UA.iOSWebView ),
 	X_WebAudio_isNoTouch    = X_WebAudio_need1stTouch,
 	X_WebAudio_needRateFix  = X_WebAudio_need1stTouch,
 	X_WebAudio,
@@ -190,7 +188,7 @@ if( X_WebAudio_Context ){
 					// iOS 7.1 で decodeAudioData に処理が入った瞬間にスクリーンを長押しする（スクロールを繰り返す）と
 					// decoeAudioData の処理がキャンセルされることがある（エラーやコールバックの発火もなく、ただ処理が消滅する）。
 					// ただし iOS 8.1.2 では エラーになる
-						if( X_UA[ 'iOS' ] < 8 || !X_WebAudio_context[ 'decodeAudioData' ] ){
+						if( ( X_UA.SafariMobile || X_UA.iOSWebView ) < 8 || !X_WebAudio_context[ 'decodeAudioData' ] ){
 							this._onDecodeSuccess( X_WebAudio_context[ 'createBuffer' ]( e.response, false ) );
 						} else
 						if( X_WebAudio_context[ 'decodeAudioData' ] ){
@@ -287,7 +285,7 @@ if( X_WebAudio_Context ){
 				 * L-01F 等の一部端末で Web Audio API の再生結果に特定条件下でノイズが混ざることがある。
 				 * 描画レート（描画 FPS）が下がるとノイズが混ざり始め、レートを上げると再生結果が正常になるというもので、オーディオ処理が描画スレッドに巻き込まれているような動作を見せる。
 				 */
-				if( X_UA[ 'Android' ] && X_UA[ 'Chrome' ] && !X_WebAudio_fpsFix ){
+				if( X_UA.Android && ( X_UA.ChromiumMobile || X_UA.ChromeWebView ) && !X_WebAudio_fpsFix ){
 					X_Node_systemNode.create( 'div', { id : 'fps-slowdown-make-sound-noisy' } );
 					X_WebAudio_fpsFix = true;
 				};

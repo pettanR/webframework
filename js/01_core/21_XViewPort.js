@@ -12,7 +12,7 @@ var X_ViewPort_readyState,
 	X_ViewPort_vScrollbarSize,
 	X_ViewPort_hScrollbarSize,
 	
-	X_ViewPort_useDetectionLoop = X_UA[ 'IE' ] < 9 || X_UA[ 'iOS' ],
+	X_ViewPort_useDetectionLoop = ( X_UA.Trident || X_UA.TridentMobile ) < 9 || ( X_UA.SafariMobile || X_UA.iOSWebView ),
 	X_ViewPort_detectFontSize = !X_ViewPort_useDetectionLoop && function(){
 			var size = X_Node_fontSizeNode[ '_rawObject' ].offsetHeight;
 			if( X_ViewPort_baseFontSize !== size ){
@@ -22,9 +22,9 @@ var X_ViewPort_readyState,
 	},
 
 	X_ViewPort_orientationFlag,	
-	X_ViewPort_orientationchange = window[ 'orientation' ] !== undefined && function( e ){
+	X_ViewPort_orientationchange = window.orientation !== undefined && function( e ){
 		X_ViewPort_orientationFlag = true;
-		!X_UA[ 'Android' ] && X_ViewPort_resize();
+		!X_UA.Android && X_ViewPort_resize();
 		//console.log( '-- orientationchange : ' + X[ 'ViewPort' ][ 'getSize' ][ 0 ] + ' ' + X[ 'ViewPort' ][ 'getSize' ][ 1 ] );
 	},
 	
@@ -35,7 +35,7 @@ X_ViewPort = X_Class_override(
 	{
 
 		'handleEvent' : function( e ){
-			var href, i, name, active = false, elm, xnode;
+			var href, active = false, elm, xnode;
 			
 			switch( e.type ){
 				case 'beforeunload' :
@@ -74,7 +74,7 @@ X_ViewPort = X_Class_override(
 	
 				case 'blur' :
 				case 'focusout' :
-					if( X_UA[ 'IE' ] < 9 && ( elm = FocusUtility_getFocusedElement() ) ){
+					if( ( X_UA.Trident || X_UA.TridentMobile ) < 9 && ( elm = FocusUtility_getFocusedElement() ) ){
 						xnode = X_Node_getXNode( elm );
 						if( xnode ){
 							xnode[ 'listenOnce' ]( [ 'focus', 'blur' ], X_ViewPort_detectFocusForIE );
@@ -101,7 +101,6 @@ X_ViewPort = X_Class_override(
 					break;
 			};
 		}
-		
 	}
 );
 
@@ -133,6 +132,27 @@ function X_ViewPort_changeFocus(){
 	X_ViewPort_activeTimerID = 0;
 };
 
+
+/**
+ * 
+ * @alias X.ViewPort.getScrollPosition
+ */
+var X_ViewPort_getScrollPosition =
+		window.pageXOffset !== undefined ?
+			( function(){
+				X_Node_updateTimerID && X_Node_startUpdate();
+				return[ X_ViewPort_scrollX = window.pageXOffset, X_ViewPort_scrollY = window.pageYOffset ];
+			} ) :
+		window.scrollLeft  !== undefined ?
+			( function(){
+				X_Node_updateTimerID && X_Node_startUpdate();
+				return[ X_ViewPort_scrollX = window.scrollLeft, X_ViewPort_scrollY = window.scrollTop ];
+			} ) :
+			( function(){
+				X_Node_updateTimerID && X_Node_startUpdate();
+				// body は Safari2-
+				return[ X_ViewPort_scrollX = X_ViewPort_rootElement.scrollLeft || X_elmBody.scrollLeft, X_ViewPort_scrollY = X_ViewPort_rootElement.scrollTop || X_elmBody.scrollTop ];
+			} );
 
 // TODO EventDispatcherProxy
 /**
@@ -240,7 +260,7 @@ X[ 'ViewPort' ] = {
 	},
 	
 	/* 要素が視界に入った  http://remysharp.com/2009/01/26/element-in-view-event-plugin/
-	 * TODO -> Node.call('inView')
+	 * TODO -> X_Node.call('inView')
 	 */
 	'inView' : function( elm ){
 		
@@ -270,7 +290,7 @@ X[ 'ViewPort' ] = {
 	// http://hisasann.com/housetect/2008/08/jqueryheightwidthopera95.html このdocument.body[ 'client' + name ]はおそらくOpera9.5未満のバージョンで有効なんじゃないかな？
 		
 		X_Node_updateTimerID && X_Node_startUpdate();
-		/*X_UA[ 'Opera' ] ?
+		/*( X_UA.Presto || X_UA.PrestoMobile ) ?
 			( document.documentElement && document.documentElement.clientWidth ?
 				new Function( 'return[document.documentElement.clientWidth,document.documentElement.clientHeight]' ) :
 				new Function( 'return[X_elmBody.clientWidth,X_elmBody.clientHeight]' )
@@ -280,27 +300,8 @@ X[ 'ViewPort' ] = {
 			X_ViewPort_rootElement.scrollHeight || X_ViewPort_rootElement.offsetHeight
 		];
 	},
-	
-	/**
-	 * 
-	 * @alias X.ViewPort.getScrollPosition
-	 */
-	'getScrollPosition' :
-		window.pageXOffset !== undefined ?
-			( function(){
-				X_Node_updateTimerID && X_Node_startUpdate();
-				return[ X_ViewPort_scrollX = window.pageXOffset, X_ViewPort_scrollY = window.pageYOffset ];
-			} ) :
-		window.scrollLeft  !== undefined ?
-			( function(){
-				X_Node_updateTimerID && X_Node_startUpdate();
-				return[ X_ViewPort_scrollX = window.scrollLeft, X_ViewPort_scrollY = window.scrollTop ];
-			} ) :
-			( function(){
-				X_Node_updateTimerID && X_Node_startUpdate();
-				// body は Safari2-
-				return[ X_ViewPort_scrollX = X_ViewPort_rootElement.scrollLeft || X_elmBody.scrollLeft, X_ViewPort_scrollY = X_ViewPort_rootElement.scrollTop || X_elmBody.scrollTop ];
-			} ),
+
+	'getScrollPosition' : X_ViewPort_getScrollPosition,
 
 	/**
 	 * 
@@ -435,7 +436,7 @@ X[ 'ViewPort' ] = {
 	 * @alias X.Doc.html
 	 * @type {Node}
 	 */
-			X[ 'Doc' ][ 'html' ] = html = X_Node_html = X_elmHtml && Node( X_elmHtml )[ 'removeClass' ]( 'js-disabled' )[ 'addClass' ]( X_UA_classNameForHTML.split( '.' ).join( '_' ) );
+			X[ 'Doc' ][ 'html' ] = html = X_Node_html = X_elmHtml && X_Node( X_elmHtml )[ 'removeClass' ]( 'js-disabled' )[ 'addClass' ]( X_UA_classNameForHTML.split( '.' ).join( '_' ) );
 			html[ '_flags' ] |= X_NodeFlags_IN_TREE;
 
 	/**
@@ -443,14 +444,14 @@ X[ 'ViewPort' ] = {
 	 * @alias X.Doc.head
 	 * @type {Node}
 	 */			
-			X[ 'Doc' ][ 'head' ] = head = X_Node_head = X_elmHead && Node( X_elmHead );
+			X[ 'Doc' ][ 'head' ] = head = X_Node_head = X_elmHead && X_Node( X_elmHead );
 
 	/**
 	 * X.Node( body )
 	 * @alias X.Doc.body
 	 * @type {Node}
 	 */		
-			X[ 'Doc' ][ 'body' ] = body = X_Node_body = Node( X_elmBody );
+			X[ 'Doc' ][ 'body' ] = body = X_Node_body = X_Node( X_elmBody );
 
 			body[ 'parent ' ] = head[ 'parent' ] = html;
 			html[ '_xnodes' ] = [ head, body ];
@@ -469,7 +470,6 @@ X[ 'ViewPort' ] = {
 			
 			X_ViewPort[ 'listenOnce' ]( X_EVENT_XTREE_READY, function(){
 				X_ViewPort_readyState = X_EVENT_INIT;
-				//X_UA[ 'Opera7' ] && alert( 'bc' );
 				X_Node_body[ 'appendAt' ]( 0,
 					X_Node_systemNode = X_Doc_create( 'div', { 'class' : 'hidden-system-node' } ),
 					X_Node_fontSizeNode = X_Doc_create( 'div', { 'class' : 'hidden-system-node' } )[ 'cssText' ]( 'line-height:1;height:1em;' )[ 'text' ]( 'X' )
@@ -504,7 +504,7 @@ X[ 'ViewPort' ] = {
 				X_ViewPort_vScrollbarSize = w;
 				X_ViewPort_hScrollbarSize = h;
 				if( h <= 0 ){ // ie6, ie11, firefox で 負の値が返る
-					console.log( 'invalid hScrollbarSize: ' + h );
+					// console.log( 'invalid hScrollbarSize: ' + h );
 					X_ViewPort_hScrollbarSize = w;
 				};
 				
@@ -551,7 +551,7 @@ X[ 'ViewPort' ] = {
 				X_ViewPort[ 'listen' ]( [ 'pageshow', 'pagehide' ] );
 			};
 			
-			if( X_UA[ 'Gecko' ] ){
+			if( ( X_UA.Gecko || X_UA.Fennec ) ){
 				// http://d.hatena.ne.jp/uupaa/20091231/1262202954
 				// 現状で capture = true でリッスンする手段が無いので...
 				document.addEventListener( 'focus', X_ViewPort[ 'handleEvent' ], true ); // capture
@@ -580,15 +580,17 @@ X[ 'ViewPort' ] = {
 		};
 
 		function X_ViewPort_getWindowSize(){
-			return X_UA[ 'IE' ] ? // Opera10.1 では ズーム時に表示領域のサイズが取れない！
+			return ( X_UA.Trident || X_UA.TridentMobile ) ?
 				[ X_ViewPort_rootElement.clientWidth, X_ViewPort_rootElement.clientHeight ] :
-				X_UA[ 'Opera' ] < 12 ? // Opera10.1 では ズーム + resize 時に表示領域のサイズが取れない！
-				[ X_ViewPort_rootElement.offsetWidth, X_ViewPort_rootElement.offsetHeight ] :
+				( X_UA.Presto || X_UA.PrestoMobile ) < 12 ? // Opera10.1 では ズーム + resize 時に表示領域のサイズが取れない！
+                [ X_ViewPort_rootElement.offsetWidth, X_ViewPort_rootElement.offsetHeight ] :
+                // wemo.tech/470
+                // iOS12.2 + Firefox + iPad の場合、outerHeight がアドレスバーのサイズを除いた意図した値を返す
 				[ window.innerWidth, window.innerHeight ];
 		};
 
 
-console.log( 'X.Dom dom:w3c=' + X_UA_DOM.W3C + ' ev:w3c=' + X_UA_EVENT.W3C );
+// console.log( 'X.Dom dom:w3c=' + X_UA_DOM.W3C + ' ev:w3c=' + X_UA_EVENT.W3C );
 
 /* -----------------------------------------------
  * Document Ready
@@ -603,7 +605,7 @@ console.log( 'X.Dom dom:w3c=' + X_UA_DOM.W3C + ' ev:w3c=' + X_UA_EVENT.W3C );
 if( X_UA_EVENT.W3C ){
 	X_ViewPort_document[ 'listenOnce' ]( 'DOMContentLoaded', X_TEMP.onDomContentLoaded );
 } else
-if( 6 <= X_UA[ 'IE' ] && X[ 'inHead' ] ){
+if( 6 <= ( X_UA.Trident || X_UA.TridentMobile ) && X[ 'inHead' ] ){
     X_TEMP._script = document.createElement( '<script id=__ieonload defer src=javascript:void(0)></script>' );
 	// 次のコードはスタンドアローン版ie6でエラー
 	// document.write( '<script id=__ieonload defer src=javascript:void(0)></script>' );
@@ -622,7 +624,7 @@ if( 6 <= X_UA[ 'IE' ] && X[ 'inHead' ] ){
 };
 // Re: onLoad doesn't work with Safari?
 // http://lists.apple.com/archives/web-dev/2003/Oct/msg00036.html
-if( X_UA[ 'WebKit' ] <= 419.3 ){ // Safari 2-
+if( X_UA.WebKit <= 419.3 ){ // Safari 2-
 	X_Timer_add( 16, function(){
 		if( !X_TEMP.onDomContentLoaded ) return X_CALLBACK_UN_LISTEN;
 		if( document.readyState === 'loaded' || document.readyState === 'complete' ) return X_TEMP.onDomContentLoaded();

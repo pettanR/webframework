@@ -108,7 +108,7 @@ function X_Doc_create( tag, opt_attrs, opt_css ){
 	switch( X_Node_getType( tag ) ){
 		case X_NodeType_STRING :
 			X_Node_newByTag = true;
-			return new Node( tag, opt_attrs, opt_css );
+			return new X_Node( tag, opt_attrs, opt_css );
 		case X_NodeType_HTML_STRING :
 			list = X_HtmlParser_parse( tag, true );
 			for( i = list.length; 1 < i; ){
@@ -126,5 +126,5 @@ function X_Doc_create( tag, opt_attrs, opt_css ){
  */
 function X_Doc_createText( text ){
 	X_Node_newByText = true;
-	return new Node( text );
+	return new X_Node( text );
 };

@@ -41,6 +41,8 @@ X_TEMP.X_JSONP_cb = function( accessKey, jsonString, time, opt_json2FileSize ){
 	};
 
 var X_JSONP_ACCESS_KEY = Math.random(),
+
+    X_JSONP_CALLBACK_NAME = '__jsonpcb__',
 	
 	X_JSONP_maxOnloadCount,
 	
@@ -49,7 +51,7 @@ var X_JSONP_ACCESS_KEY = Math.random(),
 	X_JSONP_errorTimerID;
 
 X_TEMP.X_JSONP_init = function(){
-	X[ 'Net' ][ '__json_cb__' ] = X_TEMP.X_JSONP_cb;
+	window[ X_JSONP_CALLBACK_NAME ] = X_TEMP.X_JSONP_cb;
 	
 	X_JSONP = X_Class_override( X_NinjaIframe(), X_TEMP.X_JSONP_params );
 	
@@ -91,26 +93,26 @@ X_TEMP.X_JSONP_params = {
 				// http://d.hatena.ne.jp/cnrd/20080518/1211099169
 				// 最近の仕様変更(引数のtargetOriginとかMessageEventのoriginとか)にはまだ対応してないみたい 
 			
-				if( X_UA[ 'Prsto' ] ){
+				if( X_UA.Presto || X_UA.PrestoMobile ){
 					html = [
 						( window[ 'JSON' ] ? '' : '<script src="' + json2Path + '"></script>' ),
 						'<script>',
 							'onunload=function(){im.onload=im.onerror=""};',
 							'nw=+new Date;',
-							'function ', callback, '(o){if(nw){nw-=+new Date;parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw', window[ 'JSON' ] ? json2FileSize : 0 ,');nw=0}}',
+							'function ', callback, '(o){if(nw){nw-=+new Date;parent.' + X_JSONP_CALLBACK_NAME + '(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw', window[ 'JSON' ] ? json2FileSize : 0 ,');nw=0}}',
 						'</script>',	
 						'<script', charset, ' id="jp"></script>',
 						'<img id="im" src="', url, '" onload="jp.src=im.src" onerror="jp.src=im.src">'
 					];
 					X_JSONP_maxOnloadCount = 2;
 				} else
-				if( X_UA[ 'IE' ] < 5 || X_UA[ 'MacIE' ] ){
+				if( ( X_UA.Trident || X_UA.TridentMobile ) < 5 || X_UA.Tasman ){
 					html = [
 						'<script id="jn"></script>',
 						'<script', charset, ' id="jp"></script>',
 						'<script>',
 							'onunload=function(){clearTimeout(id)};',
-							'function ', callback, '(o){nw-=new Date;parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw-16,', json2FileSize, ')}',
+							'function ', callback, '(o){nw-=new Date;parent.' + X_JSONP_CALLBACK_NAME + '(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw-16,', json2FileSize, ')}',
 							'function t1(){document.all.jn.src="', json2Path ,'";id=setTimeout("t2()",16);nw=+new Date}',
 							'id=setTimeout("t1()",16);',
 							'function t2(){if(window.JSON){document.all.jp.src="', url ,'"}else{id=setTimeout("t2()",16)}}',
@@ -118,13 +120,13 @@ X_TEMP.X_JSONP_params = {
 					];
 					X_JSONP_maxOnloadCount = 3;
 				} else
-				if( X_UA[ 'IE' ] < 8 ){ // ie5-7
+				if( ( X_UA.Trident || X_UA.TridentMobile ) < 8 ){ // ie5-7
 					html = [
 						'<script id="jn"></script>',
 						'<script', charset, ' id="jp"></script>',
 						'<script>',
 							'onunload=function(){clearTimeout(id)};',
-							'function ', callback, '(o){nw-=new Date;parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw-16,', json2FileSize, ')}',
+							'function ', callback, '(o){nw-=new Date;parent.' + X_JSONP_CALLBACK_NAME + '(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw-16,', json2FileSize, ')}',
 							'function t1(){jn.src="', json2Path ,'";id=setTimeout(t2,16);nw=+new Date}',
 							'id=setTimeout(t1,16);',
 							'function t2(){if(window.JSON){jp.src="', url ,'"}else{id=setTimeout(t2,16)}}',
@@ -132,13 +134,13 @@ X_TEMP.X_JSONP_params = {
 					];
 					X_JSONP_maxOnloadCount = 3;
 				} else
-				if( X_UA[ 'IE' ] < 9 ){
+				if( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ){
 					html = [
 						'<script', charset, ' id="jp"></script>',
 						'<script>',
 							'onunload=function(){clearTimeout(id)};',
 							'nw=0;', // なぜか必要,,,
-							'function ', callback, '(o){nw-=+new Date;parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',parent.X.JSON.stringify(o),-nw)}',
+							'function ', callback, '(o){nw-=+new Date;parent.' + X_JSONP_CALLBACK_NAME + '(' + X_JSONP_ACCESS_KEY + ',parent.X.JSON.stringify(o),-nw)}',
 							//'function ', callback, '(o){if(nw){nw-=+new Date;postMessage("', X_JSONP_SEND_MSG_KEY,' "+nw+"|"+parent.JSON.stringify(o).replace(/\\\\u([a-fA-F0-9]{4})/g,function(a,b){return String.fromCharCode(parseInt(b,16))}),"*");nw=0}}',			
 							'function tm(){jp.src="', url ,'";nw=+new Date}',
 							'id=setTimeout(tm,16);',
@@ -146,18 +148,18 @@ X_TEMP.X_JSONP_params = {
 						
 						/*　以下のコードは XP ie8 では動くけど、win8 IE11(8モード)で動かない 開発の便宜を取って,setTimeout を挟む
 						'<script>',
-							'function ', callback, '(o){window.parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',window.parent.JSON.stringify(o))}',
+							'function ', callback, '(o){window.parent.' + X_JSONP_CALLBACK_NAME + '(' + X_JSONP_ACCESS_KEY + ',window.parent.JSON.stringify(o))}',
 						'</script>',
 						'<script src="', url, '"></script>' */
 					];
 					X_JSONP_maxOnloadCount = 2;
 				} else
-				if( X_UA[ 'IE' ] < 10 ){
+				if( ( X_UA.Trident || X_UA.TridentMobile ) < 10 ){
 					html = [
 						'<script', charset, ' id="jp"></script>',
 						'<script>',
 							'onunload=function(){clearTimeout(id)};',
-							'function ', callback, '(o){nw-=+new Date;parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw)}',
+							'function ', callback, '(o){nw-=+new Date;parent.' + X_JSONP_CALLBACK_NAME + '(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw)}',
 							'function tm(){jp.src="', url ,'";nw=+new Date}',
 							'id=setTimeout(tm,16);',
 						'</script>'
@@ -168,7 +170,7 @@ X_TEMP.X_JSONP_params = {
 					html = [	
 						'<script>',
 							'nw=+new Date;',
-							'function ', callback, '(o){if(nw){nw-=+new Date;parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw);nw=0}}',
+							'function ', callback, '(o){if(nw){nw-=+new Date;parent.' + X_JSONP_CALLBACK_NAME + '(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw);nw=0}}',
 							//'function ', callback, '(o){if(nw){nw-=+new Date;parent.postMessage("', X_JSONP_SEND_MSG_KEY,' "+nw+"|"+JSON.stringify(o),"', location.origin, '");nw=0}}',
 						'</script>',
 						'<script', charset, ' src="', url, '"></script>'
@@ -177,7 +179,7 @@ X_TEMP.X_JSONP_params = {
 				} else {
 					html = [
 						'<script>',
-							'function ', callback, '(o){if(nw){nw-=new Date;parent.X.Net.__json_cb__(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw,', json2FileSize, ');nw=0}}',
+							'function ', callback, '(o){if(nw){nw-=new Date;parent.' + X_JSONP_CALLBACK_NAME + '(' + X_JSONP_ACCESS_KEY + ',JSON.stringify(o),-nw,', json2FileSize, ');nw=0}}',
 							'nw=+new Date;',
 						'</script>',
 						'<script src="', json2Path, '"></script>',
@@ -210,14 +212,14 @@ X_TEMP.X_JSONP_params = {
 function X_JSONP_iframeListener( e ){
 	switch( e.type ){
 		case 'ninjaload' :
-			console.log( 'iframe onload, but ' + X_JSONP_onloadCount + ' < ' + X_JSONP_maxOnloadCount );
+			//console.log( 'iframe onload, but ' + X_JSONP_onloadCount + ' < ' + X_JSONP_maxOnloadCount );
 			if( ++X_JSONP_onloadCount < X_JSONP_maxOnloadCount ) return;
 			
 			// TODO callback が無ければ error -> timeout を観る?
 			X_JSONP_errorTimerID = X_JSONP[ 'asyncDispatch' ]( 1000, X_EVENT_ERROR );
 			break;
 		case 'ninjaerror' :
-			console.log( 'iframe onerror' );
+			//console.log( 'iframe onerror' );
 			X_JSONP[ 'asyncDispatch' ]( X_EVENT_ERROR );
 			break;
 	};

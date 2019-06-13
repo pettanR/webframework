@@ -51,7 +51,7 @@ var X_EventDispatcher_once         = false,
 	
 	// iOS と MacOSX Iron36 で発生。連続してアニメーションが起こると、クロージャの束縛された obj へのアクセスに失敗する。Win では起きない?
 	// むしろ、MacOSX のブラウザ全般で起こる??
-	X_EventDispatcher_ANIME_EVENTS = ( X_UA[ 'WebKit' ] || X_UA[ 'Blink' ] ) && {
+	X_EventDispatcher_ANIME_EVENTS = ( X_UA.WebKit || X_UA.SafariMobile || X_UA.iOSWebView || X_UA.Chromium ) && {
 		'transitionend'      : true, 'webkitTransitionEnd'      : true, 'mozTransitionEnd'    : true, 'oTransitionEnd' : true, 'otransitionEnd' : true,
 		'animationend'       : true, 'webkitAnimationEnd'       : true, 'oAnimationEnd'       : true,
 		'animationstart'     : true, 'webkitAnimationStart'     : true, 'oAnimationStart'     : true,
@@ -218,14 +218,15 @@ var X_EventDispatcher = X[ 'EventDispatcher' ] =
 		 * @return {number} X.Timer.add() の戻り値
 		 */			
 			'asyncDispatch' : function( delay, e ){
-				var timerID;
+                var timerID;
+
 				if( delay && e === undefined ){
 					e = delay;
 					delay = 0;
-				};
-				//{+dev
-				delay === undefined && eval( 'throw "asyncDispatch で undefined イベントが指定されました"' );
-				//}+dev
+				} else if( X_IS_DEV && delay === undefined ){
+                    X_error( 'X.EventDispatcher#asyncDispatch: Invalid EventType=' + delay );
+                    return;
+                };
 				timerID = X_Timer_add( delay, 1, this, X_EventDispatcher_dispatch, [ e ] );
 				X_EventDispatcher_LAZY_TIMERS[ timerID ] = this;
 				return timerID;
@@ -250,7 +251,7 @@ function X_EventDispatcher_dispatch( e ){
 	var listeners = this[ '_listeners' ],
 		ret       = X_CALLBACK_NONE,
 		type      = e[ 'type' ],
-		list, unlistens, i, l, args, f, r, sysOnly, timerID, k;
+		list, unlistens, i, l, args, f, r, sysOnly, k;
 	
 	if( !listeners || !( list = listeners[ type || e ] ) ) return X_CALLBACK_NONE;
 	
@@ -546,7 +547,7 @@ function X_EventDispatcher_actualAddEvent( that, type, raw, list ){
 					break;
 				
 				case X_EventDispatcher_EVENT_TARGET_XHR :
-					if( X_UA[ 'Opera' ] < 12 ){
+					if( ( X_UA.Presto || X_UA.PrestoMobile ) < 12 ){
 						// Opera11- の XHR は event オブジェクトが返らないため, eventType 毎に callback を指定する addEventListener もない
 						raw[ 'on' + type ] = X_Closure_create( that, X_EventDispatcher_dispatch, [ type ] );
 						break;
@@ -650,7 +651,7 @@ function X_EventDispatcher_actualRemoveEvent( that, type, raw, list, skip ){
 					break;
 				
 				case X_EventDispatcher_EVENT_TARGET_XHR :
-					if( X_UA[ 'Opera' ] < 12 ){
+					if( ( X_UA.Presto || X_UA.PrestoMobile ) < 12 ){
 						// Opera11- の XHR は event オブジェクトが返らないため, eventType 毎に callback を指定する addEventListener もない
 						X_Closure_correct( raw[ 'on' + type ] );
 						raw[ 'on' + type ] = '';
@@ -823,7 +824,7 @@ var X_EventDispatcher_actualHandleEvent =
 				X_EventDispatcher_ignoreActualEvent = false;
 				
 				e.preventDefault();
-				if( X_UA[ 'WebKit' ] < 525.13 ){ // Safari3-
+				if( X_UA.WebKit < 525.13 ){ // Safari3-
 					if( e.type === 'click' || e.type === 'dbclick' ){
 						X_EventDispatcher_safariPreventDefault = true;
 					};
@@ -832,9 +833,9 @@ var X_EventDispatcher_actualHandleEvent =
 			};
 		});
 
-if( X_UA[ 'WebKit' ] < 525.13 ){ // Safari3-
-	document.documentElement.onclick =
-	document.documentElement[ 'ondbclick' ] = function( e ){
+if( X_UA.WebKit < 525.13 ){ // Safari3-
+	X_elmHtml.onclick =
+	X_elmHtml[ 'ondbclick' ] = function( e ){
 			if( X_EventDispatcher_safariPreventDefault ){
 				X_EventDispatcher_safariPreventDefault = false;
 				e.preventDefault();
@@ -860,6 +861,3 @@ function X_EventDispatcher_toggleAllEvents( that, add ){
 		};
 	};
 };
-
-
-console.log( 'X.Core.EventDispatcher' );

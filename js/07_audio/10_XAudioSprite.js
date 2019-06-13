@@ -4,13 +4,13 @@
  * Mobile Opera11 は Audio をサポートするがイベントが取れない
  * iframe 内で生成して、Audio Sprite の preset で再生できないか？
  */
-var X_AudioSprite_shouldUse         = X_HTMLAudio && ( X_UA[ 'iOS' ] || X_UA[ 'AOSP' ] || ( X_UA[ 'Prsto' ] && X_UA[ 'Android' ] ) ), // Flash がない
-	X_AudioSprite_useVideoForMulti  = //( 3.1 <= X_UA[ 'AOSP' ] < 4 ) || 
-									  //( ( 4.2 <= X_UA[ 'AOSP' ] ),
+var X_AudioSprite_shouldUse         = X_HTMLAudio && ( ( X_UA.SafariMobile || X_UA.iOSWebView ) || X_UA.AOSP || ( X_UA.PrestoMobile && X_UA.Android ) ), // Flash がない
+	X_AudioSprite_useVideoForMulti  = //( 3.1 <= X_UA.AOSP < 4 ) || 
+									  //( ( 4.2 <= X_UA.AOSP ),
 									  // ドスパラパッドはビデオのインライン再生が不可
 									  false,
-	X_AudioSprite_disableMultiTrack = !X_WebAudio && ( X_UA[ 'iOS' ] || 4 <= X_UA[ 'AOSP' ] || X_UA[ 'ChromeWV' ] || ( X_UA[ 'WinPhone' ] === 7.5 ) ),
-	X_AudioSprite_enableVolume      = X_HTMLAudio && !X_UA[ 'iOS' ] && !X_UA[ 'AOSP' ] && !( X_UA[ 'Prsto' ] && X_UA[ 'Android' ] ) && !( X_UA[ 'Fennec' ] < 25 ), // TODO fennec は 25以上
+	X_AudioSprite_disableMultiTrack = !X_WebAudio && ( ( X_UA.SafariMobile || X_UA.iOSWebView ) || 4 <= X_UA.AOSP || X_UA.ChromeWebView || ( X_UA.WindowsPhone === 7.5 ) ),
+	X_AudioSprite_enableVolume      = X_HTMLAudio && !( X_UA.SafariMobile || X_UA.iOSWebView ) && !X_UA.AOSP && !( X_UA.PrestoMobile && X_UA.Android ) && !(X_UA.Fennec < 25 ), // TODO fennec は 25以上
 	// http://tukumemo.com/html5-audio-sp/
 	// iOS6、Android4.1から同時再生が可能になりました。
 	X_AudioSprite_maxTracks        = X_AudioSprite_useVideoForMulti ? 2 : X_AudioSprite_disableMultiTrack ? 1 : 9,
@@ -96,11 +96,11 @@ X[ 'AudioSprite' ] = function( setting ){
 		X_AudioSprite, // dispatcher として
 		X_Array_copy( urls ),
 		{
-			'volume'    : 0 <= volume && volume <= 1 ? volume : 1,
-			'autoplay'  : true,
-			'startTime' : 0,
-			'endTime'   : X_AudioSprite_lengthSilence,
-			'loop'      : true
+			volume    : 0 <= volume && volume <= 1 ? volume : 1,
+			autoplay  : true,
+			startTime : 0,
+			endTime   : X_AudioSprite_lengthSilence,
+			loop      : true
 		});
 
 	X_AudioSprite[ 'listenOnce' ]( [ X_EVENT_BACKEND_READY, X_EVENT_BACKEND_NONE ], X_AudioSprite_backendHandler );
@@ -180,16 +180,16 @@ var X_AudioSprite_members =
 					
 					if( track[ 'listen' ]( [ X_EVENT_MEDIA_PLAYING, X_EVENT_MEDIA_WAITING, X_EVENT_MEDIA_SEEKING, X_EVENT_MEDIA_BEFORE_LOOP ], X_AudioSprite_handleEvent ).playing ){
 						track.setState({
-								'loop'          : true,
-								'looped'        : X_AudioSprite_TEMP.bgmLooped,
-								'currentTime'   : X_AudioSprite_TEMP.bgmPosition,
-								'startTime'     : preset[ 0 ],
-								'endTime'       : preset[ 1 ],
-								'loopStartTime' : preset[ 3 ],
-								'loopEndTime'   : preset[ 4 ]
+								loop          : true,
+								looped        : X_AudioSprite_TEMP.bgmLooped,
+								currentTime   : X_AudioSprite_TEMP.bgmPosition,
+								startTime     : preset[ 0 ],
+								endTime       : preset[ 1 ],
+								loopStartTime : preset[ 3 ],
+								loopEndTime   : preset[ 4 ]
 							});
 					} else {
-						track.setState( { 'looped' : X_AudioSprite_TEMP.bgmLooped } );
+						track.setState( { looped : X_AudioSprite_TEMP.bgmLooped } );
 						track.play( preset[ 0 ], preset[ 1 ], true, preset[ 3 ], preset[ 4 ] );
 						track.seek( X_AudioSprite_TEMP.bgmPosition );
 					};
@@ -199,7 +199,7 @@ var X_AudioSprite_members =
 						track = X_AudioSprite_getTrackEnded( X_AudioSprite_TEMP.bgmPlaying );
 						track
 							[ 'listen' ]( [ X_EVENT_MEDIA_PLAYING, X_EVENT_MEDIA_WAITING, X_EVENT_MEDIA_SEEKING, X_EVENT_MEDIA_BEFORE_LOOP ], X_AudioSprite_handleEvent )
-							.setState( { 'looped' : false } );
+							.setState( { looped : false } );
 						track.play( preset[ 0 ], preset[ 1 ], true, 0, X_AudioSprite_lengthSilence );
 					} else {
 						// single track, iOS
@@ -212,13 +212,13 @@ var X_AudioSprite_members =
 					
 						if( track[ 'listen' ]( [ X_EVENT_MEDIA_PLAYING, X_EVENT_MEDIA_WAITING, X_EVENT_MEDIA_SEEKING, X_EVENT_MEDIA_BEFORE_LOOP ], X_AudioSprite_handleEvent ).playing ){
 							track.setState({
-									'loop'          : true,
-									'looped'        : false,
-									'currentTime'   : preset[ 0 ],
-									'startTime'     : preset[ 0 ],
-									'endTime'       : preset[ 1 ],
-									'loopStartTime' : 0,
-									'loopEndTime'   : X_AudioSprite_lengthSilence
+									loop          : true,
+									looped        : false,
+									currentTime   : preset[ 0 ],
+									startTime     : preset[ 0 ],
+									endTime       : preset[ 1 ],
+									loopStartTime : 0,
+									loopEndTime   : X_AudioSprite_lengthSilence
 								});
 						} else {
 							track.play( preset[ 0 ], preset[ 1 ], true, 0, X_AudioSprite_lengthSilence );	
@@ -317,13 +317,13 @@ var X_AudioSprite_members =
 					state = track.getState();
 					start = state.startTime;
 					return {
-				    	'currentTime' : state.currentTime - start,
-				        'playing'     : start <= state.currentTime && state.currentTime <= state.endTime,
-				        'duration'    : state.endTime - start,
-				        'volume'      : X_AudioSprite_TEMP.volume
+				    	currentTime : state.currentTime - start,
+				        playing     : start <= state.currentTime && state.currentTime <= state.endTime,
+				        duration    : state.endTime - start,
+				        volume      : X_AudioSprite_TEMP.volume
 					};
 				};
-				return { 'volume' : X_AudioSprite_TEMP.volume, 'playing' : false };
+				return { volume : X_AudioSprite_TEMP.volume, playing : false };
 			};
 			track && track.setState( opt_obj );
 			return X_AudioSprite;
@@ -479,8 +479,7 @@ function X_AudioSprite_handleEvent( e ){
 			// track.pause();
 			tracks = X_AudioSprite_TEMP.tracks;
 			i      = X_AudioSprite_numTracks;
-			for( ; i; ){
-				track = tracks[ --i ];
+			while( track = tracks[ --i ] ){
 				track.playing && X_AudioSprite_TEMP.pauseTracks.push( track ) && track.pause();
 			};
 			break;

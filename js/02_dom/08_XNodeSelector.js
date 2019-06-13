@@ -41,16 +41,16 @@ var
 		'@'   : 6  // XML 用の拡張、属性ノードを辿る　http://www.marguerite.jp/Nihongo/WWW/RefDOM/_Attr_interface.html
 	},
 	X_Node_Selector__SELECTOR = {
-		''      : 0, // none
-		'tag'   : 1,
-		'#'     : 2,
-		'.'     : 3,
-		':'     : 4,
-		'['     : 5,
-		'not'   : 6,
-		'scope' : 7,
-		'root'  : 8,
-		'link'  : 9
+		''    : 0, // none
+	    tag   : 1,
+		'#'   : 2,
+		'.'   : 3,
+		':'   : 4,
+		'['   : 5,
+		not   : 6,
+		scope : 7,
+		root  : 8,
+		link  : 9
 	},
 	X_Node_Selector__OPERATORS = { '==' : 1, '!=': 2, '~=': 3, '^=': 4, '$=': 5, '*=': 6, '|=': 7 }, // '':0 は属性が存在するならtrue
 	// TODO { a : 1, A : 2, _ : 3,,, }
@@ -91,8 +91,8 @@ function X_Node_Selector__parse( query, last ){
 					( ( selector = 1 ) && ( phase = 0x2 ) && ( start = i ) ) :
 				!not && ( tmp = COMBINATOR[ chr ] ) ? (
 					( 1 < tmp && 1 < combinator ) ?
-						( phase = 0xf ) :
-						( phase = tmp === 5 ? 0xe : 0x0 ) & ( ( 1 < tmp || combinator < 1 ) && ( combinator = tmp ) ) & ( tmp === 5 && ++i ) ) : // ' ' でない結合子の上書きはエラー
+						( phase = 0xf ) : // ' ' でない結合子の上書きはエラー
+						( phase = tmp === 5 ? 0xe : 0x0 ) & ( ( 1 < tmp || combinator < 1 ) && ( combinator = tmp ) ) & ( tmp === 5 && ++i ) ) :
 				( tmp = SELECTOR[ chr ] ) ? // [
 					( selector = tmp ) && ( phase = selector === 5 ? 0x4 : 0x1 ) : // 7:[, 0<:
 				chr === '*' ?
@@ -253,7 +253,7 @@ function X_Node_Selector__parse( query, last ){
 	 */	
 	function X_Node_find( queryString ){
 		var HTML      = X_Node_html,
-			scope     = this.constructor === X_NodeList && this.length ? this : [ this.constructor === Node || this[ 'instanceOf' ] && this[ 'instanceOf' ]( Node ) ? this : X_Node_body ],
+			scope     = this.constructor === X_NodeList && this.length ? this : [ this.constructor === X_Node || this[ 'instanceOf' ] && this[ 'instanceOf' ]( X_Node ) ? this : X_Node_body ],
 			parents   = scope, // 探索元の親要素 XNodeList の場合あり
 			// TODO { title : true,,, }
 			noLower   = 'title id name class for action archive background cite classid codebase data href longdesc profile src usemap',// + X_Dom_DTD_ATTR_VAL_IS_URI.join( ' ' ),
@@ -479,7 +479,7 @@ function X_Node_Selector__parse( query, last ){
 				case 9 :
 					if( links = document.links ){
 						for( xnodes = [], i = links.length; i; ){
-							xnodes[ --i ] = Node( links[ i ] );
+							xnodes[ --i ] = X_Node( links[ i ] );
 						};
 					} else {
 						// area[href],a[href]
@@ -526,7 +526,7 @@ function X_Node_Selector__parse( query, last ){
 						// 諦めて、funcAttrを呼ぶ
 						// flag_call  = ($.browser.safari && key === 'selected');
 						// getAttributeを使わない
-						useName = X_UA[ 'IE' ] && key !== 'href' && key !== 'src';
+						useName = ( X_UA.Trident || X_UA.TridentMobile ) && key !== 'href' && key !== 'src';
 						toLower = !!val && !isXML && noLower.indexOf( key ) === -1; //!noLower.test(key);
 						if( toLower ) val = val.toLowerCase();
 						if( op === 3 ) val = _ + val + _;
@@ -757,10 +757,10 @@ function X_Node_Selector__parse( query, last ){
 	};
 
 var X_Node_Selector__filter = {
-	'root' : function(){
+	root : function(){
 		return X_Node_html;
 	},
-	'target' : {
+	target : {
 		m : function( flags, xnodes ){
 			var res  = [],
 				hash = location.hash.slice( 1 ),
@@ -802,7 +802,7 @@ var X_Node_Selector__filter = {
 	'nth-last-of-type' : {
 		m : function( flags, xnodes, a, b ){ return X_Node_Selector__funcSelectorNth( 'lastChild', 'prev', false, flags, xnodes, a, b ); }
 	},
-	'empty' : {
+	empty : {
 		m : function( flags, xnodes ){
 			var res = [],
 				flag_not = flags.not,
@@ -820,7 +820,7 @@ var X_Node_Selector__filter = {
 			return res;
 		}
 	},
-	'link' : {
+	link : {
 		m : function( flags, xnodes ){
 			var links = document.links,
 				res   = [],
@@ -829,7 +829,7 @@ var X_Node_Selector__filter = {
 			checked = {};
 			flag_not = flags.not;
 			for( i = 0; link = links[ i ]; ++i ){
-				checked[ ( Node( link ) )[ '_uid' ] ] = true;
+				checked[ ( X_Node( link ) )[ '_uid' ] ] = true;
 			};
 			for( i = 0, n = -1; xnode = xnodes[ i ]; ++i ){
 				if( checked[ xnode[ '_uid' ] ] ^ flag_not ) res[ ++n ] = xnode;
@@ -837,7 +837,7 @@ var X_Node_Selector__filter = {
 			return res;
 		}
 	},
-	'lang' : {
+	lang : {
 		m : function( flags, xnodes, arg ){
 			var res = [],
 				//reg = new RegExp('^' + arg, 'i'),
@@ -854,16 +854,16 @@ var X_Node_Selector__filter = {
 			return res;
 		}
 	},
-	'enabled' : {
+	enabled : {
 		m : function( flags, xnodes ){ return X_Node_Selector__funcSelectorProp( 'disabled', false, flags, xnodes ); }
 	},
-	'disabled' : {
+	disabled : {
 		m : function( flags, xnodes ){ return X_Node_Selector__funcSelectorProp( 'disabled', true, flags, xnodes ); }
 	},
-	'checked' : {
+	checked : {
 		m : function( flags, xnodes ){ return X_Node_Selector__funcSelectorProp( 'checked', true, flags, xnodes ); }
 	},
-	'contains' : {
+	contains : {
 		m : function( flags, xnodes, arg ){
 			var res = [],
 				flag_not = flags.not,

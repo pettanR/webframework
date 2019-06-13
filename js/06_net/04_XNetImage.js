@@ -8,10 +8,10 @@
  */
 var X_ImgLoader_image     = window[ 'Image' ] && new Image(), // ここで無用なアクセスをIEがしているかも
 	// IE では厳密には HTMLImageElement ではなく、appendChild してもサイズが取れず、removeChild に失敗する
-	X_ImgLoader_isElement = !( X_UA[ 'IE' ] < 9 ) && X_Type_isHTMLElement( X_ImgLoader_image ),
+	X_ImgLoader_isElement = !( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ) && X_Type_isHTMLElement( X_ImgLoader_image ),
 	// http://uupaa.hatenablog.com/entry/2013/12/17/171809
 	// お手軽に画像の読み込みをハンドリングする、今どきな方法
-	X_ImgLoader_0forError = !X_UA[ 'IE' ] || X_UA[ 'IE' ] === 11 || X_UA[ 'IEHost' ] === 11;
+	X_ImgLoader_0forError = !( X_UA.Trident || X_UA.TridentMobile ) || ( X_UA.Trident || X_UA.TridentMobile ) === 11 || X_UA.IEHost === 11;
 
 /*
  * TODO
@@ -21,7 +21,7 @@ var X_ImgLoader_image     = window[ 'Image' ] && new Image(), // ここで無用
 
 X_TEMP.X_ImgLoader_init = function(){
 	X_ImgLoader = X_Class_override(
-		X_ImgLoader_isElement ? Node( X_ImgLoader_image ) : X_EventDispatcher( X_ImgLoader_image ),
+		X_ImgLoader_isElement ? X_Node( X_ImgLoader_image ) : X_EventDispatcher( X_ImgLoader_image ),
 		X_TEMP.X_ImgLoader_params
 	);
 	
@@ -48,7 +48,7 @@ X_TEMP.X_ImgLoader_params = {
 
 			this[ '_rawObject' ].src = this.abspath;
 
-			if( X_UA[ 'Opera' ] < 8 && this[ '_rawObject' ].complete ){
+			if( X_UA.Presto < 8 && this[ '_rawObject' ].complete ){
 				this[ 'asyncDispatch' ]( 'load' );
 			} else {
 				this.timerID = X_Timer_add( this.delay, 0, this, X_ImgLoader_detect );
@@ -123,7 +123,7 @@ function X_ImgLoader_handleEvent( e ){
 		// if( timer ) return; // これがあると safari3.2 で駄目、、、
 			this.finish = true;
 			this.timerID && X_Timer_remove( this.timerID );
-			if( X_UA[ 'Prsto' ] && !raw.complete ){
+			if( X_UA.Presto && !raw.complete ){
 				this.timerID = this[ 'asyncDispatch' ]( X_EVENT_ERROR );
 				return;
 			};

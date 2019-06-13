@@ -136,7 +136,7 @@ function X_Util_Window_handleEvent( e ){
 		
 		case X_EVENT_KILL_INSTANCE :
 			if( page && !this[ 'closed' ]() ){
-				if( 9 < X_UA[ 'IEHost' ] ){
+				if( 9 < X_UA.IEHost ){
 					page.close();
 				} else {
 					page.open( 'about:blank', '_self' ).close();

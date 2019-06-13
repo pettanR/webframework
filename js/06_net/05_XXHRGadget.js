@@ -17,7 +17,7 @@
  * 
  */
 
-var X_GadgetXHR_canUse         = 5.5 <= X_UA[ 'IE' ] || !X_UA[ 'IE' ],
+var X_GadgetXHR_canUse         = 5.5 <= ( X_UA.Trident || X_UA.TridentMobile ) || !( X_UA.Trident || X_UA.TridentMobile ),
 	
 	X_GadgetXHR_iframeName     = 'gadgetProxy_' + ( Math.random() * 100000 | 0 ),
 	
@@ -29,7 +29,7 @@ var X_GadgetXHR_canUse         = 5.5 <= X_UA[ 'IE' ] || !X_UA[ 'IE' ],
 	X_GadgetXHR_IMAGE_URL      = 'img/opacity0.gif',
 	
 	// https://code.google.com/p/xssinterface/source/browse/trunk/js/xssinterface.js
-	X_GadgetXHR_maxQueryLength = X_UA[ 'IE' ] ? 2000 : 6000,
+	X_GadgetXHR_maxQueryLength = ( X_UA.Trident || X_UA.TridentMobile ) ? 2000 : 6000,
 	
 	X_GadgetXHR_requestBatches,
 	
@@ -114,7 +114,7 @@ function X_GadgetXHR_detectImageOverIframe(){
 
 // http://outcloud.blogspot.jp/2015/06/gecko-location-hash.html
 function X_GadgetXHR_decodeLocationHash( str ){
-	return X_UA[ 'Gecko' ] ? unescape( str ) : decodeURIComponent( str );
+	return ( X_UA.Gecko || X_UA.Fennec ) ? unescape( str ) : decodeURIComponent( str );
 };
 
 X_TEMP.X_GadgetXHR_init = function(){
@@ -126,12 +126,12 @@ X_TEMP.X_GadgetXHR_init = function(){
 					id                : X_GadgetXHR_iframeName,
 					src               : X_GadgetXHR_GADGET_URL + '#' + encodeURIComponent(
 							X_JSON_stringify( {
-								'img'  : X_URL_toAbsolutePath( X_GadgetXHR_IMAGE_URL ),
-								'len'  : X_GadgetXHR_maxQueryLength,
-								'itv'  : 333,
-								'gck'  : X_UA[ 'Gecko' ] ? 1 : 0,
-								'err'  : X_EVENT_ERROR,
-								'suc'  : X_EVENT_SUCCESS
+								img  : X_URL_toAbsolutePath( X_GadgetXHR_IMAGE_URL ),
+								len  : X_GadgetXHR_maxQueryLength,
+								itv  : 333,
+								gck  : ( X_UA.Gecko || X_UA.Fennec ) ? 1 : 0,
+								err  : X_EVENT_ERROR,
+								suc  : X_EVENT_SUCCESS
 							} )
 						),
 					scrolling         : 'no',

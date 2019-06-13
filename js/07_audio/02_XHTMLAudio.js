@@ -40,47 +40,48 @@
 var
 	X_HTMLAudio,
 	// iOS7.1, 8.3 で確認.seeking -> seeked の間の currentTime の値が全くあてにならないので無視する。
-	X_HTMLAudio_seekingFixIOS   = 7 <= X_UA[ 'iOS' ],
+	X_HTMLAudio_seekingFixIOS   = 7 <= ( X_UA.SafariMobile || X_UA.iOSWebView ),
 	// ended が発生しない timeupdate 内で play() を呼ぶ (未検証) 不具合確認は iOS4,6 iOS7.1,8.3ではpause->ended起きてる 但し iOS7.1 でも 6 と同じ症状になることがある
-	X_HTMLAudio_endedFixIOS     = X_UA[ 'iOS' ] < 7,
+	X_HTMLAudio_endedFixIOS     = ( X_UA.SafariMobile || X_UA.iOSWebView ) < 7,
 	// Android 2.3.5 で ended 時に audio.src='';audio.src=src;audio.load() を実施。 2.3.4 でも問題なし。
-	X_HTMLAudio_endedFixAOSP2   = X_UA[ 'AOSP' ] < 3,
+	X_HTMLAudio_endedFixAOSP2   = X_UA.AOSP < 3,
 	// Android 3.1 で ended 時に src='';src=src を実施。
-	X_HTMLAudio_endedFixAOSP3   = !X_HTMLAudio_endedFixAOSP2 && X_UA[ 'AOSP' ] < 4,
+	X_HTMLAudio_endedFixAOSP3   = !X_HTMLAudio_endedFixAOSP2 && X_UA.AOSP < 4,
 	// ended 時に play() を実施, currentTime が duration に張り付き更新されなければ  src='';src=src を実施。
-	X_HTMLAudio_endedFixAOSP4   = 4 <= X_UA[ 'AOSP' ],
+	X_HTMLAudio_endedFixAOSP4   = 4 <= X_UA.AOSP,
 	// ended 時に play() を実施
-	X_HTMLAudio_endedFixCWV     = X_UA[ 'ChromeWV' ] || ( X_UA[ 'Blink' ] && X_UA[ 'Android' ] ),
+	X_HTMLAudio_endedFixCWV     = X_UA.ChromeWebView || X_UA.ChromiumMobile,
 	
 	// Opera Mobile 12 は 2回目以降の currentTime へのセットで currentTime が更新されなくなるため、タイマーを使用する
-	X_HTMLAudio_currentTimeFix  = ( X_UA[ 'Prsto' ] && X_UA[ 'Android' ] ),
+	X_HTMLAudio_currentTimeFix  = ( X_UA.PrestoMobile && X_UA.Android ),
 	// Firefox44.0.2 で音声の再生開始に難あり... 49 でも確認, あるいはCGIで動的に生成しているmp3自体に問題があるのかも
-	X_HTMLAudio_playStartFix    = X_UA[ 'Windows' ] && 44 <= X_UA[ 'Gecko' ],
+	X_HTMLAudio_playStartFix    = ( X_UA.Win32 || X_UA.Win64 ) && 44 <= ( X_UA.Gecko || X_UA.Fennec ),
 
-	X_HTMLAudio_volumeFix	    = X_UA[ 'Chrome' ],
+	X_HTMLAudio_volumeFix	    = ( X_UA.Chromium || X_UA.ChromiumMobile ),
 	/*
 	 * win opera12 volume, mute の変更が2度目以降できない
 	 */
-	X_HTMLAudio_volumeEnabled   = X_UA[ 'WinPhone' ] !== 7.5 && !X_UA[ 'Prsto' ],
+	X_HTMLAudio_volumeEnabled   = X_UA.WindowsPhone !== 7.5 && !( X_UA.Presto || X_UA.PrestoMobile ),
 	// Gecko PC + Android でseek時に再生がしばしば止まる問題の修正、iOS8でも確認
-	X_HTMLAudio_needPlayForSeek = X_UA[ 'iOS' ] || X_UA[ 'Gecko' ],
+	X_HTMLAudio_needPlayForSeek = ( X_UA.SafariMobile || X_UA.iOSWebView ) || ( X_UA.Gecko || X_UA.Fennec ),
 	// 
-	X_HTMLAudio_pauseFix		= 12 <= X_UA[ 'Prsto' ] && 0 < ' XP XPSP2 2003|XP64'.indexOf( X_UA[ 'Windows' ] ), // XP + Opera12 のみ?
+	X_HTMLAudio_pauseFix		= 12 <= ( X_UA.Presto || X_UA.PrestoMobile ) && ( 5.1 <= ( X_UA.Win32 || X_UA.Win64 ) && ( X_UA.Win32 || X_UA.Win64 ) <= 5.2 ), // XP + Opera12 のみ?
 
-	X_HTMLAudio_need1stTouch	= X_UA[ 'iOS' ] || 4.2 <= X_UA[ 'AOSP' ] || X_UA[ 'ChromeWV' ] || X_UA[ 'WinPhone' ] || ( X_UA[ 'Blink' ] && X_UA[ 'Android' ] ),
+	X_HTMLAudio_need1stTouch	= ( X_UA.SafariMobile || X_UA.iOSWebView ) || 4.2 <= X_UA.AOSP || X_UA.ChromeWebView || X_UA.WindowsPhone || X_UA.ChromiumMobile,
 
-	X_HTMLAudio_playTrigger     = ( X_UA[ 'WinPhone' ] === 7.5 ) ? 'canplay' :
-									X_UA[ 'iOS' ] < 8 ? 'suspend' :    // iOS7.x以下
-									X_UA[ 'iOS' ] ? 'loadedmetadata' : // iOS8以上は
-									X_UA[ 'Blink' ] < 32 ? 'stalled' : 'canplaythrough',
+	X_HTMLAudio_playTrigger     = ( X_UA.WindowsPhone === 7.5 ) ? 'canplay' :
+									( X_UA.SafariMobile || X_UA.iOSWebView ) < 8 ? 'suspend' :    // iOS7.x以下
+									( X_UA.SafariMobile || X_UA.iOSWebView ) ? 'loadedmetadata' : // iOS8以上は
+									( X_UA.Chromium || X_UA.ChromiumMobile ) < 32 ? 'stalled' : 'canplaythrough',
 
 	X_HTMLAudio_durationFix	    = // iOS8.1(シュミレータでは不要)
-								  X_UA[ 'iOS' ] < 8 || X_UA[ 'ChromeWV' ] || X_UA[ 'WinPhone' ] === 7.5 ||
-								  ( X_UA[ 'Windows' ] && 12 <= X_UA[ 'Prsto' ] ) || ( X_UA[ 'Blink' ] < 36 && X_UA[ 'Android' ] ),
+								  ( X_UA.SafariMobile || X_UA.iOSWebView ) < 8 || X_UA.ChromeWebView || X_UA.WindowsPhone === 7.5 ||
+                                  ( ( X_UA.Win32 || X_UA.Win64 ) && 12 <= X_UA.Presto ) ||
+                                  ( X_UA.ChromiumMobile < 36 ),
 
-	X_HTMLAudio_shortPlayFix	= X_UA[ 'AOSP' ],
+	X_HTMLAudio_shortPlayFix	= X_UA.AOSP,
 	
-	X_HTMLAudio_progressEnabled = !( X_UA[ 'Prsto' ] && X_UA[ 'Android' ] ) && X_UA[ 'WinPhone' ] !== 7.5; // Android 4.1.1 でも遭遇
+	X_HTMLAudio_progressEnabled = !( X_UA.PrestoMobile && X_UA.Android ) && X_UA.WindowsPhone !== 7.5; // Android 4.1.1 でも遭遇
 
 if( X_Audio_constructor ){
 	
@@ -590,7 +591,7 @@ if( X_Audio_constructor ){
 			detect : function( proxy, ext, hash ){
             // TODO 得意度で返す
 
-                if( X_UA[ 'Android' ] && X_UA[ 'Prsto' ] && ext === 'mp3' ){
+                if( X_UA.Android && X_UA.PrestoMobile && ext === 'mp3' ){
                     // Android Opera12 は可変ビットレートのmp3を正しくシークできない。固定ビットレートを使用する。
                     proxy[ 'asyncDispatch' ]( { type : X_EVENT_COMPLETE, canPlay : !!hash[ 'CBR' ] } );
                 } else {

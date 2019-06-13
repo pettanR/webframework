@@ -9,7 +9,7 @@
  * @class NinjaIframe 隠し iframe 機能を提供します。
  * @extends {Node}
  */
-var X_NinjaIframe = X[ 'Util' ][ 'NinjaIframe' ] = Node[ 'inherits' ](
+var X_NinjaIframe = X[ 'Util' ][ 'NinjaIframe' ] = X_Node[ 'inherits' ](
 	'NinjaIframe',
 	
 	/** @lends NinjaIframe.prototype */
@@ -60,11 +60,11 @@ var X_NinjaIframe = X[ 'Util' ][ 'NinjaIframe' ] = Node[ 'inherits' ](
 			
 			// http://nanto.asablo.jp/blog/2011/12/08/6237308
 			// IE 6/7 で文書間通信を実現するための一案
-			if( X_UA[ 'IE' ] < 9 ){
+			if( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ){
 				this[ 'attr' ]( 'src', 'about:blank' );
 			};
 			// Safari 2.0.* bug: iframe's absolute position and src set.
-			if( !X_UA[ 'Webkit' ]  ){
+			if( !X_UA.WebKit  ){
 				this[ 'css' ]( { position : 'absolute' } );
 			};
 			
@@ -82,9 +82,6 @@ var X_NinjaIframe = X[ 'Util' ][ 'NinjaIframe' ] = Node[ 'inherits' ](
 		 * @return {NinjaIframe} チェーンメソッド
 		 */
 		'refresh' : function( opt_contentHTML ){
-			var raw = this[ '_rawObject' ],
-				idoc;
-				
 			this._ready = false;
 			
 			if( !this._iwin ){
@@ -92,8 +89,8 @@ var X_NinjaIframe = X[ 'Util' ][ 'NinjaIframe' ] = Node[ 'inherits' ](
 				return this;
 			};
 			
-			if( 5 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 6 ){
-				this._iwin.location.href = 'about:blank'; // reload() では、IE5.5(IETester)で2回目移行の操作でerrorが出る(doc取得やopen,writeで)
+			if( 5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 6 ){
+				this._iwin.location.href = 'about:blank'; // reload() では、IE5.5(IETester)で2回目以降の操作でerrorが出る(doc取得やopen,writeで)
 			} else {
 				this._iwin.location.reload();
 			};
@@ -102,7 +99,7 @@ var X_NinjaIframe = X[ 'Util' ][ 'NinjaIframe' ] = Node[ 'inherits' ](
 			
 			this._contentHTML = opt_contentHTML;
 
-			if( !( X_UA[ 'IE' ] < 9 ) ){
+			if( !( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ) ){
 				X_Util_NinjaIframe_writeToIframe( this );
 			};
 			
@@ -121,11 +118,11 @@ function X_Util_NinjaIframe_handleEvent( e ){
 			this._iwin = raw.contentWindow || ( raw.contentDocument && raw.contentDocument.parentWindow ) || window.frames[ this._name ];
 			// http://d.hatena.ne.jp/NeoCat/20080921/1221940658
 			// こちらに名前をsetしないとtargetが動作しない
-			if( X_UA[ 'IE' ] ) this._iwin.name = this._name;
+			if( ( X_UA.Trident || X_UA.TridentMobile ) ) this._iwin.name = this._name;
 			
-			this[ 'listen' ]( X_UA[ 'IE' ] < 9 ? 'readystatechange' : [ 'load', 'error' ], X_Util_NinjaIframe_handleEvent );
+			this[ 'listen' ]( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ? 'readystatechange' : [ 'load', 'error' ], X_Util_NinjaIframe_handleEvent );
 			
-			if( !( X_UA[ 'IE' ] < 9 ) ){
+			if( !( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ) ){
 				X_Util_NinjaIframe_writeToIframe( this );
 				return;
 			};
@@ -140,7 +137,6 @@ function X_Util_NinjaIframe_handleEvent( e ){
 			};
 			// onload
 		case 'load' :
-			console.log( 'iframe load.' );
 			this[ 'asyncDispatch' ]( 'ninjaload' );
 			break;
 

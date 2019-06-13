@@ -86,7 +86,7 @@ _GRNERAL
  */
 	X_Node_CSS_VENDER_PREFIX          = {},
 		
-	X_Node_CSS__CLIP_SEPARATOR        = X_UA[ 'IE' ] < 8 ? ' ' : ',',
+	X_Node_CSS__CLIP_SEPARATOR        = ( X_UA.Trident || X_UA.TridentMobile ) < 8 ? ' ' : ',',
 		
 	X_Node_CSS__UNIT_RATIO            = {},
 	X_Node_CSS__FONT_SIZE_RATIO       = {},
@@ -104,86 +104,86 @@ _GRNERAL
 	// ブラウザ毎の getComputedStyle の戻り値 http://d.hatena.ne.jp/uupaa/20080928/1222543331
 
 	X_Node_CSS_COLOR = {
-		'BLACK'         : 0x0,
-		'RED'           : 0xFF0000,
-		'LIME'          : 0x00FF00,
-		'BLUE'          : 0x0000FF,
-		'YELLOW'        : 0xFFFF00,
-		'AQUA'          : 0x00FFFF,
-		'CYAN'          : 0x00FFFF,
-		'MAGENTA'       : 0xFF00FF,
-		'FUCHSIA'       : 0xFF00FF,
-		'WHITE'         : 0xFFFFFF,
-		'GREEN'         : 0x008000,
-		'PURPLE'        : 0x800080,
-		'MAROON'        : 0x800000,
-		'NAVY'          : 0x000080,
-		'OLIVE'         : 0x808000,
-		'TEAL'          : 0x008080,
-		'GRAY'          : 0x808080,
-		'SILVER'        : 0xC0C0C0,
-		'DIMGRAY'       : 0x696969,
-		'SLATEGRAY'     : 0x708090,
-		'DARKGRAY'      : 0xA9A9A9,
-		'GAINSBORO'     : 0xDCDCDC,
-		'MIDNIGHTBLUE'  : 0x191970,
-		'SLATEBLUE'     : 0x6A5ACD,
-		'MEDIUMBLUE'    : 0x0000CD,
-		'ROYALBLUE'     : 0x4169E1,
-		'DODGERBLUE'    : 0x1E90FF,
-		'SKYBLUE'       : 0x87CEEB,
-		'STEELBLUE'     : 0x4682B4,
-		'LIGHTBLUE'     : 0xADD8E6,
-		'PALETURQUOISE' : 0xAFEEEE,
-		'TURQUOISE'     : 0x40E0D0,
-		'LIGHTCYAN'     : 0xE0FFFF,
-		'AQUAMARINE'    : 0x7FFFD4,
-		'DARKGREEN'     : 0x006400,
-		'SEAGREEN'      : 0x2E8B57,
-		'LIGHTGREEN'    : 0x90EE90,
-		'CHARTREUSE'    : 0x7FFF00,
-		'GREENYELLOW'   : 0xADFF2F,
-		'LIMEGREEN'     : 0x32CD32,
-		'YELLOWGREEN'   : 0x9ACD32,
-		'OLIVEDRAB'     : 0x6B8E23,
-		'DARKKHAKI'     : 0xBCB76B,
-		'PALEGOLDENROD' : 0xEEE8AA,
-		'LIGHTYELLOW'   : 0xFFFFE0,
-		'GOLD'          : 0xFFD700,
-		'GOLDENROD'     : 0xDAA520,
-		'DARKGOLDENROD' : 0xB8860B,
-		'ROSYBROWN'     : 0xBC8F8F,
-		'INDIANRED'     : 0xCD5C5C,
-		'SADDLEBROWN'   : 0x8B4513,
-		'SIENNA'        : 0xA0522D,
-		'PERU'          : 0xCD853F,
-		'BURLYWOOD'     : 0xDEB887,
-		'BEIGE'         : 0xF5F5DC,
-		'WHEAT'         : 0xF5DEB3,
-		'SANDYBROWN'    : 0xF4A460,
-		'TAN'           : 0xD2B48C,
-		'CHOCOLATE'     : 0xD2691E,
-		'FIREBRICK'     : 0xB22222,
-		'BROWN'         : 0xA52A2A,
-		'SALMON'        : 0xFA8072,
-		'ORANGE'        : 0xFFA500,
-		'CORAL'         : 0xFF7F50,
-		'TOMATO'        : 0xFF6347,
-		'HOTPINK'       : 0xFF69B4,
-		'PINK'          : 0xFFC0CB,
-		'DEEPPINK'      : 0xFF1493,
-		'PALEVIOLETRED' : 0xDB7093,
-		'VIOLET'        : 0xEE82EE,
-		'PLUM'          : 0xDDA0DD,
-		'ORCHILD'       : 0xDA70D6,
-		'DARKVIOLET'    : 0x9400D3,
-		'BLUEVIOLET'    : 0x8A2BE2,
-		'MEDIUMPURPLE'  : 0x9370DB,
-		'THISTLE'       : 0xD8BFD8,
-		'LAVENDER'      : 0xE6E6FA,
-		'MISTYROSE'     : 0xFFE4E1,
-		'IVORY'         : 0xFFFFF0,
-		'LEMONCHIFFON'  : 0xFFFACD
+		BLACK         : 0x0,
+		RED           : 0xFF0000,
+		LIME          : 0x00FF00,
+		BLUE          : 0x0000FF,
+		YELLOW        : 0xFFFF00,
+		AQUA          : 0x00FFFF,
+		CYAN          : 0x00FFFF,
+		MAGENTA       : 0xFF00FF,
+		FUCHSIA       : 0xFF00FF,
+		WHITE         : 0xFFFFFF,
+		GREEN         : 0x008000,
+		PURPLE        : 0x800080,
+		MAROON        : 0x800000,
+		NAVY          : 0x000080,
+		OLIVE         : 0x808000,
+		TEAL          : 0x008080,
+		GRAY          : 0x808080,
+		SILVER        : 0xC0C0C0,
+		DIMGRAY       : 0x696969,
+		SLATEGRAY     : 0x708090,
+		DARKGRAY      : 0xA9A9A9,
+		GAINSBORO     : 0xDCDCDC,
+		MIDNIGHTBLUE  : 0x191970,
+		SLATEBLUE     : 0x6A5ACD,
+		MEDIUMBLUE    : 0x0000CD,
+		ROYALBLUE     : 0x4169E1,
+		DODGERBLUE    : 0x1E90FF,
+		SKYBLUE       : 0x87CEEB,
+		STEELBLUE     : 0x4682B4,
+		LIGHTBLUE     : 0xADD8E6,
+		PALETURQUOISE : 0xAFEEEE,
+		TURQUOISE     : 0x40E0D0,
+		LIGHTCYAN     : 0xE0FFFF,
+		AQUAMARINE    : 0x7FFFD4,
+		DARKGREEN     : 0x006400,
+		SEAGREEN      : 0x2E8B57,
+		LIGHTGREEN    : 0x90EE90,
+		CHARTREUSE    : 0x7FFF00,
+		GREENYELLOW   : 0xADFF2F,
+		LIMEGREEN     : 0x32CD32,
+		YELLOWGREEN   : 0x9ACD32,
+		OLIVEDRAB     : 0x6B8E23,
+		DARKKHAKI     : 0xBCB76B,
+		PALEGOLDENROD : 0xEEE8AA,
+		LIGHTYELLOW   : 0xFFFFE0,
+		GOLD          : 0xFFD700,
+		GOLDENROD     : 0xDAA520,
+		DARKGOLDENROD : 0xB8860B,
+		ROSYBROWN     : 0xBC8F8F,
+		INDIANRED     : 0xCD5C5C,
+		SADDLEBROWN   : 0x8B4513,
+		SIENNA        : 0xA0522D,
+		PERU          : 0xCD853F,
+		BURLYWOOD     : 0xDEB887,
+		BEIGE         : 0xF5F5DC,
+		WHEAT         : 0xF5DEB3,
+		SANDYBROWN    : 0xF4A460,
+		TAN           : 0xD2B48C,
+		CHOCOLATE     : 0xD2691E,
+		FIREBRICK     : 0xB22222,
+		BROWN         : 0xA52A2A,
+		SALMON        : 0xFA8072,
+		ORANGE        : 0xFFA500,
+		CORAL         : 0xFF7F50,
+		TOMATO        : 0xFF6347,
+		HOTPINK       : 0xFF69B4,
+		PINK          : 0xFFC0CB,
+		DEEPPINK      : 0xFF1493,
+		PALEVIOLETRED : 0xDB7093,
+		VIOLET        : 0xEE82EE,
+		PLUM          : 0xDDA0DD,
+		ORCHILD       : 0xDA70D6,
+		DARKVIOLET    : 0x9400D3,
+		BLUEVIOLET    : 0x8A2BE2,
+		MEDIUMPURPLE  : 0x9370DB,
+		THISTLE       : 0xD8BFD8,
+		LAVENDER      : 0xE6E6FA,
+		MISTYROSE     : 0xFFE4E1,
+		IVORY         : 0xFFFFF0,
+		LEMONCHIFFON  : 0xFFFACD
 	};
 	
 function X_Node_CSS_parseColor( x ){
@@ -303,17 +303,17 @@ function X_Node_CSS_objToCssText( that, skipFilter ){
 
 var
 X_Node_CSS_FILTER_FIX_PROPS =
-	X_UA[ 'ActiveX' ] && X_UA[ 'IE' ] < 9 ?
+	X_UA_ActiveX && ( X_UA.Trident || X_UA.TridentMobile ) < 9 ?
 		{
-			'opacity'     : 2,
-			'boxShadow'   : 3,
-			'textShadow'  : 4,
-			'transform'   : 5,
-			'dxtransform' : 7 // X.NodeAnime で使用
+			opacity     : 2,
+			boxShadow   : 3,
+			textShadow  : 4,
+			transform   : 5,
+			dxtransform : 7 // X.NodeAnime で使用
 		} :
-	X_UA[ 'ActiveX' ] && ( 9 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 10 ) ? // IE9
+	X_UA_ActiveX && ( 9 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 10 ) ? // IE9
 		{
-			'textShadow' : 4
+			textShadow : 4
 		} :
 		null;
 
@@ -337,7 +337,7 @@ function X_Node_CSS_objToIEFilterText( that, opt_css, opt_cssList ){
 				break;
 			case 2 : //'opacity' :
 				if( v === 0 ){
-					console.log( '@opacity:0 ' + !!opt_cssList );
+					// console.log( '@opacity:0 ' + !!opt_cssList );
 					opt_cssList && ( opt_cssList[ opt_cssList.length ] = 'visibility:hidden' );
 				} else
 				if( v < 1 ) filters[ ++n ] = 'alpha(opacity=' + ( v * 100 | 0 ) +')';
@@ -546,20 +546,20 @@ function X_Node_CSS_onAfterUpdateForIEFilterFix(){
 	
 var	
 X_Node_CSS_UNIT = {
-		'px'   : 0,
-		'em'   : 1,
+		px   : 0,
+		em   : 1,
 		// ex, rem, vh, vw, vmin, vmax
-		'cm'   : 2,
-		'mm'   : 3,
-		'in'   : 4,
+		cm   : 2,
+		mm   : 3,
+		'in' : 4,
 		// pt, pc, mozmm
-		'%'    : 5,
-		'pct'  : 5,
-		'ms'   : 6,
-		's'    : 7,
-		'#'    : 8,
-		'rgb'  : 9,
-		'rgba' : 10
+		'%'  : 5,
+		pct  : 5,
+		ms   : 6,
+		s    : 7,
+		'#'  : 8,
+		rgb  : 9,
+		rgba : 10
 };
 
 /*
@@ -693,7 +693,7 @@ function X_Node_CSS_setStyle( css, flags, name, newValue ){
 	
 	switch( name ){
 		case 'display' :
-			console.log( newValue );
+			//console.log( newValue );
 			newValue === 'none' ? ( flags |= X_NodeFlags_STYLE_IS_DISPLAY_NONE ) : ( flags &= ~X_NodeFlags_STYLE_IS_DISPLAY_NONE );
 			return flags;
 			
@@ -805,7 +805,7 @@ X_Node_CSS_getCharSize =
 			return that[ '_fontSize' ] = that[ '_rawObject' ] ? parseFloat( X_Node_CSS_getComputedStyle( that[ '_rawObject' ], null ).fontSize ) : 0;
 		}) :
 
-	5 <= X_UA[ 'IE' ] ?
+	5 <= ( X_UA.Trident || X_UA.TridentMobile ) ?
 		(function( that ){
 			var font, vu, v, u, _v;
 			
@@ -898,9 +898,9 @@ var X_Node_CSS_Support = {},
 
 	X_Node_CSS_SPECIAL_FIX_PROP = {
 		
-		'transitionDuration' : X_UA[ 'Android' ] && !X_UA[ 'Chrome' ] && function( v ){ // bad Android
-				return parseFloat( v ) === 0 ? '0.001s' : v;
-			}
+		transitionDuration : X_UA.Android && !( X_UA.ChromiumMobile || X_UA.ChromeWebView ) && function( v ){ // bad Android
+            return parseFloat( v ) === 0 ? '0.001s' : v;
+        }
 		
 		//webkit boxShadow <color> が省略された場合。transparent になるのを color に
 		//webkit boxShadow が border-radius をはみ出す, background-image に グラデーションのないグラデーション指定
@@ -933,7 +933,7 @@ X[ 'CSS' ] = {
  */
 
 (function(){
-	var testStyle = X_UA[ 'IE' ] < 5 ? {} : ( /*document.documentElement ||*/ document.createElement( 'div' ) ).style,
+	var testStyle = ( X_UA.Trident || X_UA.TridentMobile ) < 5 ? {} : ( /*document.documentElement ||*/ document.createElement( 'div' ) ).style,
 		temp      = testStyle.cssText,
 		vendors   = 'webkit,Webkit,Moz,moz,Ms,ms,O,o,khtml,Khtml'.split( ',' ),
 		searches  = (
@@ -951,7 +951,7 @@ X[ 'CSS' ] = {
 			for( j = vendors.length; j; ){
 				v = vendors[ --j ];
 				if( testStyle[ v + prop ] !== undefined ){
-					if( v === 'ms'/* && !( 10 <= X_UA[ 'IEHost' ] )*/ ) v = 'Ms';// for ie9, 但し ie11 のieには不要
+					if( v === 'ms'/* && !( 10 <= X_UA.IEHost )*/ ) v = 'Ms';// for ie9, 但し ie11 のieには不要
 					if( v === 'o' ) v = 'O';//for opera12
 					X_Node_CSS_VENDER_PREFIX[ search ] = v + prop;
 					break;
@@ -979,7 +979,7 @@ X[ 'CSS' ] = {
 	// TODO border による三角形の可否
 	// 2:完全、 1:透過に非対応(IE7-) 0:borderの描画が非標準で三角形が作れない
 
-	if( prop = X_Node_CSS_VENDER_PREFIX[ 'boxShadow' ] ){
+	if( prop = X_Node_CSS_VENDER_PREFIX.boxShadow ){
 		
 		testStyle.cssText = X_Node_CSS_uncamelize( prop ) + ':0 0';
 		
@@ -1045,5 +1045,3 @@ X_ViewPort[ 'listenOnce' ]( X_EVENT_INIT, function(){
 	
 	xnode[ 'cssText' ]( '' )[ 'empty' ]();
 });
-
-

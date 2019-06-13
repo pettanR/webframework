@@ -264,7 +264,7 @@ X[ 'Timer' ] = {
 		var list = X_Timer_TICKET_LIST,
 			i    = list.length,
 			l    = i,
-			f, q, eventDispatcher, lazy, listeners;
+			q;
 		
 		if( X_Timer_busyTimeout ){
 			// fire 中の cancel
@@ -290,9 +290,9 @@ X[ 'Timer' ] = {
 		return 0;
 	};
 
-if( X_UA[ 'IE' ] < 5 || X_UA[ 'MacIE' ] ){
-	X[ 'Timer' ][ '_' ] = X_Timer_onTimeout;
-	X_Timer_onTimeout = 'X.Timer._()';
+if( ( X_UA.Trident || X_UA.TridentMobile ) < 5 || X_UA.Tasman ){
+	window[ '__timercb__' ] = X_Timer_onTimeout;
+	X_Timer_onTimeout = '__timercb__()';
 };
 
 function X_Timer_onTimeout(){
@@ -303,7 +303,7 @@ function X_Timer_onTimeout(){
 		l     = list.length,
 		limit = now + X_Timer_INTERVAL_TIME / 2,
 		heavy,
-		q, f, c, r, uid;
+		q, c, r, uid;
 	
 	//console.log( '予定時間と発火時間の差:' + ( now - X_Timer_timeStamp - X_Timer_waitTime * X_Timer_INTERVAL_TIME ) + ' -:' + minus + ' next:' + X_Timer_waitTime );
 	
@@ -404,7 +404,7 @@ function X_Timer_compareQueue( a, b ){
 
 // http://havelog.ayumusato.com/develop/javascript/e528-ios6_scrolling_timer_notcall.html
 // iOS6 スクロール中のタイマー発火絡みのバグ備忘
-if( X_UA[ 'iOS' ] ){
+if( ( X_UA.SafariMobile || X_UA.iOSWebView ) ){
 	window.addEventListener( 'scroll', function(){
 		var last, now;
 		if( X_Timer_timerId ){
@@ -416,10 +416,9 @@ if( X_UA[ 'iOS' ] ){
 			X_Timer_timeStamp = now;
 			X_Timer_waitTime  = last / X_Timer_INTERVAL_TIME | 0;
 		};
-		X[ 'ViewPort' ][ 'getScrollPosition' ](); // X_DomEvent　のための X_ViewPort_scrollX & Y の更新、
+		X_ViewPort_getScrollPosition(); // X_DomEvent　のための X_ViewPort_scrollX & Y の更新
 	});
 };
-
 
 // ページを読み込んでからの時間
 function X_Timer_onEnterFrame( time ){
@@ -458,5 +457,3 @@ function X_Timer_onEnterFrame( time ){
     
     ExecuteAtEnd_onEnd();
 };
-
-console.log( 'X.Core.Timer' );

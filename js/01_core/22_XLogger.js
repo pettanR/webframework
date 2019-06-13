@@ -28,7 +28,7 @@ X.Logger = {
 		} else
 		if( X_EVENT_XDOM_READY <= X_ViewPort_readyState ){
 			if( !( $Area = X.Logger._$LogArea ) ){
-				$Area = X.Logger._$LogArea = X.Node( 'div' ).addToRoot( 0 );
+				$Area = X.Logger._$LogArea = X_Node( 'div' ).addToRoot( 0 );
 			};
 			$Area.add( '<p>' + msg + '</p>' );
 		} else		

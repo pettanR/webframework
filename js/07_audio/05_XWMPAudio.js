@@ -32,7 +32,7 @@ if( X_Plugin_WMP_VERSION ){ // IETester で 6.x は不可
 		    					width     : 1,
 		    					height    : 1
 	    					})[ 'html' ](
-	    						X_UA[ 'IE' ] === 5.5 ? '' : '<param name="uiMode" value="none">'
+	    						( X_UA.Trident || X_UA.TridentMobile ) === 5.5 ? '' : '<param name="uiMode" value="none">'
 	    						//+ '<param name="URL" value="' + source + '">'
 	    						//+ '<param name="AutoStart" value="' + option.autoplay + '">'
 	    					);
@@ -42,7 +42,7 @@ if( X_Plugin_WMP_VERSION ){ // IETester で 6.x は不可
 		    					width    : 0,
 		    					height   : 0
 	    					})[ 'html' ](
-	    						X_UA[ 'IE' ] === 5.5 ? '' : '<param name="ShowControls" value="false">'
+	    						( X_UA.Trident || X_UA.TridentMobile ) === 5.5 ? '' : '<param name="ShowControls" value="false">'
 	    						//+ '<param name="FileName" value="' + source + '">'
 	    						//+ '<param name="AutoStart" value="' + option.autoplay + '">'
 	    					);

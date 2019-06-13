@@ -1,13 +1,14 @@
 ﻿
 /*
-	WebAudio    : 1,
-	HTMLAudio   : 2,
-	Flash       : 3,
+    WebAudio    : 1,
+	Flash       : 2,
+	HTMLAudio   : 3,
 	Silverlight : 4,
 	Unity       : 5,
 	WMP         : 6,
 	RealPlayer  : 7,
-	QuickTime   : 8,
+    QuickTime   : 8,
+    VLC
  */
 
 var X_Audio_BACKENDS     = []; // Array.<Hash>
@@ -136,15 +137,15 @@ X[ 'Audio' ] = X_EventDispatcher[ 'inherits' ](
 		 * @example
 audio.setState(
  {
-	'startTime'     : 0,
-	'endTime'       : 80000,
-	'loopStartTime' : 120000,
-	'loopEndTime'   : 200000,
-	'currentTime'   : 0,
-    'loop'          : true,
-    'looded'        : false,
-    'volume'        : 1,
-    'autoplay'      : true
+	startTime     : 0,
+	endTime       : 80000,
+	loopStartTime : 120000,
+	loopEndTime   : 200000,
+	currentTime   : 0,
+    loop          : true,
+    looded        : false,
+    volume        : 1,
+    autoplay      : true
 });
 		 */
 		'state' : function( obj ){
@@ -152,19 +153,19 @@ audio.setState(
 			if( obj === undefined ){
 				return pair ? pair.getState() :
 					{
-				    	'startTime'     : -1,
-				    	'endTime'       : -1,
-				    	'loopStartTime' : -1,
-				    	'loopEndTime'   : -1,
-				    	'currentTime'   : -1,
-				        'loop'          : false,
-				        'looded'        : false,
-				        'error'         : 0,
-				        'autoplay'      : false,
-				        'playing'       : false,
-				        'source'        : this[ 'source' ],
-				        'duration'      : 0,
-				        'volume'        : 0.5
+				    	startTime     : -1,
+				    	endTime       : -1,
+				    	loopStartTime : -1,
+				    	loopEndTime   : -1,
+				    	currentTime   : -1,
+				        loop          : false,
+				        looded        : false,
+				        error         : 0,
+				        autoplay      : false,
+				        playing       : false,
+				        source        : this[ 'source' ],
+				        duration      : 0,
+				        volume        : 0.5
 					};
 			};
 			pair && pair.setState( obj );
@@ -334,13 +335,13 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
 		play : function( startTime, endTime, loop, loopStartTime, loopEndTime ){
 			if( 0 <= startTime ){
 				this.setState( {
-					'currentTime'   : startTime,
-					'startTime'     : startTime,
-					'endTime'       : endTime,
-					'loop'          : loop,
-					'looped'        : false,
-					'loopStartTime' : loopStartTime,
-					'loopEndTime'   : loopEndTime
+					currentTime   : startTime,
+					startTime     : startTime,
+					endTime       : endTime,
+					loop          : loop,
+					looped        : false,
+					loopStartTime : loopStartTime,
+					loopEndTime   : loopEndTime
 				} );
 			};
 			// canPlay() : autoplay = true
@@ -349,7 +350,7 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
 		
 		seek : function( seekTime ){
 			if( seekTime < X_Audio_getEndTime( this ) ){
-				this.setState( { 'currentTime' : seekTime } );
+				this.setState( { currentTime : seekTime } );
 			};
 		},
 		
@@ -364,39 +365,38 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
 			if( v === undefined ){
 				return this.autoLoop;
 			};
-			this.setState( { 'loop' : v } );
+			this.setState( { loop : v } );
 		},
 
 		volume : function( v ){
 			if( v === undefined ){
 				return this.gain;
 			};
-			this.setState( { 'volume' : v } );
+			this.setState( { volume : v } );
 		},
 
 		currentTime : function( v ){
 			if( v === undefined ){
 				return this.playing ? this.getActualCurrentTime() : this.seekTime;
 			};
-			this.setState( { 'currentTime' : v } );
+			this.setState( { currentTime : v } );
 		},
 		
 		getState : function(){
 			
 		    return {
-		    	'startTime'     : this.startTime,
-		    	'endTime'       : this.endTime < 0 ? this.duration : this.endTime,
-		    	'loopStartTime' : this.loopStartTime < 0 ? this.startTime : this.loopStartTime,
-		    	'loopEndTime'   : this.loopEndTime < 0 ? ( this.endTime || this.duration ) : this.loopEndTime,
-		        'loop'          : this.autoLoop,
-		        'looped'        : this.looped,
-		        'volume'        : this.gain,
-		        'playing'       : this.playing,			        
-		        'duration'      : this.duration,
-		        'autoplay'      : this.autoplay,
-		        
-		        'currentTime'  : this.playing ? this.getActualCurrentTime() : this.seekTime,
-		        'error'        : this.getActualError ? this.getActualError() : this.error
+		    	startTime     : this.startTime,
+		    	endTime       : this.endTime < 0 ? this.duration : this.endTime,
+		    	loopStartTime : this.loopStartTime < 0 ? this.startTime : this.loopStartTime,
+		    	loopEndTime   : this.loopEndTime < 0 ? ( this.endTime || this.duration ) : this.loopEndTime,
+		        loop          : this.autoLoop,
+		        looped        : this.looped,
+		        volume        : this.gain,
+		        playing       : this.playing,
+		        duration      : this.duration,
+		        autoplay      : this.autoplay,
+		        currentTime   : this.playing ? this.getActualCurrentTime() : this.seekTime,
+		        error         : this.getActualError ? this.getActualError() : this.error
 		    };
 		},
 		
@@ -407,15 +407,15 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
 			
 			for( k in obj ){
 				v = obj[ k ];
-				switch( k ){
-					case 'currentTime'   :
+				switch( X_AUDIO_STATE[ k ] ){
+					case X_AUDIO_STATE.currentTime   :
 						v = X_Audio_timeStringToNumber( v );
 						if( X_Type_isNumber( v ) ){
 							if( playing ){
 								if( this.getActualCurrentTime() !== v ){
 									seek = 2;
 									this.seekTime = v;
-								};								
+								};
 							} else {
 								this.seekTime = v;
 							};
@@ -424,7 +424,7 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
 						};
 						break;
 							
-					case 'startTime'     :
+					case X_AUDIO_STATE.startTime     :
 						v = X_Audio_timeStringToNumber( v );
 						if( v || v === 0 ){
 							if( this.startTime !== v ){
@@ -435,7 +435,7 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
 						};
 						break;
 					
-					case 'endTime'       :
+					case X_AUDIO_STATE.endTime       :
 						v = X_Audio_timeStringToNumber( v );
 						if( v || v === 0 ){
 							if( this.endTime !== v ){
@@ -448,7 +448,7 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
 						};
 						break;
 						
-					case 'loopStartTime' :
+					case X_AUDIO_STATE.loopStartTime :
 						v = X_Audio_timeStringToNumber( v );
 						if( v || v === 0 ){
 							if( this.loopStartTime !== v ){
@@ -459,7 +459,7 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
 						};
 						break;
 						
-					case 'loopEndTime'   :
+					case X_AUDIO_STATE.loopEndTime   :
 						v = X_Audio_timeStringToNumber( v );
 						if( v || v === 0 ){
 							if( this.loopEndTime !== v ){
@@ -472,26 +472,26 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
 						};
 						break;
 		
-					case 'looped' :
+					case X_AUDIO_STATE.looped :
 						if( X_Type_isBoolean( v ) && this.looped !== v ){
 							this.looped = v;
 							if( playing ) seek = 2;
 						};
 						break;
 						
-					case 'loop' :
+					case X_AUDIO_STATE.loop :
 						if( X_Type_isBoolean( v ) && this.autoLoop !== v ){
 							this.autoLoop = v;
 						};
 						break;
 						
-					case 'autoplay' :
+					case X_AUDIO_STATE.autoplay :
 						if( X_Type_isBoolean( v ) && this.autoplay !== v ){
 							this.autoplay = v;
 						};
 						break;
 		
-					case 'volume' :
+					case X_AUDIO_STATE.volume :
 						if( X_Type_isNumber( v ) ){
 							v = v < 0 ? 0 : 1 < v ? 1 : v;
 							if( this.gain !== v ){
@@ -501,7 +501,7 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
 							};
 						};
 						break;
-					case 'useVideo' :
+					case X_AUDIO_STATE.useVideo :
 						break;
 					default :
 						alert( 'bad arg! ' + k );
@@ -524,6 +524,22 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
 	}
 );
 
+/** @enum {number} */
+var X_AUDIO_STATE = {
+    startTime     : 1,
+    endTime       : 2,
+    loopStartTime : 3,
+    loopEndTime   : 4,
+    loop          : 5,
+    looped        : 6,
+    volume        : 7,
+    playing       : 8,
+    duration      : 9,
+    autoplay      : 10,
+    currentTime   : 11,
+    error         : 12,
+    useVideo      : 13
+};
 
 function X_Audio_timeStringToNumber( time ){
 	var ary, ms, s = 0, m = 0, h = 0;

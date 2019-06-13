@@ -54,17 +54,18 @@ X_System_javascriptScore;
 
 X_TEMP.onRearchEndOfScript = function(){
 	var callbacks = X_TEMP.onSystemReady,
-		i     = callbacks.length,
-		now   = X_Timer_now(),
-		speed = now - X[ 'bootTime' ];
+		i         = callbacks.length,
+		now       = X_Timer_now(),
+		speed     = now - X[ 'bootTime' ];
 	
 	X[ 'bootSpeed' ] = X_System_javascriptScore = speed;
-	console.log( 'js score ' + speed );
 	
 	delete X_TEMP.onRearchEndOfScript;
-	delete X_TEMP.onSystemReady;
+    // delete X_TEMP.onSystemReady; この位置にあると Closure Compiler でエラーになる、callbacks を作らないで delete してしまう
 	
 	for( ; i; ){
 		callbacks[ --i ]( X_System );
-	};
+    };
+    
+    delete X_TEMP.onSystemReady;
 };

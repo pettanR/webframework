@@ -331,7 +331,7 @@ function XMLWrapper_val( queryString, type ){
 				case 9 :
 					if( links = document.links ){
 						for( xmlList = [], i = links.length; i; ){
-							xmlList[ --i ] = new Node( links[ i ] );
+							xmlList[ --i ] = new X_Node( links[ i ] );
 						};
 					} else {
 						// area[href],a[href]

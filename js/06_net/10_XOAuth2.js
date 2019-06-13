@@ -107,7 +107,7 @@ X[ 'OAuth2' ] = X_EventDispatcher[ 'inherits' ](
 					w, h, pair;
 				
 				// TODO pointer event 内か？チェック
-				if( !e || !e[ 'pointerType' ] ){
+				if( !e || !e.pointerType ){
 					alert( 'タッチイベント以外での popup! ' + ( e ? e.type : '' ) );
 					return;
 				};
@@ -125,10 +125,10 @@ X[ 'OAuth2' ] = X_EventDispatcher[ 'inherits' ](
 				X_OAUTH2_authWindow = X_Window( {
 					'url' : X_URL_create( pair[ 'authorizeEndpoint' ],
 							{
-								'response_type' : 'code',
-								'client_id'     : pair[ 'clientID' ],
-								'redirect_uri'  : pair[ 'redirectURI' ],
-								'scope'         : ( pair[ 'scopes' ] || [] ).join( ' ' )
+								response_type : 'code',
+								client_id     : pair[ 'clientID' ],
+								redirect_uri  : pair[ 'redirectURI' ],
+								scope         : ( pair[ 'scopes' ] || [] ).join( ' ' )
 							}
 						),
 					'name'   : 'oauthauthorize',
@@ -198,14 +198,14 @@ X[ 'OAuth2' ] = X_EventDispatcher[ 'inherits' ](
 				pair.net = X.Net( {
 					'xhr'      : pair[ 'tokenEndpoint' ],
 					'postdata' : X_URL_objToParam({
-						'client_id'     : pair[ 'clientID' ],
-						'client_secret' : pair[ 'clientSecret' ],
-						'grant_type'    : 'refresh_token',
-						'refresh_token' : refreshToken
+						client_id     : pair[ 'clientID' ],
+						client_secret : pair[ 'clientSecret' ],
+						grant_type    : 'refresh_token',
+						refresh_token : refreshToken
 					}),
 					'dataType' : 'json',
 					'headers'  : {
-									'Accept'       : 'application/json',
+									Accept         : 'application/json',
 									'Content-Type' : 'application/x-www-form-urlencoded'
 								},
 					'test'     : 'gadget' // canuse

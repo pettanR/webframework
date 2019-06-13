@@ -9,7 +9,7 @@ function X_NodeList( v ){
 		args.push.apply( args, arguments[ i ] );
 	};
 
-	if( ( l = args.length ) === 1 ) return new Node( args[ 0 ] );
+	if( ( l = args.length ) === 1 ) return new X_Node( args[ 0 ] );
 	if( !this || this[ 'append' ] !== X_NodeList.prototype[ 'append' ] ) return new X_NodeList( args );
 	
 	for( i = 0; i < l; ++i ){
@@ -52,7 +52,7 @@ X_NodeList.prototype[ 'each' ] = function( func /* opt_args... */ ){
  */
 X_TEMP.onSystemReady.push( function( sys ){
 	var target = X_NodeList.prototype,
-		src    = Node.prototype,
+		src    = X_Node.prototype,
 		p, v;
 	for( p in src ){
 		//if( X_EMPTY_OBJECT[ p ] ) continue;

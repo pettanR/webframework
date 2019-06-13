@@ -19,7 +19,7 @@
 
 var X_TextRange_range,
 	X_TextRange_selection,
-	X_TextRange_isW3C = !document.selection || 9 <= X_UA[ 'IE' ] || X_UA[ 'Edge' ];
+	X_TextRange_isW3C = !document.selection || 9 <= ( X_UA.Trident || X_UA.TridentMobile ) || X_UA.EdgeHTML;
 
 /**
  * ユーザーによって選択されたテキストへの参照や文字の座標の取得
@@ -102,8 +102,8 @@ function X_TextRange_collectTextNodes( elm, ary ){
 function X_TextRange_getRawRange( tr ){
 	var xnode = tr.xnode,
 				//
-		range = //10 <= X_UA[ 'IE' ] /* || X_UA[ 'iOS' ] */ ? document.createRange() :
-				//8 <= X_UA[ 'IE' ] ? X_elmBody.createTextRange() :
+		range = //10 <= ( X_UA.Trident || X_UA.TridentMobile ) /* || ( X_UA.SafariMobile || X_UA.iOSWebView ) */ ? document.createRange() :
+				//8 <= ( X_UA.Trident || X_UA.TridentMobile ) ? X_elmBody.createTextRange() :
 				X_TextRange_range,
 		selection = X_TextRange_selection, 
 		elm, isPoint,
@@ -154,7 +154,7 @@ function X_TextRange_getRawRange( tr ){
 						l = text.data.length;
 
 				        for( j = 0; j < l; ++j ){
-				            if( X_UA[ 'IE' ] || X_UA[ 'Edge' ] ){
+				            if( ( X_UA.Trident || X_UA.TridentMobile ) || X_UA.EdgeHTML ){
 				            	// 改行の直前の文字を選択すると rect が巨大になってしまう
 					        	range.setEnd( text, j );
 					            range.setStart( text, j );
@@ -292,13 +292,13 @@ function X_TextRange_getOffset(){
 		elm = xnode[ '_rawObject' ];
 		
 		if( elm && xnode[ '_flags' ] & X_NodeFlags_IN_TREE ){
-			if( X_UA[ 'IE' ] < 9 ){
+			if( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ){
 				
 
 				return cursorPosition.call( this, elm );
 
 			} else if( elm.setSelectionRange ){
-				if( X_UA[ 'IE' ] < 12 ){
+				if( ( X_UA.Trident || X_UA.TridentMobile ) < 12 ){
 					l = elm.value.length;
 					ret = {
 						'from' : this[ 'v1' ] = elm.selectionStart < l ? elm.selectionStart : l,
@@ -364,7 +364,7 @@ function X_TextRange_text( v ){
 	} else {
 		if( xnode[ '_tag' ] === 'TEXTAREA' ){
 			elm = xnode[ '_rawObject' ];
-			val = X_UA[ 'IE' ] < 9 ? X_Node_Attr_getValueForIE( elm ) : elm.value;
+			val = ( X_UA.Trident || X_UA.TridentMobile ) < 9 ? X_Node_Attr_getValueForIE( elm ) : elm.value;
 			
 			if( this[ 'by' ] === 'char' ){
 				xnode.attr( {
@@ -376,7 +376,7 @@ function X_TextRange_text( v ){
 				from   = offset[ 'from' ];
 				to     = offset[ 'to' ];
 
-				if( X_UA[ 'IE' ] < 9 ){
+				if( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ){
 					range = X_TextRange_selection();
 					// TODO check textarea
 					range.text = v;
@@ -423,10 +423,10 @@ function X_TextRange_move( from, to ){
 	if( xnode[ '_tag' ] === 'TEXTAREA' ){
 		// http://blog.enjoyxstudy.com/entry/20060305/p1
 		
-		if( X_UA[ 'IE' ] < 9 || X_UA[ 'Prsto' ] ){
-			len = ( X_UA[ 'IE' ] < 9 ? X_Node_Attr_getValueForIE( elm ) : elm.value ).length;
+		if( ( X_UA.Trident || X_UA.TridentMobile ) < 9 || X_UA.Presto || X_UA.PrestoMobile ){
+			len = ( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ? X_Node_Attr_getValueForIE( elm ) : elm.value ).length;
 			
-			if( X_UA[ 'Prsto' ] ){
+			if( X_UA.Presto || X_UA.PrestoMobile ){
 				FocusUtility_setTemporarilyFocus( elm );
 			};
 

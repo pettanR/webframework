@@ -20,7 +20,7 @@ var X_Event_Rename    = {},
 		
 		// TODO  focusin focusout
 		
-		// X_UA[ 'Prsto' ]
+		// X_UA.Presto
 		'contextmenu' : function( eventDispatcher ){
 			eventDispatcher[ 'listen' ]( 'mousedown', X_Event_proxy.contextmenu_proxy );
 		},

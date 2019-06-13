@@ -5,9 +5,9 @@
 	 */
 var X_Type_isArray =
 		new Function( 'v',
-			X_UA[ 'IE' ] < 5.5 || X_UA[ 'NetFront' ] < 4 ? // netfront3.4 は html に  instanceof をすると error になる
+			( X_UA.Trident || X_UA.TridentMobile ) < 5.5 || X_UA.NetFront < 4 ? // netfront3.4 は html に  instanceof をすると error になる
 				'return v&&v.push===Array.prototype.push' : // win ie5-, MacIE5.2
-			X_UA[ 'IE' ] ?
+			( X_UA.Trident || X_UA.TridentMobile ) ?
 				'return v&&Object.prototype.toString.call(v)==="[object Array]"' :
 				'return v instanceof Array'
 		),
@@ -19,9 +19,9 @@ var X_Type_isArray =
 	 */
 	X_Type_isHTMLElement =
 		new Function( 'v',
-			( X_UA[ 'IE' ] < 5 || X_UA[ 'MacIE' ] ) ?
+			( ( X_UA.Trident || X_UA.TridentMobile ) < 5 || X_UA.Tasman ) ?
 				'return v&&v.tagName&&v.insertAdjacentHTML&&!0' : // ie4 or MacIE5.23, v.all <- error
-			X_UA[ 'NetFront' ] < 4 ?
+			X_UA.NetFront < 4 ?
 				'return v&&v.nodeType===1' : // instanceof not a function. netfront3.4 は html に  instanceof をすると error になる
 			window[ 'HTMLElement' ] ?
 				'return v instanceof HTMLElement' :
@@ -120,7 +120,7 @@ X[ 'Type' ] = {
 	function X_Type_isImage( v ){
 		if( v && v.constructor === window.Image ) return true;
 		if( v && window.HTMLImageElement && v.constructor === window.HTMLImageElement ) return true; // ie6- は constructor が undef、HTMLImageElement が undef なので、HTMLElement の存在確認が必要
-		if( X_UA[ 'WebKit' ] < 525.13 ){ // Safari3-
+		if( X_UA.WebKit < 525.13 ){ // Safari3-
 			if( v && !X_Type_isUndefined( v.src ) && !X_Type_isUndefined( v.onload ) && X_Type_isNumber( v.height ) && X_Type_isNumber( v.width ) && X_Type_isBoolean( v.complete ) ){
 				return true;
 			};

@@ -5,18 +5,21 @@ var X_NodeAnime_QUEUE           = [],
 	X_NodeAnime_updateTimerID   = 0,
 	X_NodeAnime_needsDetection  = false,
 	
-	X_NodeAnime_hasTransform    = !!X_Node_CSS_VENDER_PREFIX[ 'transform' ],
+	X_NodeAnime_hasTransform    = !!X_Node_CSS_VENDER_PREFIX.transform,
 	
-	X_NodeAnime_hasDXTransform  = 5.5 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 9 && X_UA[ 'ActiveX' ], // IEHost が 11 の場合不可
+	X_NodeAnime_hasDXTransform  = 5.5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 9 && X_UA_ActiveX, // IEHost が 11 の場合不可
 	
 	/* Opera mobile で  translateZ(0) が有効だと XY が 0 0 になる */
 	/* GPUレイヤーにいる間に要素のコンテンツを変更をすると transitionend が動かなくなるっぽい Mac safari と firefox */
-	X_NodeAnime_translateZ      = X_Node_CSS_VENDER_PREFIX[ 'perspective' ] &&
-									!( X_UA[ 'Prsto' ] && X_UA[ 'Android' ] ) &&
+	X_NodeAnime_translateZ      = X_Node_CSS_VENDER_PREFIX.perspective &&
+									!( X_UA.PrestoMobile && X_UA.Android ) &&
 									// https://twitter.com/uupaa/status/811157467094663168
 									// Win7 IE11 と Win10 IE11 は IE11 が利用しているバックエンドが違うため、GPU叩く系のCSS/SVG/Flashの挙動が大きく異なりますよ。簡単に言うと Win7 IE11 はガビガビになる
 									// Win7-8 + IE で描画が極めて乱れていた itozyun
-									!( X_UA[ 'IE' ] && 7 <= X_UA[ 'Windows' ] && X_UA[ 'Windows' ] < 9 ) ? ' translateZ(0)' : '',
+                                    !(
+                                        ( X_UA.Trident || X_UA.TridentMobile ) &&
+                                        6.1 <= ( X_UA.Win32 || X_UA.Win64 ) && ( X_UA.Win32 || X_UA.Win64 ) < 7 // 7 <= windows <= 8.1
+                                    ) ? ' translateZ(0)' : '',
 
 // https://ics.media/entry/306
 // transform(3D)はAndroid 2.x系の標準ブラウザや、最新版のFirefoxで不具合があるので注意が必要
@@ -533,8 +536,9 @@ function X_NodeAnime_updatePosition( xnode, obj, ratio, useGPU ){
 	//console.log( 'updatePosition x:' + x + ' gpu:' + !!useGPU );
 	if( obj.transform ){
 		if( ( x === x || y === y ) && ( x !== 0 || y !== 0 ) ){
-			if( X_UA[ 'Safari' ] && X_UA[ 'Windows' ] ){
-				// http://shinimae.hatenablog.com/entry/2016/01/13/151748
+			if( X_UA.WebKit && ( X_UA.Win32 || X_UA.Win64 ) ){
+                // http://shinimae.hatenablog.com/entry/2016/01/13/151748
+                // 本来ベンダープレフィックスはプロパティ名にのみ付けますが、Windows版Safariの場合はプロパティの値にもつけましょう。
 				str = ' -webkit-translate(' + ( x | 0 ) + 'px,' + ( y | 0 ) + 'px)';
 			} else {
 				str = ' translate(' + ( x | 0 ) + 'px,' + ( y | 0 ) + 'px)';

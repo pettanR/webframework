@@ -36,7 +36,7 @@ var XUI_ChromeBox = XUI_Box.inherits(
 					after = true;
 					index = 0;
 				};
-				if( node[ 'instanceOf' ] && node[ 'instanceOf' ]( Node ) ){
+				if( node[ 'instanceOf' ] && node[ 'instanceOf' ]( X_Node ) ){
 					
 				};
 			};
