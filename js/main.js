@@ -74,15 +74,15 @@ X( function(){
 					{ label : '戻る', back : true },
 					{
 						label   : 'ブラウザエンジン',
-						summary : X.UA.ENGINE + ( X.UA.ENGINE_VERSION || '' )
+						summary : X.UA.ENGINE + ' ' + ( X.UA.ENGINE_VERSION || '' )
 					},
 					{
 						label   : 'ブランド',
-						summary : X.UA.BRAND + ( X.UA.BRAND_VERSION || '' )
+						summary : X.UA.BRAND + ' ' + ( X.UA.BRAND_VERSION || '' )
                     },
 					{
 						label   : 'プラットフォーム',
-						summary : X.UA.PLATFORM + ( X.UA.PLATFORM_VERSION || '' )
+						summary : X.UA.PLATFORM + ' ' + ( X.UA.PLATFORM_VERSION || '' )
 					},
 					{
 						label   : 'SVG',
