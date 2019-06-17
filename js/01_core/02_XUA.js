@@ -172,6 +172,7 @@ var ua            = X_UA,
     versionOPR    = getVersionString( strUserAgent, 'OPR/' ),
     versionKHTML  = getVersionString( strAppVersion, 'KHTML/' ),
     versionIris   = getVersionString( strUserAgent.toLowerCase(), 'iris' ),
+    versionFxiOS  = getVersionString( strUserAgent, 'FxiOS/' ),
 
     // https://issuetracker.google.com/issues/36957795
     //  Canvas clearRect failing to clear
@@ -327,7 +328,7 @@ var ua            = X_UA,
     deviceTypeIsMediaPlayer, deviceTypeIsEBookReader,
     deviceTypeIsPhone, deviceTypeIsTablet,
     deviceTypeIsPC,
-    isMac, isTridentMobile, isAndroidBrowser, isAndroidChromeWebView, isAndroidBased, is_iOSWebView;
+    isMac, isAndroidBrowser, isAndroidChromeWebView, isAndroidBased, is_iOSWebView;
 /*----------------------------------------------------------------------------//
  *  Nintendo DS
  */
@@ -352,10 +353,10 @@ if( strPlatform === 'Nintendo DSi' ){
 if( strPlatform === 'New Nintendo 3DS' || ( findString( strUserAgent, 'iPhone OS 6_0' ) && screenW === 320 && screenH === 240 ) ){
     platform         = 'New3DS';
     platformVersion  = getVersionString( strUserAgent, 'NintendoBrowser/' );
-    brand            = 'NetFrontNX';
-    brandVersion     = getVersionString( strUserAgent, 'NX/' );
     engine           = 'WebKit';
     engineVersion    = versionWebKit;
+    brand            = 'NetFrontNX';
+    brandVersion     = getVersionString( strUserAgent, 'NX/' );
     deviceTypeIsGame = true;
 } else
 /*----------------------------------------------------------------------------//
@@ -364,10 +365,10 @@ if( strPlatform === 'New Nintendo 3DS' || ( findString( strUserAgent, 'iPhone OS
 if( strPlatform === 'Nintendo 3DS' ){
     platform         = 'N3DS';
     platformVersion  = getVersionString( strUserAgent, 'Version/' );
-    brand            = 'NetFrontNX';
-    brandVersion     = platformVersion;
     engine           = 'WebKit';
     engineVersion    = 535; // 534:2.0.0-2J - 9.5.0-22J, 9.5.0-23J -
+    brand            = 'NetFrontNX';
+    brandVersion     = platformVersion;
     deviceTypeIsGame = true;
 } else
 /*----------------------------------------------------------------------------//
@@ -376,10 +377,10 @@ if( strPlatform === 'Nintendo 3DS' ){
 if( strPlatform === 'Nintendo Swicth' ){
     platform         = 'Swicth';
     platformVersion  = getVersionString( strAppVersion, 'NintendoBrowser/' );
-    brand            = 'NetFrontNX';
-    brandVersion     = getVersionString( strAppVersion, 'NX/' );
     engine           = 'WebKit';
     engineVersion    = versionWebKit;
+    brand            = 'NetFrontNX';
+    brandVersion     = getVersionString( strAppVersion, 'NX/' );
     deviceTypeIsGame = true;
 } else
 /*----------------------------------------------------------------------------//
@@ -397,6 +398,7 @@ if( strPlatform === 'Nintendo WiiU' ){
     // platform始めUA以外のnavigatorのプロパティはいずれの場合も変更されない。
     engineVersion    = getVersionString( strAppVersion, 'AppleWebKit/' ); // 534:2.1.0J - 3.1.0J, 536:4.0.0J - 
     deviceTypeIsGame = true;
+    // TODO isPcMode
 } else
 /*----------------------------------------------------------------------------//
  *  Wii
@@ -410,8 +412,6 @@ if( strPlatform === 'Nintendo Wii' ){
     platformVersion  = getVersionString( strUserAgent, 'Wii; U; ; ' );
     brand            = platform;
     brandVersion     = platformVersion;
-    engine           = 'Presto';
-    engineVersion    = versionPresto;
     deviceTypeIsGame = true;
 } else
 /*----------------------------------------------------------------------------//
@@ -422,10 +422,10 @@ if( strVersion = getVersionString( strUserAgent, 'PlayStation Vita ' ) ){
     // Mozilla/5.0 (PlayStation Vita 1.50) AppleWebKit/531.22.8 (KHTML, like Gecko) Silk/3.2
     platform         = 'PSVita';
     platformVersion  = strVersion;
-    brand            = platform;
-    brandVersion     = strVersion;
     engine           = 'WebKit';
     engineVersion    = versionWebKit; // 531, 536, 537
+    brand            = platform;
+    brandVersion     = strVersion;
     deviceTypeIsGame = true;
 } else
 /*----------------------------------------------------------------------------//
@@ -437,10 +437,10 @@ if( strVersion = getVersionString( strUserAgent, '(PlayStation Portable); ' ) ){
     // User-Agent: Mozilla/4.0 (PSP (PlayStation Portable); 2.00)
     platform         = 'PSP';
     platformVersion  = strVersion;
-    brand            = platform;
-    brandVersion     = strVersion;
     engine           = 'NetFront';
     engineVersion    = 3.3; // 多分
+    brand            = platform;
+    brandVersion     = strVersion;
     deviceTypeIsGame = true;
 } else
 /*----------------------------------------------------------------------------//
@@ -482,10 +482,10 @@ if( findString( strUserAgent, 'Xbox' ) ){
 if( appVersion === 2 && findString( strUserAgent, 'Sony/COM2/' ) ){
     platform         = 'Mylo';
     platformVersion  = 2;
-    brand            = 'NetFront';
-    brandVersion     = 3.4;
-    engine           = brand;
-    engineVersion    = brandVersion;
+    engine           = 'NetFront';
+    engineVersion    = 3.4;
+    brand            = engine;
+    brandVersion     = engineVersion;
     deviceTypeIsPDA  = true;
 } else
 /*----------------------------------------------------------------------------//
@@ -629,7 +629,7 @@ if( window.onmoztimechange !== undefined ){
                     versionGecko < 35   ? 2.1 :
                     versionGecko < 38   ? 2.2 :
                     versionGecko < 45   ? 2.5 :
-                                    2.6; // Gecko 45
+                                          2.6; // Gecko 45
     // https://developer.mozilla.org/ja/docs/Web/HTTP/Gecko_user_agent_string_reference#Firefox_OS
     if( findString( strUserAgent, 'Mobile' ) ){
         deviceTypeIsPhone = true;
@@ -667,14 +667,14 @@ if( strVersion = getVersionString( strUserAgent, 'Tizen ' ) ){
     brandVersion      = verSamsung;
     engine            = brand;
     engineVersion     = brandVersion;
-    // deviceTypeIsPhone = true;
+    deviceTypeIsPhone = true; // TODO deviceTypeIsTV = true;
 } else
 /*----------------------------------------------------------------------------//
  *  WindowsPhone
  */
 if( strVersion = getVersionString( strUserAgent, 'Windows Phone ' ) || getVersionString( strAppVersion, 'Windows Phone OS ' ) || versionWPWithUC ){
-    platform        = 'WindowsPhone';
-    platformVersion = strVersion;
+    platform          = 'WindowsPhone';
+    platformVersion   = strVersion;
     deviceTypeIsPhone = true;
 } else if( isEdgeHTML && strPlatform === 'ARM' ){
     platform          = 'WindowsPhone';
@@ -714,7 +714,7 @@ if( findString( strUserAgent, 'KFMUWI' ) ){
     platform           = 'FireOS';
     platformVersion    = 6.3;
     deviceTypeIsTablet = true;
-    isAndroidBased = true;
+    isAndroidBased     = true;
 } else if( findString( strUserAgent, 'KFKAWI' ) ){
 /**
  * (2018, 8th Gen) Fire OS 6.0 => 6.3.0, Android 7.1.25
@@ -723,7 +723,7 @@ if( findString( strUserAgent, 'KFMUWI' ) ){
     platform           = 'FireOS';
     platformVersion    = 6;
     deviceTypeIsTablet = true;
-    isAndroidBased = true;
+    isAndroidBased     = true;
 } else if( findString( strUserAgent, 'KFSUWI' ) || findString( strUserAgent, 'KFAUWI' ) || findString( strUserAgent, 'KFDOWI' ) ){
 /**
  * (2017, 7th Gen) Fire OS 5.3.3 => 5.3.6, Android 5.1.22
@@ -734,7 +734,7 @@ if( findString( strUserAgent, 'KFMUWI' ) ){
     platform           = 'FireOS';
     platformVersion    = 5;
     deviceTypeIsTablet = true;
-    isAndroidBased = true;
+    isAndroidBased     = true;
 } else if( findString( strUserAgent, 'KFGIWI' ) ){
 /**
  * (2016, 6th Gen) Fire OS 5 => 5.3.6, Android 5.1.22
@@ -743,7 +743,7 @@ if( findString( strUserAgent, 'KFMUWI' ) ){
     platform           = 'FireOS';
     platformVersion    = 5;
     deviceTypeIsTablet = true;
-    isAndroidBased = true;
+    isAndroidBased     = true;
 } else if( findString( strUserAgent, 'KFARWI' ) || findString( strUserAgent, 'KFSAWA' ) || findString( strUserAgent, 'KFSAWI' ) ){
 /**
  * (4th Gen) Fire OS 5, Android 5.1  , API level 22 (system update, available 2015)
@@ -755,7 +755,7 @@ if( findString( strUserAgent, 'KFMUWI' ) ){
     platform           = 'FireOS';
     platformVersion    = 5 <= parseFloat( versionAndroid ) ? 5 : 4;
     deviceTypeIsTablet = true;
-    isAndroidBased = true;
+    isAndroidBased     = true;
 } else if( findString( strUserAgent, 'KFSOWI' ) || findString( strUserAgent, 'KFTHWA' ) || findString( strUserAgent, 'KFTHWI' ) || findString( strUserAgent, 'KFAPWA' ) || findString( strUserAgent, 'KFAPWI' ) ){
 // https://dennou-note.blogspot.com/2014/02/kindle.html
 /**
@@ -769,7 +769,7 @@ if( findString( strUserAgent, 'KFMUWI' ) ){
     platform           = 'FireOS';
     platformVersion    = 3;
     deviceTypeIsTablet = true;
-    isAndroidBased = true;
+    isAndroidBased     = true;
 } else if( findString( strUserAgent, 'KFOT' ) || findString( strUserAgent, 'KFTT' ) || findString( strUserAgent, 'KFJWA' ) || findString( strUserAgent, 'KFJWI' ) ){ 
 /**
  * （第二世代）Android4.0.3（ Ice Cream Sandwich / API level15)
@@ -781,14 +781,14 @@ if( findString( strUserAgent, 'KFMUWI' ) ){
     platform           = 'FireOS';
     platformVersion    = 2;
     deviceTypeIsTablet = true;
-    isAndroidBased = true;
+    isAndroidBased     = true;
 } else if( findString( strUserAgent, 'Kindle Fire' ) ){
 // （第一世代）Android 2.3.3（Gingerbread / API level10）
 // "kindle Fire"   Kindle Fire
     platform           = 'FireOS';
     platformVersion    = 1;
     deviceTypeIsTablet = true;
-    isAndroidBased = true;
+    isAndroidBased     = true;
 } else
 /*----------------------------------------------------------------------------//
  *  Kindle paperwhite
@@ -804,14 +804,14 @@ if( strVersion = getVersionString( strUserAgent, 'Kindle/' ) ){
     deviceTypeIsEBookReader = true;
 } else
 /*----------------------------------------------------------------------------//
- *  Android Presto
+ *  FireOS
  */
 // https://developer.amazon.com/ja/docs/fire-tv/user-agent-strings.html
 if( findString( strUserAgent, 'AmazonWebAppPlatform' ) || findString( strUserAgent, '; AFT' ) ){
-    platform        = 'FireTV';
+    platform        = 'FireOS';
     platformVersion = versionAndroid;
     deviceTypeIsTV  = true;
-    isAndroidBased = true;
+    isAndroidBased  = true; // Chrome 等のインストールが可能
 } else
 /*----------------------------------------------------------------------------//
  *  MeeGo
@@ -906,8 +906,6 @@ if( isAndroid && isGecko ){
 
     platform        = 'Android';
     platformVersion = v;
-    engine          = 'Fennec';
-    engineVersion   = versionGecko;
     isAndroid       = true;
     if( maybePCMode ) isPcMode = true;
 } else
@@ -921,14 +919,14 @@ if( isAndroid && isPresto ){
         v = { min : 1.6 };
         isPcMode = true;
     };
-    platform          = 'Android';
-    platformVersion   = v;
-    brand             = 'OperaMobile';
-    brandVersion      = versionPresto;
-    engine            = 'PrestoMobile';
-    engineVersion     = brandVersion;
+    platform        = 'Android';
+    platformVersion = v;
     isAndroid       = true;
-    //deviceTypeIsPhone = true;
+    if( findString( strUserAgent, 'Tablet' ) ){
+        deviceTypeIsTablet = true;
+    } else {
+        deviceTypeIsPhone  = true;
+    };
 } else
 /*----------------------------------------------------------------------------//
  *  Android
@@ -1016,7 +1014,7 @@ if( maybeLinux ){
  *  Presto
  */
     if( isPresto ){
-        engine        = 'Presto';
+        engine        = isAndroidBased || deviceTypeIsPDA || deviceTypeIsPhone || deviceTypeIsTablet ? 'PrestoMobile' : 'Presto';
         engineVersion = versionPresto;
     } else
 /*----------------------------------------------------------------------------//
@@ -1038,25 +1036,18 @@ if( maybeLinux ){
             };
         };
 
-        switch( platform ){
-            case 'WinCE' :
-            case 'WindowsMobile' :
-            case 'WindowsPhone' :
-                engine          = 'TridentMobile';
-                isTridentMobile = true;
-                break;
-            default :
-                if( isMac && 5 <= versionTrident ){
-                    engine       = 'Tasman';
-                    brand        = 'MacIE';
-                    brandVersion = versionTrident;
-                } else {
-                    engine = 'Trident';
-                    if( isMac ){
-                        brand        = 'MacIE';
-                        brandVersion = versionTrident;
-                    };
-                };
+        if( deviceTypeIsPDA || deviceTypeIsPhone || deviceTypeIsTablet || deviceTypeIsMediaPlayer ){ // TODO device:MS Zune
+            engine = 'TridentMobile';
+        } else if( isMac && 5 <= versionTrident ){
+            engine       = 'Tasman';
+            brand        = 'MacIE';
+            brandVersion = versionTrident;
+        } else {
+            engine = 'Trident';
+            if( isMac ){
+                brand        = 'MacIE';
+                brandVersion = versionTrident;
+            };
         };
         engineVersion = versionTrident; 
     } else
@@ -1064,7 +1055,7 @@ if( maybeLinux ){
  *  EdgeHTML
  */
     if( isEdgeHTML ){
-        engine        = 'EdgeHTML';
+        engine        = 'EdgeHTML'; // TODO EdgeHTMLMobile
         engineVersion = versionEdge;
     } else
 /*----------------------------------------------------------------------------//
@@ -1078,18 +1069,8 @@ if( maybeLinux ){
  *  Gecko
  */
     if( isGecko ){
-        engine        = 'Gecko';
+        engine        = isAndroidBased ? 'Fennec' : 'Gecko';
         engineVersion = versionGecko;
-    } else
-/*----------------------------------------------------------------------------//
- *  
- */
-    if( hasOPRObject || versionOPR ){
-        brand         = 'Opera';
-        brandVersion  = versionOPR;
-        engine        = isAndroidBased ? 'ChromiumMobile' : 'Chromium';
-        engineVersion = versionChrome;
-        if( surelyPcMode ) isPcMode = true;
     } else
 /*----------------------------------------------------------------------------//
  *  Samsung Browser
@@ -1157,7 +1138,7 @@ if( maybeLinux ){
 /*----------------------------------------------------------------------------//
  *  Chromium or ChromiumMobile
  */
-    if( hasChromeObject ){
+    if( hasChromeObject || hasOPRObject || versionOPR ){
         engine        = isAndroidBased ? 'ChromiumMobile' : 'Chromium';
         engineVersion = versionChrome;
         if( surelyPcMode ) isPcMode = true;
@@ -1172,7 +1153,8 @@ if( maybeLinux ){
     if( isAndroid && docRegElm ){
         // Android 標準ブラウザ Chrome WebView ブラウザ
         engine           = 'ChromeWebView';
-        engineVersion    = parseFloat( platformVersion ) < 5 ? versionAndroid : versionChrome;
+        engineVersion    = parseFloat( versionAndroid ) < 5 ? versionAndroid : versionChrome; // Android 4.4.4- では Android の Version を。5.0+ では Chrome のバージョンを使用。
+        // TODO PCモードでは Chrome/11 とあり得ない値が入っている
         isAndroidBrowser = true;
         if( !( window.requestFileSystem || window.webkitRequestFileSystem ) ){
             isAndroidChromeWebView = true;
@@ -1257,7 +1239,16 @@ if( maybeLinux ){
 // https://developer.mozilla.org/ja/docs/Web/HTTP/Gecko_user_agent_string_reference
 // バージョン 6 より前では、 Focus for Android は Android WebView によって実現されていたため、以下の UA 文字列形式を使用していました。
 // Mozilla/5.0 (Linux; <Android Version> <Build Tag etc.>) AppleWebKit/<WebKit Rev> (KHTML, like Gecko) Version/4.0 Focus/<focusversion> Chrome/<Chrome Rev> Mobile Safari/<WebKit Rev>
-    if( strVersion = getVersionString( strUserAgent, 'Focus/' ) ){
+
+    if( strVersion =
+        getVersionString( strUserAgent, 'Focus/' ) ||
+        // https://apps.apple.com/jp/app/firefox-focus-e3-83-97-e3-83-a9-e3-82-a4-e3-83-90-e3/id1055677337
+        // iOS 12.2, Focus 8.1.2, (iOS 11.0以降)
+        // https://en.wikipedia.org/wiki/Firefox_for_iOS#cite_note-10
+        // Focus : FxiOS が 8.x にも拘わらず、iOS のバージョンが 11 以上、を使って判定
+        // Firefox : FxiOS が 9.x 移行が、iSO 11+ 対応を持って判定
+        ( parseFloat( versionFxiOS ) < 9 && is_iOSWebView && 11 <= parseFloat( platformVersion ) && versionFxiOS )
+    ){
         brand        = 'Focus';
         brandVersion = strVersion;
     } else
@@ -1414,10 +1405,13 @@ if( maybeLinux ){
     } else if( strVersion = getVersionString( strUserAgent, 'QtWebKit/' ) ){
         brand         = 'QtWebKit';
         brandVersion  = strVersion;
-    } else if( strVersion = getVersionString( strUserAgent, 'FxiOS/' ) || ( isGecko && ( getVersionString( strUserAgent, 'Firefox/' ) || getVersionString( strAppVersion, 'rv:' ) ) ) ){
+    } else if(
+        versionFxiOS ||
+        ( isGecko && ( getVersionString( strUserAgent, 'Firefox/' ) || getVersionString( strAppVersion, 'rv:' ) ) )
+    ){
         brand        = 'Firefox';
         brandVersion = strVersion;
-    } else if( strVersion = isPresto ? versionPresto : getVersionString( strUserAgent, 'Opera/' ) ){
+    } else if( strVersion = versionPresto || versionOPR || getVersionString( strUserAgent, 'Opera/' ) ){
         brand        = 'Opera';
         brandVersion = strVersion;
     } else if( isTrident ){
