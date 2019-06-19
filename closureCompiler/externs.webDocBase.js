@@ -181,6 +181,11 @@ var PuffinDeviceClientInfoObject = {
 Window.prototype.onmoztimechange;
 
 /**
+ * @type {boolean}
+ */
+Navigator.prototype.standalone;
+
+/**
  * @type {number}
  */
 var screenY;

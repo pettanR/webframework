@@ -12,7 +12,10 @@ var X_ViewPort_readyState,
 	X_ViewPort_vScrollbarSize,
 	X_ViewPort_hScrollbarSize,
 	
-	X_ViewPort_useDetectionLoop = ( X_UA.Trident || X_UA.TridentMobile ) < 9 || ( X_UA.SafariMobile || X_UA.iOSWebView ),
+    X_ViewPort_useDetectionLoop = ( X_UA.Trident || X_UA.TridentMobile ) < 9 ||
+                                  ( X_UA.SafariMobile || X_UA.iOSWebView ),
+    // Android2.3.6 + Opera12.1、スクロールによるViewPortの変化を検出できない
+    X_ViewPort_watchScroll    = ( X_UA.PrestoMobile && X_UA.Android ),
 	X_ViewPort_detectFontSize = !X_ViewPort_useDetectionLoop && function(){
 			var size = X_Node_fontSizeNode[ '_rawObject' ].offsetHeight;
 			if( X_ViewPort_baseFontSize !== size ){
@@ -376,9 +379,9 @@ X[ 'ViewPort' ] = {
 					if( !X_ViewPort_lock ){
 						size = X_ViewPort_getWindowSize();
 						if( X_ViewPort_width !== size[ 0 ] || X_ViewPort_height !== size[ 1 ] ){
-							X_ViewPort_width = size[ 0 ];
+							X_ViewPort_width  = size[ 0 ];
 							X_ViewPort_height = size[ 1 ];
-							X_Timer_once( 100, X_ViewPort_detectFinishResizing );
+							X_Timer_once( 32, X_ViewPort_detectFinishResizing );
 							X_ViewPort_lock = true;
 						};
 					};
@@ -389,37 +392,34 @@ X[ 'ViewPort' ] = {
 						X_ViewPort_baseFontSize = size;
 					};
 					
-				}) :
+                }) :
 				(function( e ){
-					console.log( '-- resize : ' + X_Timer_now() );
-					
-					!X_ViewPort_lock && ( X_ViewPort_lock = true ) && X_Timer_once( 100, X_ViewPort_detectFinishResizing );
+					!X_ViewPort_lock && ( X_ViewPort_lock = true ) && X_Timer_once( 32, X_ViewPort_detectFinishResizing );
 					return X_CALLBACK_PREVENT_DEFAULT | X_CALLBACK_STOP_PROPAGATION;
 				});
 		
 		function X_ViewPort_detectFinishResizing(){
-			var size = X_ViewPort_getWindowSize();
+            var size = X_ViewPort_getWindowSize();
+
 			if( X_ViewPort_width !== size[ 0 ] || X_ViewPort_height !== size[ 1 ] ){
 				X_ViewPort_width  = size[ 0 ];
 				X_ViewPort_height = size[ 1 ];
-				X_Timer_once( 100, X_ViewPort_detectFinishResizing );
+				X_Timer_once( 32, X_ViewPort_detectFinishResizing );
 			} else {
-				console.log( '-- detectFinishResizing : ' + X_Timer_now() );
+				// console.log( '-- detectFinishResizing : ' + X_Timer_now() );
 				
 				X_ViewPort[ 'asyncDispatch' ]( X_EVENT_VIEW_RESIZED );
 				X_ViewPort_lock = false;
 				if( X_ViewPort_orientationFlag ){
 					X_ViewPort_orientationFlag = false;
-					X_ViewPort[ 'asyncDispatch' ]( 100, { type : X_EVENT_VIEW_TURNED, 'orientation' : window.orientation } );
+					X_ViewPort[ 'asyncDispatch' ]( 32, { type : X_EVENT_VIEW_TURNED, 'orientation' : window.orientation } );
 				};
 			};
 		};
 
 		X_TEMP.onDomContentLoaded = function(){
 			var html, head, body;
-			
-			console.log( '> X_TEMP.onDomContentLoaded rs:' + X_ViewPort_readyState );
-			
+
 			if( X_EVENT_PRE_INIT <= X_ViewPort_readyState ) return X_CALLBACK_UN_LISTEN;
 			X_ViewPort_readyState = X_EVENT_PRE_INIT;
 			
@@ -514,10 +514,13 @@ X[ 'ViewPort' ] = {
 				};
 				
 				if( X_ViewPort_detectFontSize ){
-					X_ViewPort[ 'listen' ]( 'resize', X_ViewPort_resize );
-					X_Timer_add( 333, X_ViewPort_detectFontSize );
+                    X_ViewPort[ 'listen' ]( 'resize', X_ViewPort_resize );
+                    if( X_ViewPort_watchScroll ){
+                        X_ViewPort[ 'listen' ]( 'scroll', X_ViewPort_resize );
+                    };
+					X_Timer_add( 100, X_ViewPort_detectFontSize );
 				} else {
-					X_Timer_add( 333, X_ViewPort_resize );
+					X_Timer_add( 100, X_ViewPort_resize );
 				};
 				
 				X_ViewPort_baseFontSize = X_Node_fontSizeNode[ '_rawObject' ].offsetHeight;

@@ -318,8 +318,8 @@ var ua            = X_UA,
     docRegElm    = !versionTrident && document.registerElement,
     docExecCmd   = !versionTrident && document.execCommand,
 
-    // Android 5.0 ChromeWebView 37.0.0.0 (Genymotion) で window.opener に触るとセキュリティエラーが発生するのを利用して Android を判定する。
-    maybeChromeWebView = maybeLinux && docRegElm && versionChrome && /* window.CSS || */ (new Function('try{for(var k in opener){}}catch(e){return true}'))(),
+    // Android 5.0~6.x ChromeWebView 37.0.0.0 (Genymotion) PC_MODE の場合、Chrome/のバージョンは常に 11.0.696.34 になる
+    maybeChromeWebView = maybeLinux && docRegElm && versionChrome === '11.0.696.34',
 
     surelyPcMode, isPcMode, strVersion,
     v, dpRatio,
@@ -562,7 +562,8 @@ if( fromString( strPlatform, 'iP' ) || versioniOSWithUC || versioniOSWithPuffin 
     };
 
     if( !versioniOSWithPuffin && // iPad iOS12.2 Puffin5.2.2 で fullscreenEnabled が存在の模様
-        ( document.fullscreenEnabled !== undefined || document.webkitFullscreenEnabled !== undefined ) ){
+        // ホーム画面から起動したWebページは navigator.standalone === true になっている。fullscreen API は無い。
+        ( navigator.standalone || document.fullscreenEnabled !== undefined || document.webkitFullscreenEnabled !== undefined ) ){
         // https://github.com/uupaa/WebApp2/blob/master/app/assets/modules/UserAgent.js
         // _isWebView_iOS(options)
         engine       = 'SafariMobile';
