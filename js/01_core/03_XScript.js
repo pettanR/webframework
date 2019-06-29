@@ -1,4 +1,4 @@
-var X_Script_VBS_ENABLED = ( X_UA.Win16 || X_UA.Win32 || X_UA.Win64 ) && ( X_UA.Trident ) < 11,
+var X_Script_VBS_ENABLED = ( X_UA.Win16 || X_UA.Win32 || X_UA.Win64 ) && ( X_UA.Trident ) < 11 && ( X_UA.IEHost !== 11 ), // IE11 emu では不可
 	// 構文のサポート instanceof, in(for-in ではない), try-catch. JS version 1.5以上
     X_Script_gte15       = !( ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 ) && ( new Function( 'f,a', 'try{return f.apply({},a)}catch(e){}' ) ),
     X_Script_ie6ExeComError;
@@ -105,7 +105,7 @@ function X_Script_createActiveXObjectSafty( name ){
 	if( !X_Script_gte15 ){
 		if( X_Script_VBS_ENABLED ){
 			// console.log( window[ 'vbs_testAXO' ]( name ) + ' ' + name );
-			return !window[ 'vbs_testAXO' ]( name ) && X_Script_createActiveXObject( name );
+			return !vbs_testAXO( name ) && X_Script_createActiveXObject( name );
 		};
 		return X_Script_createActiveXObject( name );
 	};

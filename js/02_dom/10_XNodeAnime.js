@@ -6,8 +6,8 @@ var X_NodeAnime_QUEUE           = [],
 	X_NodeAnime_needsDetection  = false,
 	
 	X_NodeAnime_hasTransform    = !!X_Node_CSS_VENDER_PREFIX.transform,
-	
-	X_NodeAnime_hasDXTransform  = 5.5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 9 && X_UA_ActiveX, // IEHost が 11 の場合不可
+	// TODO ActiveX filter のチェック
+	X_NodeAnime_hasDXTransform  = 5.5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 9 && ( X_UA.IEHost !== 11 ), // IE11 emu では不可
 	
 	/* Opera mobile で  translateZ(0) が有効だと XY が 0 0 になる */
 	/* GPUレイヤーにいる間に要素のコンテンツを変更をすると transitionend が動かなくなるっぽい Mac safari と firefox */

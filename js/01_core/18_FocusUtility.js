@@ -15,7 +15,7 @@ function FocusUtility_getFocusedElement(){
 				X_Script_try( X_Object_find, [ document, 'activeElement' ] ) :
 				// ieは iframe 内で focus がない場合に activeElement に触ると エラーになる
 				// VBS 経由で activeElement に触り安全確認する
-				( window[ 'vbs_testAE' ]() && document.activeElement )
+				( X_Script_VBS_ENABLED && vbs_testAE() && document.activeElement )
 		);
 };
 
