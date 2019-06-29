@@ -436,7 +436,7 @@ X[ 'ViewPort' ] = {
 	 * @alias X.Doc.html
 	 * @type {Node}
 	 */
-			X[ 'Doc' ][ 'html' ] = html = X_Node_html = X_elmHtml && X_Node( X_elmHtml )[ 'removeClass' ]( 'js-disabled' )[ 'addClass' ]( X_UA_classNameForHTML.split( '.' ).join( '_' ) );
+			X[ 'Doc' ][ 'html' ] = html = X_Node_html = X_elmHtml && X_Node( X_elmHtml )[ 'removeClass' ]( 'js-disabled' );
 			html[ '_flags' ] |= X_NodeFlags_IN_TREE;
 
 	/**

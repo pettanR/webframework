@@ -9,8 +9,7 @@
  * @alias X.UA
  * @type {object}
  */
-var X_UA = X[ 'UA' ] = {},
-	X_UA_classNameForHTML = '';
+var X_UA = X[ 'UA' ] = {};
 
 (function(){
 /**
@@ -164,8 +163,10 @@ var ua            = X_UA,
 
 // https://developers.whatismybrowser.com/useragents/parse/987005-pale-moon-windows-goanna
 // TODO Goanna/20161201 になっている時がある…
-    versionGoanna = isGecko && getVersionString( strUserAgent, 'Goanna/' ),
-    versionGecko  = !versionGoanna && isGecko && getVersionString( strUserAgent, 'rv:' ),
+    versionGoanna  = isGecko && getVersionString( strUserAgent, 'Goanna/' ),
+    versionGecko   = !versionGoanna && isGecko && getVersionString( strUserAgent, 'rv:' ),
+    versionFirefox = getVersionString( strUserAgent, 'Firefox/' ), // Android9 + Firefox67.0 + PC_MOEDE で rv: が存在しない！
+    versionOpera   = getVersionString( strUserAgent, 'Opera/' ),
 
     versionWebKit = getNumber( strUserAgent, 'AppleWebKit/' ),
     versionChrome = getVersionString( strUserAgent, 'Chrome/' ),
@@ -318,7 +319,7 @@ var ua            = X_UA,
     docRegElm    = !versionTrident && document.registerElement,
     docExecCmd   = !versionTrident && document.execCommand,
 
-    // Android 5.0~6.x ChromeWebView 37.0.0.0 (Genymotion) PC_MODE の場合、Chrome/のバージョンは常に 11.0.696.34 になる
+    // Android 4.4.4~6.x ChromeWebView 33.0.0.0 (Genymotion) PC_MODE の場合、Chrome/のバージョンは常に 11.0.696.34 になる
     maybeChromeWebView = maybeLinux && docRegElm && versionChrome === '11.0.696.34',
 
     surelyPcMode, isPcMode, strVersion,
@@ -344,7 +345,7 @@ if( strPlatform === 'Nintendo DSi' ){
     // https://ja.wikipedia.org/wiki/%E3%83%8B%E3%83%B3%E3%83%86%E3%83%B3%E3%83%89%E3%83%BCDSi%E3%83%96%E3%83%A9%E3%82%A6%E3%82%B6%E3%83%BC
     // https://developers.whatismybrowser.com/useragents/explore/operating_platform/nintendo-dsi/
     platform         = 'NDSi';
-    platformVersion  = getVersionString( strAppVersion, 'Opera/' ); // Opera/9.50 ... Opera/507
+    platformVersion  = versionOpera; // Opera/9.50 ... Opera/507
     deviceTypeIsGame = true;
 } else
 /*----------------------------------------------------------------------------//
@@ -1071,7 +1072,7 @@ if( maybeLinux ){
  */
     if( isGecko ){
         engine        = isAndroidBased ? 'Fennec' : 'Gecko';
-        engineVersion = versionGecko;
+        engineVersion = versionGecko || versionFirefox;
     } else
 /*----------------------------------------------------------------------------//
  *  Samsung Browser
@@ -1199,6 +1200,10 @@ if( maybeLinux ){
     } else if( strVersion = getVersionString( strAppVersion, 'Coast/' ) ){
         brand        = 'Coast';
         brandVersion = strVersion;
+    } else if( strVersion = getVersionString( strAppVersion, 'OPT/' ) ){
+        brand        = 'OperaTouch';
+        brandVersion = strVersion;
+        isPcMode     = isPcMode || findString( strAppVersion, 'Mobile/' );
     } else 
 // https://himenaotaro.hatenablog.com/entry/20151011/1444564265
 // YJApp-IOS ユーザエージェント(User Agent)
@@ -1406,13 +1411,11 @@ if( maybeLinux ){
     } else if( strVersion = getVersionString( strUserAgent, 'QtWebKit/' ) ){
         brand         = 'QtWebKit';
         brandVersion  = strVersion;
-    } else if(
-        versionFxiOS ||
-        ( isGecko && ( getVersionString( strUserAgent, 'Firefox/' ) || getVersionString( strAppVersion, 'rv:' ) ) )
+    } else if( strVersion = versionFxiOS || ( isGecko && ( versionFirefox || engineVersion ) )
     ){
         brand        = 'Firefox';
         brandVersion = strVersion;
-    } else if( strVersion = versionPresto || versionOPR || getVersionString( strUserAgent, 'Opera/' ) ){
+    } else if( strVersion = versionPresto || versionOPR || versionOpera ){
         brand        = 'Opera';
         brandVersion = strVersion;
     } else if( isTrident ){
