@@ -1203,7 +1203,7 @@ if( maybeLinux ){
     } else if( strVersion = getVersionString( strAppVersion, 'OPT/' ) ){
         brand        = 'OperaTouch';
         brandVersion = strVersion;
-        isPcMode     = isPcMode || findString( strAppVersion, 'Mobile/' );
+        isPcMode     = isPcMode || !findString( strAppVersion, 'Mobile/' );
     } else 
 // https://himenaotaro.hatenablog.com/entry/20151011/1444564265
 // YJApp-IOS ユーザエージェント(User Agent)
@@ -1406,13 +1406,12 @@ if( maybeLinux ){
         brand        = 'LINE';
         brandVersion = strVersion;
     } else if( strVersion = getVersionString( strUserAgent, 'QtWebEngine/' ) ){
-        brand         = 'QtWebEngine';
-        brandVersion  = strVersion;
+        brand        = 'QtWebEngine';
+        brandVersion = strVersion;
     } else if( strVersion = getVersionString( strUserAgent, 'QtWebKit/' ) ){
-        brand         = 'QtWebKit';
-        brandVersion  = strVersion;
-    } else if( strVersion = versionFxiOS || ( isGecko && ( versionFirefox || engineVersion ) )
-    ){
+        brand        = 'QtWebKit';
+        brandVersion = strVersion;
+    } else if( strVersion = versionFxiOS || ( isGecko && ( versionFirefox || engineVersion ) ) ){
         brand        = 'Firefox';
         brandVersion = strVersion;
     } else if( strVersion = versionPresto || versionOPR || versionOpera ){
@@ -1421,6 +1420,9 @@ if( maybeLinux ){
     } else if( isTrident ){
         brand        = 'IE';
         brandVersion = engineVersion;
+    } else if( verSamsung ){
+        brand        = engine;
+        brandVersion = verSamsung;
     } else if( strVersion =
         getVersionString( strUserAgent, 'CriOS/' ) ||
         ( hasChromeObject || ( maybeChromeWebView && isAndroidBrowser ) ) && versionChrome ){
