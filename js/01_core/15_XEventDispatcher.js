@@ -92,7 +92,7 @@ var X_EventDispatcher_once         = false,
  */
 var X_EventDispatcher = X[ 'EventDispatcher' ] =
 	X_Class_create(
-		'EventDispatcher',
+		//'EventDispatcher',
 		
 	    /** @lends EventDispatcher.prototype */
 		{
@@ -341,7 +341,11 @@ function X_EventDispatcher_dispatch( e ){
 		};
 
 		if( listeners[ X_LISTENERS_KILL_RESERVED ] ){
-			this[ 'kill' ]();
+            // this[ 'kill' ]();
+            // RESERVED されるのは、ClassBase.kill なので、それを呼び出す。
+            // kill(e) e.type === X.EVENT.ANIME_END などと処理を分岐していたら、X_Node_onKill() が走らない問題に遭遇
+            // this.superCall( this.kill ) では他の処理は走っている
+            X_Class_CommonMethods[ 'kill' ].call( this );
 		};
 	};
 	
@@ -438,7 +442,7 @@ function X_EventDispatcher_unlisten( opt_type, opt_arg1, opt_arg2, opt_arg3 ){
 		for( i = opt_type.length; i; ){
 			this[ 'unlisten' ]( opt_type[ --i ], opt_arg1, opt_arg2, opt_arg3 );
 			if( !opt_type[ i ] ){
-				alert( '不正な unlisten Array' );
+				//alert( '不正な unlisten Array' );
 			};
 		};
 		return this;
@@ -531,7 +535,7 @@ function X_EventDispatcher_actualAddEvent( that, type, raw, list ){
 	if( X_Type_isArray( type ) ){
 		for( i = type.length; i; ){
 			X_EventDispatcher_systemListen( that, type[ --i ], X_emptyFunction );
-			console.log( 'events fix > ' + type[ i ] );
+			//console.log( 'events fix > ' + type[ i ] );
 		};
 	} else {
 		
@@ -576,7 +580,7 @@ function X_EventDispatcher_actualAddEvent( that, type, raw, list ){
 					break;				
 				
 				case X_EventDispatcher_EVENT_TARGET_XHR :
-					console.log( 'XHR addEvent ' + type );
+					//console.log( 'XHR addEvent ' + type );
 					// ie8- の XHR は window.event が更新されないため, eventType 毎に callback を指定する
 					raw[ 'on' + type ] = X_Closure_create( that, X_EventDispatcher_dispatch, [ type ] );
 					break;
@@ -628,6 +632,7 @@ function X_EventDispatcher_iOSTransitionEndDispatch( e ){
  * http://msdn.microsoft.com/ja-jp/library/cc189018%28v=vs.95%29.aspx#the_sender_parameter_and_event_data
  */
 function X_EventDispatcher_sliverLightDispatch( sender, e, type ){
+    ++g_X_uniqueStamp;
 	return this[ 'dispatch' ]( type );
 };
 
@@ -687,13 +692,13 @@ function X_EventDispatcher_actualRemoveEvent( that, type, raw, list, skip ){
 					X_Closure_correct( raw[ 'on' + type ] );
 					raw[ 'on' + type ] = X_emptyFunction;
 					raw[ 'on' + type ] = '';
-					console.log( 'XHR rmEvent ' + type );
+					//console.log( 'XHR rmEvent ' + type );
 					break;
 
 				default :
 					if( raw.attachEvent ){
 						raw.detachEvent( 'on' + type, that[ '_listeners' ][ X_LISTENERS_ACTUAL_HANDLER ] );
-						console.log( 'raw rmEvent ' + type );
+						//console.log( 'raw rmEvent ' + type );
 					} else {
 						raw[ 'on' + type ] = X_emptyFunction;
 						raw[ 'on' + type ] = '';
@@ -752,7 +757,8 @@ var X_EventDispatcher_actualHandleEvent =
 				e.cancelBubble = true;
 				return;
 			};
-			
+            ++g_X_uniqueStamp;
+
 			X_EventDispatcher_rawEvent = e;
 			
 			ev = new X_DomEvent( e, this, elm );
@@ -788,6 +794,7 @@ var X_EventDispatcher_actualHandleEvent =
 				e.stopPropagation();
 				return;
 			};
+            ++g_X_uniqueStamp;
 
 			X_EventDispatcher_rawEvent = e;
 			

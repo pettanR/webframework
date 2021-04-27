@@ -7,7 +7,7 @@
  * @extends {EventDispatcher}
  */
 var	X_Node = X[ 'Node' ] = X_EventDispatcher[ 'inherits' ](
-	'X.Node',
+	//'X.Node',
 	X_Class.NONE,
 	{
 		/**
@@ -254,8 +254,6 @@ var	X_Node = X[ 'Node' ] = X_EventDispatcher[ 'inherits' ](
 		
 		'createTextAt'   : X_Node_createTextAt,
 		
-		'createRange'    : X_Node_createRange,
-		
 		'clone'          : X_Node_clone,
 		
 		'append'         : X_Node_append,
@@ -299,6 +297,10 @@ var	X_Node = X[ 'Node' ] = X_EventDispatcher[ 'inherits' ](
 		
 	}
 );
+
+if( X_USE_DOM_RANGE ){
+    X_Node.prototype[ 'createRange' ] = X_Node_createRange;
+};
 
 var X_NodeType_XNODE       = 1,
 	X_NodeType_RAW_HTML    = 2,
@@ -796,7 +798,7 @@ function X_Node_remove(){
 
 	// stop() ->
 	if( this[ '_anime' ] && this[ '_anime' ].phase ){
-		console.log( 'Animation 中の REMOVE' );
+		//console.log( 'Animation 中の REMOVE' );
 		X_NodeAnime_stopNow( this );
 	};
 	// 子孫にアニメーション中の要素が要る
@@ -874,14 +876,13 @@ function X_Node_onKill( that ){
 	X_Node_CHASHE[ that[ '_uid' ] ] = null; // array に対して delete X_Node_CHASHE[ uid ]　はまずい!
 
 	if( that[ '_anime' ] && that[ '_anime' ].phase ){
-		console.log( 'Animation 中の KILL' );
+		//console.log( 'Animation 中の KILL' );
 		X_NodeAnime_stopNow( that );
 	};
 
-	elm = that[ '_rawObject' ] || X_UA_DOM.IE4 && X_Node__ie4getRawNode( that );
-
 // remove _xnodes
 	if( X_UA_DOM.IE4 ){
+        elm = that[ '_rawObject' ] || X_UA_DOM.IE4 && X_Node__ie4getRawNode( that );
 		if( elm ){
 			X_Node_reserveRemoval[ X_Node_reserveRemoval.length ] = elm;
 			X_Node_reserveUpdate();			
@@ -890,15 +891,13 @@ function X_Node_onKill( that ){
 			parent[ '_flags' ] |= X_NodeFlags_IE4_DIRTY_CHILDREN;
 		};
 	} else {
+        elm = that[ '_rawObject' ];
 		if( elm && elm.parentNode && elm.parentNode.tagName ){
 			X_Node_reserveRemoval[ X_Node_reserveRemoval.length ] = elm;
 			X_Node_reserveUpdate();
 		};
 	};
 };
-
-
-
 
 /**
  * 要素を子以下に持つか？調べる。
@@ -1112,14 +1111,14 @@ function X_Node_hasClass( v ){
 /**
  * innerHTML 取得・設定。outerHTML が欲しい場合は、xnode.call('outerHTML') とできる。
  * @alias Node.prototype.html
- * @param {string} [html=] html文字列
+ * @param {string|number|boolean|null} [html=] html文字列, String 以外に Number や false null なども許可
  * @return {string|Node} 
  * @example node.html( '<img>' );
  */
 function X_Node__html( html ){
 	var _ = '', q = '"', xnodes, n, i, l;
 	// setter
-	if( html !== undefined ){ // String 以外に Number や false null なども許可
+	if( html !== undefined ){
 		if( !this[ '_tag' ] ) return this[ 'text' ]( html );
 		
 		this[ 'empty' ]();
@@ -1163,32 +1162,32 @@ function X_Node__html( html ){
 /**
  * textContent 取得・設定。null が来たら '', 数値等が来たら文字列化
  * @alias Node.prototype.text
- * @param {string} [text=]
+ * @param {string|number|boolean|null} [content=] String 以外に Number や false null なども許可
  * @return {string|Node} 
  * @example node.text( 'Hello, world!' );
  */
-function X_Node_text( text ){
-	var xnodes, texts, i, l;
+function X_Node_text( content ){
+	var str, xnodes, texts, i, l;
 	// setter
-	if( text !== undefined ){
-		if( text === null ) text = '';
-		text += '';
+	if( content !== undefined ){
+		if( content === null ) content = '';
+		str = content + '';
 		
 		if( !this[ '_tag' ] ){
-			if( this[ '_text' ] !== text ){
-				text ? ( this[ '_text' ] = text ) : delete this[ '_text' ];
+			if( this[ '_text' ] !== str ){
+				str ? ( this[ '_text' ] = str ) : delete this[ '_text' ];
 				this[ '_flags' ] |= X_NodeFlags_DIRTY_CONTENT;				
 				this[ '_flags' ] & X_NodeFlags_IN_TREE && X_Node_reserveUpdate();
 			};
 			return this;
 		};
 		if( ( xnodes = this[ '_xnodes' ] ) && xnodes.length === 1 && !xnodes[ 0 ][ '_tag' ] ){
-			xnodes[ 0 ][ 'text' ]( text );
+			xnodes[ 0 ][ 'text' ]( str );
 			return this;
 		};
 		// TODO 一つのtextnode を残すケース 完全に削除したい場合は empty()を使う
-		if( !text ) return this[ 'empty' ]();		
-		this[ 'empty' ]()[ 'createText' ]( text );
+		if( !str ) return this[ 'empty' ]();		
+		this[ 'empty' ]()[ 'createText' ]( str );
 		return this;
 	};
 	// getter
@@ -1422,8 +1421,8 @@ function X_Node_startUpdate( time ){
 	};
 	
 	// 強制的に再描画を起こす, 但し activeElement からフォーカスが外れるため復帰する
-	// IE5mode win10 で 確認
-	if( 5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 ){
+	// IE5mode win10 で 確認, 2020/4/7 Win10 IE11 IE5 mode では不要
+	if( 5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 && ( X_UA.Win32 !== 10 ) ){
 		active = FocusUtility_getFocusedElement();
 		X_elmBody.style.visibility = 'hidden';
 	};
@@ -1435,7 +1434,7 @@ function X_Node_startUpdate( time ){
 		X_Node__commitUpdate( X_Node_body, X_Node_body[ '_rawObject' ].parentNode, null, X_Node_body[ '_flags' ], 1, xnodesIEFilterFixAfter = [] );
 	};
 
-	if( 5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 ){
+	if( 5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 && ( X_UA.Win32 !== 10 )  ){
 		X_elmBody.style.visibility = '';
 		active && active.parentNode && FocusUtility_setTemporarilyFocus( active );
 	};
@@ -1476,18 +1475,18 @@ var X_Node__commitUpdate =
 	X_UA_DOM.W3C ?
 		( function( that, parentElement, nextElement, accumulatedFlags, ie8AccumulatedOpcity, xnodesIEFilterFixAfter ){
 			var elm = that[ '_rawObject' ],
-				created, xnodes, l, next, anime, v, currentOpcity;
+				created, xnodes, l, next, currentOpcity;
 
 			// 1. GPU 一切の更新をスキップ
 			if( that[ '_flags' ] & X_NodeFlags_GPU_NOW ){
-				console.log( '更新のskip ' + that[ '_className' ] + !!( that[ '_flags' ] & X_Node_BitMask_IS_DIRTY ) );
+				//console.log( '更新のskip ' + that[ '_className' ] + !!( that[ '_flags' ] & X_Node_BitMask_IS_DIRTY ) );
 				that[ '_flags' ] & X_Node_BitMask_IS_DIRTY && X_Node__updateRawNode( that, elm );
 				return elm;
 			};
 
 			// 2. GPU解放予約
 			if( that[ '_flags' ] & X_NodeFlags_GPU_RELEASE_RESERVED ){
-				console.log( 'GPU 解放 ' );
+				//console.log( 'GPU 解放 ' );
 				//X_Node_updateReservedByReleaseGPU = true;
 				that[ '_flags' ] &= X_Node_BitMask_RESET_GPU;
 				//return elm;// このタイミングで更新できるっぽい。
@@ -1625,7 +1624,7 @@ var X_Node__commitUpdate =
 
 			// 9. ie5 only
 			// 親及び自身へのクラス・id指定で display : none になるケースがありそれを検出
-			// 生成と破棄が繰り返されてしまう、親と自身の id, class が変わった場合だけ再生成。 accumulatedFlags & ( ID | CLASSNAME )
+			// 親と自身の id, class が変わった場合だけ再生成。 accumulatedFlags & ( ID | CLASSNAME )
 			// currentStyle を観ていたときはエラーで停止する、alert と挟むと正常に動いて支離滅裂
 			if( X_Node_displayNoneFixForIE5 && that[ '_tag' ] ){
 				if( elm.runtimeStyle.display === 'none' ){
@@ -2066,7 +2065,7 @@ var X_Node__actualCreate =
 
 var X_Node__afterActualCreate =
 	X_UA_DOM.IE4 && (function( that ){
-		var xnodes, i, v;
+		var xnodes, i;
 		
 		if( !that[ '_tag' ] ) return that;
 		
@@ -2147,7 +2146,8 @@ var X_Node__actualRemove =
 		( function( that, isChild ){
 			var xnodes = that[ '_xnodes' ],
 				elm    = that[ '_rawObject' ] || X_Node__ie4getRawNode( that ),
-				i, l, xnode;
+                i, l;
+
 			if( xnodes && ( l = xnodes.length ) ){
 				for( i = 0; i < l; ++i ){
 					X_Node__actualRemove( xnodes[ i ], true );

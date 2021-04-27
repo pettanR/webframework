@@ -119,10 +119,13 @@ var // 内部イベント
 	X_EVENT_MEDIA_WAIT_FOR_TOUCH   = 49,
 	
 	X_EVENT_NEED_AUTH              = 50,
-	
-	X_EVENT_DEBUG                  = 51,
-	
-	X_Event_last                   = 51;
+
+    X_EVENT_DEBUG                  = 51,
+
+	X_EVENT_LOST                   = 52,
+	X_EVENT_NEED_UPGRADE           = 53,
+
+	X_Event_last                   = 53;
 
 // in_page_jump
 // on_screen_keyboard_show
@@ -234,7 +237,10 @@ X[ 'Event' ] = /** @lends X.Event */
 	'MEDIA_SEEKING'          : X_EVENT_MEDIA_SEEKING,
 	'MEDIA_WAIT_FOR_TOUCH'   : X_EVENT_MEDIA_WAIT_FOR_TOUCH,
 	
-	'NEED_AUTH'              : X_EVENT_NEED_AUTH,
+    'NEED_AUTH'              : X_EVENT_NEED_AUTH,
+    
+    'LOST'                   : X_EVENT_LOST,
+    'NEED_UPGRADE'           : X_EVENT_NEED_UPGRADE,
 	
 	'DEBUG'                  : X_EVENT_DEBUG
 };

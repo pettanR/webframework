@@ -898,7 +898,7 @@ var X_Node_CSS_Support = {},
 
 	X_Node_CSS_SPECIAL_FIX_PROP = {
 		
-		transitionDuration : X_UA.Android && !( X_UA.ChromiumMobile || X_UA.ChromeWebView ) && function( v ){ // bad Android
+		transitionDuration : ( X_UA.AOSP || X_UA.Samsung < 1 ) && function( v ){ // bad Android
             return parseFloat( v ) === 0 ? '0.001s' : v;
         }
 		

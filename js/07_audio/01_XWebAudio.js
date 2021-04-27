@@ -1,3 +1,6 @@
+/** use audio ============================================================== */
+if( X_USE_AUDIO ){
+
 var X_Audio_constructor = 525 <= X_UA.WebKit && X_UA.WebKit < 528 ? // 3.1 <= Safari < 4
 								function( s, a ){
 									a = document.createElement( 'audio' );
@@ -43,7 +46,7 @@ if( X_Audio_constructor ){
 				v = X_Audio_codecs[ k ];
 				v = v && !!( v.split( 'no' ).join( '' ) );
 				if( v ){
-					console.log( k + ' ' + X_Audio_codecs[ k ] );
+					//console.log( k + ' ' + X_Audio_codecs[ k ] );
 					X_Audio_codecs[ k ] = true;
 				} else {
 					delete X_Audio_codecs[ k ];
@@ -54,8 +57,8 @@ if( X_Audio_constructor ){
 	} else {
 		// iOS3.2.3
 		X_Audio_codecs = {
-		  'mp3'  : ( X_UA.Trident || X_UA.TridentMobile ) || ( X_UA.Chromium || X_UA.ChromiumMobile ) || ( ( X_UA.Win32 || X_UA.Win64 ) && X_UA.WebKit  ),
-		  'ogg'  : 5 <= ( X_UA.Gecko || X_UA.Fennec ) || ( X_UA.Chromium || X_UA.ChromiumMobile ) || ( X_UA.Presto || X_UA.PrestoMobile ),
+		  'mp3'  : ( X_UA.Trident || X_UA.TridentMobile ) || ( X_UA.Chromium || X_UA.ChromiumMobile || X_UA.Samsung ) || ( ( X_UA.Win32 || X_UA.Win64 ) && X_UA.WebKit  ),
+		  'ogg'  : 5 <= ( X_UA.Gecko || X_UA.Fennec ) || ( X_UA.Chromium || X_UA.ChromiumMobile || X_UA.Samsung ) || ( X_UA.Presto || X_UA.PrestoMobile ),
 		  'wav'  : ( X_UA.Gecko || X_UA.Fennec ) || ( X_UA.Presto || X_UA.PrestoMobile ) || ( ( X_UA.Win32 || X_UA.Win64 ) && X_UA.WebKit  ),
 		  'aac'  : ( X_UA.Trident || X_UA.TridentMobile ) || X_UA.WebKit,
 		  'm4a'  : ( X_UA.Trident || X_UA.TridentMobile ) || X_UA.WebKit,
@@ -66,7 +69,7 @@ if( X_Audio_constructor ){
 			for( k in X_Audio_codecs ){
 				//if( X_EMPTY_OBJECT[ k ] ) continue;
 				if( X_Audio_codecs[ k ] ){
-					console.log( k + ' ' + X_Audio_codecs[ k ] );
+					//console.log( k + ' ' + X_Audio_codecs[ k ] );
 					X_Audio_codecs[ k ] = true;
 				} else {
 					delete X_Audio_codecs[ k ];
@@ -97,9 +100,12 @@ var X_WebAudio_Context      = (
 								( window[ 'AudioContext' ] || window[ 'webkitAudioContext' ] || window[ 'mozAudioContext' ] ),		
 	X_WebAudio_context,
 	X_WebAudio_BUFFER_LIST  = [],
-	X_WebAudio_need1stTouch	= ( X_UA.SafariMobile || X_UA.iOSWebView ),
+	X_WebAudio_need1stTouch	= X_UA.SafariMobile || X_UA.iOSWebView || X_UA.Samsung || X_UA.ChromeWebView || X_UA.ChromiumMobile ||
+                              /* 66 <= X_UA.Gecko || 66 <= X_UA.Fennec || */ // https://gigazine.net/news/20190205-firefox-66-block-audible-video-audio/
+                              66 <= X_UA.Chromium ||
+                              604 <= X_UA.WebKit,   // Safari 11+ https://en.wikipedia.org/wiki/Safari_version_history
 	X_WebAudio_isNoTouch    = X_WebAudio_need1stTouch,
-	X_WebAudio_needRateFix  = X_WebAudio_need1stTouch,
+	X_WebAudio_needRateFix  = ( X_UA.SafariMobile || X_UA.iOSWebView ) < 10,
 	X_WebAudio,
 	X_WebAudio_BufferLoader,
 	X_WebAudio_fpsFix;
@@ -216,17 +222,17 @@ if( X_WebAudio_Context ){
 	                    return;
 	                };
 	                
-	                console.log( 'WebAudio decode success!' );
+	                //console.log( 'WebAudio decode success!' );
 	
 	                this.audioBuffer = buffer;
 
 					this[ 'asyncDispatch' ]( X_EVENT_COMPLETE );
 
-	                console.log( 'WebAudio decoded!' );
+	                //console.log( 'WebAudio decoded!' );
 				},
 				
 				_onDecodeError : function(){
-					console.log( 'WebAudio decode error!' );
+					//console.log( 'WebAudio decode error!' );
 					this._onDecodeComplete();
 					this.errorState = 2;
 					this[ 'asyncDispatch' ]( X_EVENT_COMPLETE );
@@ -275,7 +281,7 @@ if( X_WebAudio_Context ){
             bufferStop      : '',
             //_onended        : null,
             
-			'Constructor' : function( dispatcher, url, option ){				
+			'Constructor' : function( dispatcher, url, option, ext ){
 				var i = 0,
 					l = X_WebAudio_BUFFER_LIST.length,
 					loader;
@@ -285,7 +291,7 @@ if( X_WebAudio_Context ){
 				 * L-01F 等の一部端末で Web Audio API の再生結果に特定条件下でノイズが混ざることがある。
 				 * 描画レート（描画 FPS）が下がるとノイズが混ざり始め、レートを上げると再生結果が正常になるというもので、オーディオ処理が描画スレッドに巻き込まれているような動作を見せる。
 				 */
-				if( X_UA.Android && ( X_UA.ChromiumMobile || X_UA.ChromeWebView ) && !X_WebAudio_fpsFix ){
+				if( X_UA.Android && ( X_UA.ChromiumMobile || X_UA.ChromeWebView || X_UA.Samsung ) && !X_WebAudio_fpsFix ){
 					X_Node_systemNode.create( 'div', { id : 'fps-slowdown-make-sound-noisy' } );
 					X_WebAudio_fpsFix = true;
 				};
@@ -365,7 +371,7 @@ if( X_WebAudio_Context ){
 			actualPlay : function(){
 				var xWebAudio, begin, end;
 				
-				console.log( '[WebAudio] play abuf:' + !!this.audioBuffer );
+				//console.log( '[WebAudio] play abuf:' + !!this.audioBuffer );
 				
 	            if( !this.audioBuffer ){
 	            	this._playReserved = true;
@@ -373,13 +379,13 @@ if( X_WebAudio_Context ){
 	            };
 
 				if( X_WebAudio_isNoTouch ){
-					//@dev{
-					var e = X_EventDispatcher_CURRENT_EVENTS[ X_EventDispatcher_CURRENT_EVENTS.length - 1 ];
-					if( !e || !e[ 'pointerType' ] ){
-						// alert( 'タッチイベント以外での play! ' + ( e ? e.type : '' ) );
-						return;
-					};
-					//@}
+                    if( X_IS_DEV ){
+                        var e = X_EventDispatcher_CURRENT_EVENTS[ X_EventDispatcher_CURRENT_EVENTS.length - 1 ];
+                        if( !e || !e[ 'pointerType' ] ){
+                            alert( 'タッチイベント以外での play! ' + ( e ? e.type : '' ) );
+                            return;
+                        };
+					}
 					
 					// http://qiita.com/uupaa/items/e5856e3cb2a9fc8c5507
 					// iOS9 + touchstart で呼んでいた場合、 X_ViewPort['listenOnce']('pointerup',this,this.actualPlay())
@@ -404,7 +410,7 @@ if( X_WebAudio_Context ){
 				end   = X_Audio_getEndTime( this );
 				begin = X_Audio_getStartTime( this, end, true );
 				
-				console.log( '[WebAudio] play ' + begin + ' -> ' + end + ' loop: ' + this.autoLoop + ' :' + this.loopStartTime + ' -> ' + this.loopEndTime );
+				//console.log( '[WebAudio] play ' + begin + ' -> ' + end + ' loop: ' + this.autoLoop + ' :' + this.loopStartTime + ' -> ' + this.loopEndTime );
 				this._createTree( begin, end );
 	            
 	            /* win8.1 Firefox45, win8.1 Chrome48 で動かなくなる...
@@ -490,7 +496,7 @@ if( X_WebAudio_Context ){
 				},
 			
 			actualPause : function(){
-				console.log( '[WebAudio] pause' );
+				//console.log( '[WebAudio] pause' );
 				
 				this._interval && X_Timer_remove( this._interval );
 				delete this._interval;
@@ -533,3 +539,6 @@ if( X_WebAudio_Context ){
 		}
 	);
 };
+
+};
+/** / use audio ============================================================ */

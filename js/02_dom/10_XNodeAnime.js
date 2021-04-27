@@ -106,7 +106,7 @@ function X_Node_animate( obj ){
 	obj = this[ '_anime' ];
 	
 	if( !( this[ '_flags' ] & X_NodeFlags_IN_TREE ) ){
-		alert( '@animate 要素はツリーに追加されていません!' );
+		//alert( '@animate 要素はツリーに追加されていません!' );
 		// それでもアニメーションしてタイマー代わりにするとか、、、?
 		return this;
 	};
@@ -426,12 +426,12 @@ function X_NodeAnime_updateAnimations( e ){
 				//};
 				
 				if( lazy ){
-					console.log( 'アニメーション終了(' + obj.phase + ') -> GPU 解除待機 ' + lazy );
+					//console.log( 'アニメーション終了(' + obj.phase + ') -> GPU 解除待機 ' + lazy );
 					obj.toTime = now + lazy;
 					obj.phase = 5; // GPU解除待ち
 					c = true;
 				} else {
-					console.log( 'アニメーション終了(' + obj.phase + ') -> ' );
+					//console.log( 'アニメーション終了(' + obj.phase + ') -> ' );
 					rm = true;
 				};
 				break;
@@ -551,7 +551,7 @@ function X_NodeAnime_updatePosition( xnode, obj, ratio, useGPU ){
 		if( scaleY < 1 || 1 < scaleY ) str += ' scaleY(' + scaleY + ')';
 
 		xnode[ 'css' ]( 'transform', ( str ? str.substr( 1 ) : '' ) + ( useGPU ? X_NodeAnime_translateZ : '' ) );
-		console.log( xnode.className() + ' ' + str + ' ' + (xnode[ '_flags' ] & X_NodeFlags_DIRTY_CSS) );
+		//console.log( xnode.className() + ' ' + str + ' ' + (xnode[ '_flags' ] & X_NodeFlags_DIRTY_CSS) );
 		
 		if( X_NodeAnime_translateZ ){
 			if( useGPU ){
@@ -594,7 +594,7 @@ function X_NodeAnime_updatePosition( xnode, obj, ratio, useGPU ){
 	};
 	
 	if( obj.doScroll && xnode[ '_rawObject' ] ){
-		console.log( 'ok ' + ratio );
+		//console.log( 'ok ' + ratio );
 		xnode[ '_rawObject' ].scrollLeft = obj.scrollX | 0;
 		xnode[ '_rawObject' ].scrollTop  = obj.scrollY | 0;
 		//X_Node_reserveUpdate();

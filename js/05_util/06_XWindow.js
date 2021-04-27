@@ -141,7 +141,7 @@ function X_Util_Window_handleEvent( e ){
 				} else {
 					page.open( 'about:blank', '_self' ).close();
 				};
-				X_Pair_release( this, page );				
+				X_Pair_release( this, page );
 			};
 			pair.timerID && X_Timer_remove( pair.timerID );
 			X_ViewPort[ 'unlisten' ]( X_EVENT_UNLOAD, this, X_Util_Window_handleEvent );

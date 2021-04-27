@@ -13,6 +13,9 @@
 
 var X_Audio_BACKENDS     = []; // Array.<Hash>
 
+/** use audio ============================================================== */
+if( X_USE_AUDIO ){
+
 X_TEMP.onSystemReady.push(
 	function(){
 		var canPlay = X[ 'Audio' ][ 'canPlay' ] = {},
@@ -217,6 +220,9 @@ audio.setState(
 	}
 );
 
+};
+/** / use audio ============================================================ */
+
 function X_Audio_handleEvent( e ){
 	var backend, src, pair;
 	
@@ -228,7 +234,7 @@ function X_Audio_handleEvent( e ){
 			this[ 'source' ]      = e[ 'source' ];
 			this[ 'backendName' ] = backend.backendName;
 			
-			X_Pair_create( this, backend.klass( this, e[ 'source' ], e[ 'option' ] ) );
+			X_Pair_create( this, backend.klass( this, e[ 'source' ], e[ 'option' ], e.ext ) );
 			this[ 'listenOnce' ]( X_EVENT_READY, X_Audio_handleEvent );
 			break;
 		
@@ -282,9 +288,10 @@ function X_Audio_onEndedDetection( e, xaudio, sourceList, option, source, ext, s
 		_e = {
 			type          : X_EVENT_BACKEND_READY,
 			'option'      : option,
-			'source'      : source,
+			'source'      : source.split( '#' )[ 0 ], // #以降があると MacOS でエラーの模様 ftom atr
 			'backendName' : this.backendName,
-			'backendID'   : i
+            'backendID'   : i,
+            ext           : ext
 		};
 		// WebAudio
 		if( this.backendID === 1 ) _e[ 'needTouchForPlay' ] = /* X_WebAudio_need1stTouch && */ X_WebAudio_isNoTouch;
@@ -293,7 +300,7 @@ function X_Audio_onEndedDetection( e, xaudio, sourceList, option, source, ext, s
 
 		xaudio[ 'asyncDispatch' ]( _e );			
 	} else {
-		console.log( 'No ' + source + ' ' + this.backendName );
+		//console.log( 'No ' + source + ' ' + this.backendName );
 		if( sup[ 3 ] = source = sourceList[ sourceList.indexOf( source ) + 1 ] ){
 			hash     = X_URL_paramToObj( X_URL_getHash( source ) );
 			sup[ 4 ] = ext    = hash[ 'ext' ] || X_URL_getEXT( source );
@@ -309,6 +316,8 @@ function X_Audio_onEndedDetection( e, xaudio, sourceList, option, source, ext, s
 };
 
 
+/** use audio ============================================================== */
+if( X_USE_AUDIO ){
 
 var X_AudioBase = X_EventDispatcher[ 'inherits' ](
 	'X.AudioBase',
@@ -513,7 +522,7 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
 				X_Audio_getEndTime( this ) < this.seekTime// ||
 				//this.duration < this.endTime
 			){
-				console.log( 'setState 0:' + this.startTime + ' -> ' + this.endTime + ' looped:' + this.looped + ' 1:' + this.loopStartTime + ' -> ' + this.loopEndTime );
+				//console.log( 'setState 0:' + this.startTime + ' -> ' + this.endTime + ' looped:' + this.looped + ' 1:' + this.loopStartTime + ' -> ' + this.loopEndTime );
 				return;
 			};
 			
@@ -523,6 +532,9 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
 		
 	}
 );
+
+};
+/** / use audio ============================================================ */
 
 /** @enum {number} */
 var X_AUDIO_STATE = {
@@ -562,17 +574,17 @@ function X_Audio_timeStringToNumber( time ){
 		case 2 :
 			m = parseFloat( ary[ 0 ] ) || 0;
 			s = parseFloat( ary[ 1 ] ) || 0;
-			if( 60 <= s ) alert( 'invalid time string ' + time );
+			//if( 60 <= s ) alert( 'invalid time string ' + time );
 			break;
 		case 3 :
 			h = parseFloat( ary[ 0 ] ) || 0;
 			m = parseFloat( ary[ 1 ] ) || 0;
 			s = parseFloat( ary[ 2 ] ) || 0;
-			if( 60 <= s ) alert( 'invalid time string ' + time );
-			if( 60 <= m ) alert( 'invalid time string ' + time );
+			//if( 60 <= s ) alert( 'invalid time string ' + time );
+			//if( 60 <= m ) alert( 'invalid time string ' + time );
 			break;
 		default :
-			alert( 'invalid time string ' + time );
+			//alert( 'invalid time string ' + time );
 	};
 	ms = ( h * 3600 + m * 60 + s ) * 1000 + ms;
 	return ms < 0 ? 0 : ms;

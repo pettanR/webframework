@@ -234,8 +234,10 @@ if( !( X_UA.Trident || X_UA.TridentMobile ) || 9 <= ( X_UA.Trident || X_UA.Tride
 		} else {
 			// Other
 			
-			this.keyCode       = X_Type_isFinite( e.keyCode ) ? e.keyCode : X_Type_isFinite( e.charCode ) ? e.charCode : e.which;
-			this.charCode      = X_Type_isFinite( e.charCode ) ? e.charCode : e.which;
+            this.keyCode       = X_Type_isFinite( e.keyCode ) ? e.keyCode : X_Type_isFinite( e.charCode ) ? e.charCode : e.which;
+            this.charCode      = X_Type_isFinite( e.charCode ) ? e.charCode || ( e.key && e.key.length === 1 ? e.key.charCodeAt( 0 ) : 0 ) : e.which;
+            this.key           = e.key || ( 32 <= this.charCode && this.charCode <= 126 ? String.fromCharCode( this.charCode ) : '' );
+            // this.code          = e.code || this.charCode;
 			this.altKey        = e.altKey   || !!( e.modifiers & 1 );
 			this.ctrlKey       = e.ctrlKey  || !!( e.modifiers & 2 );
 			this.shiftKey      = e.shiftKey || !!( e.modifiers & 4 );
@@ -298,7 +300,10 @@ if( !( X_UA.Trident || X_UA.TridentMobile ) || 9 <= ( X_UA.Trident || X_UA.Tride
 		this.eventPhase    = e.srcElement === element ? 2: 3;
 		
 		this.keyCode       = e.keyCode;
-		this.charCode      = e.keyCode;
+        this.charCode      = e.keyCode;
+        this.key           = 32 <= this.charCode && this.charCode <= 126 ? String.fromCharCode( this.charCode ) : '';
+        // this.code          = this.charCode;
+        this.key           = String.fromCharCode( e.keyCode );
 		this.altKey        = e.altKey;
 		this.ctrlKey       = e.ctrlKey;
 		this.shiftKey      = e.shiftKey;
@@ -395,15 +400,12 @@ if( document.onwheel === undefined ){
 			//console.log( 'wheel <= DOMMouseScroll' );
 			X_Event_Rename.wheel = 'DOMMouseScroll';
 		};
-	} else {
+	} else if( X_Object_inObject( 'onmousewheel', document ) ){ // Presto では onmousewheel === undefiend
 		X_Event_Rename.wheel = 'mousewheel';
 	};
-	//if( document.onmousewheel !== undefined ){ // Opera で判定失敗する
-	//	X_Event_Rename.wheel = 'mousewheel';
-	//};
 };
 
-if( X_UA.Presto || X_UA.PrestoMobile || X_UA.WebKit || X_UA.Chromium || X_UA.ChromiumMobile || X_UA.ChromeWebView || X_UA.KHTML || X_UA.AOSP || X_UA.ChromeWebView ){
+if( X_UA.Presto || X_UA.PrestoMobile || X_UA.WebKit || X_UA.Chromium || X_UA.ChromiumMobile || X_UA.Samsung || X_UA.ChromeWebView || X_UA.KHTML || X_UA.AOSP || X_UA.EdgeHTML ){
 	// http://d.hatena.ne.jp/uupaa/20091231/1262202954
 	X_Event_Rename.focusin  = 'DOMFocusIn';
 	X_Event_Rename.focusout = 'DOMFocusOut';

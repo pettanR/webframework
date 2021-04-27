@@ -308,9 +308,10 @@ function X_Timer_onTimeout(){
 	//console.log( '予定時間と発火時間の差:' + ( now - X_Timer_timeStamp - X_Timer_waitTime * X_Timer_INTERVAL_TIME ) + ' -:' + minus + ' next:' + X_Timer_waitTime );
 	
 	if( X_Timer_busyTimeout ){
-		alert( 'X_Timer_busyTimeout フラグが立ったまま!エラーの可能性' );
+		//alert( 'X_Timer_busyTimeout フラグが立ったまま!エラーの可能性' );
 	};
-	
+    
+    ++g_X_uniqueStamp;
 	X_Timer_busyTimeout = true;
 	
     for( ; i < l; ++i ){
@@ -402,9 +403,11 @@ function X_Timer_compareQueue( a, b ){
 	// return a.last <= b.last ? -1 : 1; //a.last === b.last ? 0 : 1;
 };
 
+// https://stackoverflow.com/questions/18642714/why-wont-a-settimeout-fire-in-touchend-handler-after-the-user-scrolls-ios-safar
+
 // http://havelog.ayumusato.com/develop/javascript/e528-ios6_scrolling_timer_notcall.html
 // iOS6 スクロール中のタイマー発火絡みのバグ備忘
-if( ( X_UA.SafariMobile || X_UA.iOSWebView ) ){
+if( ( X_UA.SafariMobile || X_UA.iOSWebView ) < 6.1 ){
 	window.addEventListener( 'scroll', function(){
 		var last, now;
 		if( X_Timer_timerId ){
@@ -426,7 +429,8 @@ function X_Timer_onEnterFrame( time ){
 		l    = list.length,
 		i    = 0, q, uid, args;
 
-	time = time || X_Timer_now();
+    time = time || X_Timer_now();
+    ++g_X_uniqueStamp;
 	X_Timer_busyOnFrame = true;
 	// console.log( X_Timer_now() + ' , ' + time );
     for( ; i < l; ++i ){

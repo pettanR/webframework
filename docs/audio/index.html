@@ -27,7 +27,7 @@
 			visibility : hidden;
 		}
 	</style>
-	<script>document.write( '<script type="text/javascript" src="../full.js?ts=' + Math.random() + '"><\/script>' );</script>
+	<script>document.write( '<script type="text/javascript" src="../debug.js?ts=' + Math.random() + '"><\/script>' );</script>
 <script>
 var SpritePlayer, bgmID = -1;
 
@@ -40,6 +40,7 @@ X( function(){
         ua = X.UA || {};
 
     for( k in ua ){
+        if( k === 'PLATFORM' || k === 'ENGINE' || k === 'BRAND' || k === 'PLATFORM_VERSION' || k === 'ENGINE_VERSION' || k === 'BRAND_VERSION' ) continue;
         ary[ ary.length ] = k + ( ua[ k ] !== true ? '=' + ua[ k ] : '' );
     };
 
@@ -52,8 +53,6 @@ X( function(){
     X( '#init2' ).listen( 'click', function(){ X.Timer.once( 2000, init, [ 2 ] );} );
     X( '#init4' ).listen( 'click', function(){ X.Timer.once( 2000, init, [ 3 ] );} );
     X( '#init8' ).listen( 'click', function(){ X.Timer.once( 2000, init, [ 4 ] );} );
-    
-    X.Timer.once( 7000, init, [ 1 ] );
 } );
 
 function init( numTracks ) {

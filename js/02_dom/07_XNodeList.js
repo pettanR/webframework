@@ -50,10 +50,11 @@ X_NodeList.prototype[ 'each' ] = function( func /* opt_args... */ ){
 /* --------------------------------------
  *  Fuction Base, multi, getter, setter,
  */
-X_TEMP.onSystemReady.push( function( sys ){
+X_TEMP.onSystemReady.push( function(){
 	var target = X_NodeList.prototype,
 		src    = X_Node.prototype,
-		p, v;
+        p, v;
+
 	for( p in src ){
 		//if( X_EMPTY_OBJECT[ p ] ) continue;
 		v = src[ p ];

@@ -48,7 +48,7 @@ var X_KB_SPECIALS = eval( // IE5- 対策
 						case 'keydown' :
 							if( X_KB_DOWN_KEYS[ keyCode ] ){
 								// 既に押されている、メタキー[shift,ctrl,alt]の変化はある？
-								console.log( ' doen -- ' );
+								//console.log( ' doen -- ' );
 								
 								return X_KB_CANCELED[ keyCode ] ? X_CALLBACK_PREVENT_DEFAULT : cb;
 							} else
@@ -60,7 +60,7 @@ var X_KB_SPECIALS = eval( // IE5- 対策
 									X_KB_lastKeyCode = keyCode;
 									X_KB_lastIs10Key = true;
 									return cb;
-								} else {
+								} else if( keyCode ){
 									X_KB_DOWN_KEYS[ keyCode ] = true;
 									chrCode = 0;
 								};
@@ -68,8 +68,10 @@ var X_KB_SPECIALS = eval( // IE5- 対策
 								cb = this[ 'dispatch' ]( {
 									type      : 'keydown',
 									keyCode   : keyCode,
-									charCode  : chrCode,
-									'keyName' : X_Type_isString( special ) ? special : '',
+                                    charCode  : chrCode,
+                                    key       : e.key,
+                                    code      : e.code,
+                                    'keyName' : special || '',
 									'is10key' : !!X_KB_lastIs10Key,
 									shiftKey  : !!X_KB_DOWN_KEYS[ 16 ],
 									ctrlKey   : !!X_KB_DOWN_KEYS[ 17 ],
@@ -91,9 +93,11 @@ var X_KB_SPECIALS = eval( // IE5- 対策
 								if( e.ctrlKey || e.altKey || e.metaKey ){
 									cb = this[ 'dispatch' ]( {
 										type      : 'keydown',
-										keyCode   : 0,
-										charCode  : chrCode,
-										'keyName' : '',
+                                        keyCode   : 0,
+                                        charCode  : chrCode,
+                                        key       : e.key,
+                                        code      : e.code,
+                                        'keyName' : '',
 										'is10key' : false,
 										shiftKey  : !!X_KB_DOWN_KEYS[ 16 ],
 										ctrlKey   : !!X_KB_DOWN_KEYS[ 17 ],
@@ -105,7 +109,7 @@ var X_KB_SPECIALS = eval( // IE5- 対策
 										X_KB_CANCELED[ keyCode ] = true;
 									};
 								};
-								console.log( ' keydown[' + keyCode + ']' + String.fromCharCode( chrCode ) + chrCode );
+								//console.log( ' keydown[' + keyCode + ']' + String.fromCharCode( chrCode ) + chrCode );
 							};
 							return cb;
 							
@@ -124,7 +128,7 @@ var X_KB_SPECIALS = eval( // IE5- 対策
 								
 								cb = this[ 'dispatch' ]( {
 									type      : 'keydown',
-									keyCode   : X_KB_lastIs10Key ? X_KB_lastKeyCode : 0,
+                                    keyCode   : X_KB_lastIs10Key ? X_KB_lastKeyCode : 0,
 									charCode  : chrCode,
 									'is10key' : X_KB_lastIs10Key,
 									shiftKey  : !!X_KB_DOWN_KEYS[ 16 ],
@@ -135,9 +139,9 @@ var X_KB_SPECIALS = eval( // IE5- 対策
 								
 								X_KB_lastIs10Key = false;
 								
-								console.log( X_KB_lastKeyCode + 'keypress : chrCode:' + chrCode + ' down:' + X_KB_DOWN_KEYS[ chrCode ] + ( X_KB_CANCELED[ chrCode ] ? ' Cancel!' : '' ) );
+								//console.log( X_KB_lastKeyCode + 'keypress : chrCode:' + chrCode + ' down:' + X_KB_DOWN_KEYS[ chrCode ] + ( X_KB_CANCELED[ chrCode ] ? ' Cancel!' : '' ) );
 							} else {
-								console.log( '>> keypress : chrCode:' + chrCode + ' down:' + X_KB_DOWN_KEYS[ chrCode ] + ( X_KB_CANCELED[ chrCode ] ? ' Cancel!' : '' ) );
+								//console.log( '>> keypress : chrCode:' + chrCode + ' down:' + X_KB_DOWN_KEYS[ chrCode ] + ( X_KB_CANCELED[ chrCode ] ? ' Cancel!' : '' ) );
 							};
 							return cb;
 							
@@ -150,7 +154,9 @@ var X_KB_SPECIALS = eval( // IE5- 対策
 								cb |= this[ 'dispatch' ]( {
 									type        : 'keydown',
 									keyCode     : keyCode,
-									charCode    : 0,
+                                    charCode    : 0,
+                                    key         : e.key,
+                                    code        : e.code,
 									'keyName'   : special,
 									'is10key'   : false,
 									'isVirtual' : true,
@@ -182,7 +188,9 @@ var X_KB_SPECIALS = eval( // IE5- 対策
 							cb |= this[ 'dispatch' ]( {
 								type      : 'keyup',
 								keyCode   : keyCode,
-								charCode  : chrCode,
+                                charCode  : chrCode,
+                                key       : e.key,
+                                code      : e.code,
 								'keyName' : X_Type_isString( special ) ? special : '',
 								shiftKey  : X_KB_DOWN_KEYS[ 16 ],
 								ctrlKey   : X_KB_DOWN_KEYS[ 17 ],

@@ -5,6 +5,9 @@
 
 // http://devedge.primedirective.net/viewsource/2003/windows-media-in-netscape/index.html
 
+/** use audio ============================================================== */
+if( X_USE_AUDIO ){
+
 var X_WMPAudio;
 
 if( X_Plugin_WMP_VERSION ){ // IETester で 6.x は不可
@@ -22,7 +25,7 @@ if( X_Plugin_WMP_VERSION ){ // IETester で 6.x は不可
     		_seekDirection  : 0,
 			_timerID        : 0,
 			
-			'Constructor' : function( dispatcher, source, option ){
+			'Constructor' : function( dispatcher, source, option, ext ){
 				this.dispatcher   = dispatcher || this;
 				this._source     = source;
 				
@@ -91,7 +94,7 @@ if( X_Plugin_WMP_VERSION ){ // IETester で 6.x は不可
 				end   = X_Audio_getEndTime( this );
 				begin = this._beginTime = X_Audio_getStartTime( this, end, true ) | 0;
 
-			    console.log( '[play] ' + begin + ' -> ' + end );
+			    //console.log( '[play] ' + begin + ' -> ' + end );
 			    
 			    if( !this.playing ){
 					this.setVolume();
@@ -230,5 +233,7 @@ if( X_Plugin_WMP_VERSION ){ // IETester で 6.x は不可
 		klass : X_WMPAudio
 		
 	} );
+};
 
 };
+/** / use audio ============================================================ */

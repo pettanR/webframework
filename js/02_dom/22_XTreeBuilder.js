@@ -309,7 +309,7 @@ X_TEMP.asyncCreateTree = function( parent, elems, elmProgress, async ){
 		current = null;
 	};
 	// complete
-	console.log( 'xtree 作成完了' );
+	//console.log( 'xtree 作成完了' );
 	X_ViewPort[ 'asyncDispatch' ]( X_EVENT_XTREE_READY );
 	
 	if( ( X_UA.Trident || X_UA.TridentMobile ) < 6 ){
@@ -362,14 +362,14 @@ X_TEMP.bindElementToXnode =
 							};
 							continue;
 						};
-						alert( '1:[' +parent[ '_tag' ] + '>' +xnode[ '_tag' ] + '] !== ' + elm.nodeType + '\n' + ( elm.data ) );
+						//alert( '1:[' +parent[ '_tag' ] + '>' +xnode[ '_tag' ] + '] !== ' + elm.nodeType + '\n' + ( elm.data ) );
 					} else
 					if( X_Dom_DTD_MOVE_TO_HEAD[ tag ] ){
-						alert( tag );
+						//alert( tag );
 						continue;
 					} else
 					if( xnode[ '_tag' ] !== tag ){
-						alert( '2:[' +parent[ '_tag' ] + '>' +xnode[ '_tag' ] + ' len:' + (xnode[ '_xnodes' ] ? xnode[ '_xnodes' ].length : '' ) + '] !== ' + tag + ' ' + (elm.childNodes ? elm.childNodes.length : '' ) + '\n' + elm.outerHTML );
+						//alert( '2:[' +parent[ '_tag' ] + '>' +xnode[ '_tag' ] + ' len:' + (xnode[ '_xnodes' ] ? xnode[ '_xnodes' ].length : '' ) + '] !== ' + tag + ' ' + (elm.childNodes ? elm.childNodes.length : '' ) + '\n' + elm.outerHTML );
 					} else {
 						xnode[ '_rawObject' ] = elm;
 						//if( ( doc = elm.ownerDocument || elm.document ) && ( doc.createElement( 'p' ).tagName === doc.createElement( 'P' ).tagName ) ){
@@ -411,7 +411,7 @@ X_TEMP.bindElementToXnode =
 				
 				if( elm.nodeType !== 3 ){
 					if( !( text = xnode[ '_text' ] ) || ( text = X_String_cleanupWhiteSpace( text ) ) === ' ' ){
-						console.log( '[' +parent[ '_tag' ] + '> UID:' + xnode[ '_uid' ] + ' len:' + xnode[ '_text' ].length + ' code : ' + xnode[ '_text' ].charCodeAt( 0 ) + ',' + xnode[ '_text' ].charCodeAt( 1 ) + '] destroyed.' );
+						//console.log( '[' +parent[ '_tag' ] + '> UID:' + xnode[ '_uid' ] + ' len:' + xnode[ '_text' ].length + ' code : ' + xnode[ '_text' ].charCodeAt( 0 ) + ',' + xnode[ '_text' ].charCodeAt( 1 ) + '] destroyed.' );
 						xnode[ 'kill' ]();
 						break;
 					};
@@ -430,12 +430,12 @@ X_TEMP.bindElementToXnode =
 				
 				if( !skipCleanup ){
 					if( !( text = xnode[ '_text' ] ) || ( text = X_String_cleanupWhiteSpace( text ) ) === ' ' ){
-						console.log( '[' +parent[ '_tag' ] + '>' + xnode[ '_uid' ] + '] destroy ... ' );
+						//console.log( '[' +parent[ '_tag' ] + '>' + xnode[ '_uid' ] + '] destroy ... ' );
 						xnode[ 'kill' ]();
 					};
 					if( xtext ){
 						xtext[ 'text' ]( xtext[ '_text' ] + text );
-						console.log( '[' +parent[ '_tag' ] + '>' + xnode[ '_uid' ] + '] xtext,destroy ... ' );
+						//console.log( '[' +parent[ '_tag' ] + '>' + xnode[ '_uid' ] + '] xtext,destroy ... ' );
 						xnode[ 'kill' ]();
 					} else {
 						//alert( parent[ '_tag' ] + '>' + '"' + text + '"\n' + elm.data );
@@ -444,7 +444,7 @@ X_TEMP.bindElementToXnode =
 				} else
 				if( xtext ){
 					xtext[ 'text' ]( xtext[ '_text' ] + xnode[ '_text' ] );
-					console.log( '[' +parent[ '_tag' ] + '>' + xnode[ '_uid' ] + '] xtext,destroy ... ' );
+					//console.log( '[' +parent[ '_tag' ] + '>' + xnode[ '_uid' ] + '] xtext,destroy ... ' );
 					xnode[ 'kill' ]();
 				};
 				current.xtext = xtext || xnode;
@@ -501,7 +501,7 @@ X_TEMP.bindElementToXnode =
 					continue;
 				} else
 				if( xnode[ '_tag' ] !== tag ){
-					alert( xnode[ '_tag' ] + ' ' + ' !== ' + tag + '\nxnode.html():' + xnode.attr('cite') + '\nelm.outerHTML:' +  elm.outerHTML );
+					//alert( xnode[ '_tag' ] + ' ' + ' !== ' + tag + '\nxnode.html():' + xnode.attr('cite') + '\nelm.outerHTML:' +  elm.outerHTML );
 				} else {
 					++current.j;
 					
@@ -546,9 +546,9 @@ X_TEMP.bindElementToXnode =
 			};
 			// for
 			if( !xnode[ '_rawObject' ] ){
-				alert( xnode[ '_tag' ] + ' ' + xnode[ '_id' ] + ' !== none...' );
+				//alert( xnode[ '_tag' ] + ' ' + xnode[ '_id' ] + ' !== none...' );
 			};
 		});
 
-console.log( 'X.Dom.Builder' );
-console.log( 'bootTime : ' + ( X_Timer_now() - X.bootTime ) );
+//console.log( 'X.Dom.Builder' );
+//console.log( 'bootTime : ' + ( X_Timer_now() - X.bootTime ) );

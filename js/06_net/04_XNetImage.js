@@ -10,7 +10,9 @@ var X_ImgLoader_image     = window[ 'Image' ] && new Image(), // ここで無用
 	// IE では厳密には HTMLImageElement ではなく、appendChild してもサイズが取れず、removeChild に失敗する
 	X_ImgLoader_isElement = !( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ) && X_Type_isHTMLElement( X_ImgLoader_image ),
 	// http://uupaa.hatenablog.com/entry/2013/12/17/171809
-	// お手軽に画像の読み込みをハンドリングする、今どきな方法
+    // お手軽に画像の読み込みをハンドリングする、今どきな方法
+    // https://gist.github.com/uupaa/8001551
+    // uupaa/image.onload.error.md
 	X_ImgLoader_0forError = !( X_UA.Trident || X_UA.TridentMobile ) || ( X_UA.Trident || X_UA.TridentMobile ) === 11 || X_UA.IEHost === 11;
 
 /*

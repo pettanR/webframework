@@ -1,9 +1,11 @@
-
 /*
  * http://uupaa.hatenablog.com/entry/2011/12/12/213233
  * Mobile Opera11 は Audio をサポートするがイベントが取れない
  * iframe 内で生成して、Audio Sprite の preset で再生できないか？
  */
+/** use audio ============================================================== */
+if( X_USE_AUDIO ){
+
 var X_AudioSprite_shouldUse         = X_HTMLAudio && ( ( X_UA.SafariMobile || X_UA.iOSWebView ) || X_UA.AOSP || ( X_UA.PrestoMobile && X_UA.Android ) ), // Flash がない
 	X_AudioSprite_useVideoForMulti  = //( 3.1 <= X_UA.AOSP < 4 ) || 
 									  //( ( 4.2 <= X_UA.AOSP ),
@@ -115,6 +117,9 @@ X[ 'AudioSprite' ] = function( setting ){
 X[ 'AudioSprite' ][ 'shouldUse'        ] = X_AudioSprite_shouldUse;
 X[ 'AudioSprite' ][ 'enableMultiTrack' ] = !X_AudioSprite_disableMultiTrack;
 
+};
+/** / use audio ============================================================ */
+
 // 再生が終わっているもの、終わりかけのものを探す
 // TODO 終わりかけのもの、と一番古いもの、どちらを再利用するか？これ以上に細かい実装を望む場合は X.AudioSprite は使わず自力で実装
 function X_AudioSprite_getTrackEnded(){
@@ -136,6 +141,9 @@ function X_AudioSprite_getTrackEnded(){
 	};
 	return tracks[ index ];
 };
+
+/** use audio ============================================================== */
+if( X_USE_AUDIO ){
 
 var X_AudioSprite_members =
 /** @lends X.AudioSprite.prototype */
@@ -330,6 +338,9 @@ var X_AudioSprite_members =
 		}
 };
 
+};
+/** / use audio ============================================================ */
+
 function X_AudioSprite_backendHandler( e ){
 	var i, backend, option, src, name, last, _e, track;
 	
@@ -349,11 +360,11 @@ function X_AudioSprite_backendHandler( e ){
 				if( X_AudioSprite_useVideo || ( i === 1 && X_AudioSprite_useVideoForMulti ) ){
 					option = X_Object_deepCopy( option );
 					option[ 'useVideo' ] = true;
-					console.log( 'use video' );
+					//console.log( 'use video' );
 				};
 				// Audiobackend の owner として null を渡すとAudioBackend 自身へ dispatch する
 				X_AudioSprite_TEMP.tracks.push(
-					last = backend.klass( null, e[ 'source' ], option )[ 'listen' ]( X_EVENT_DEBUG, X_AudioSprite_handleEvent ) );
+					last = backend.klass( null, e[ 'source' ], option, e.ext )[ 'listen' ]( X_EVENT_DEBUG, X_AudioSprite_handleEvent ) );
 			};
 
 			_e = {
@@ -397,7 +408,7 @@ function X_AudioSprite_backendHandler( e ){
 			break;
 		
 		case X_EVENT_READY :
-			console.log( 'X.AudioSprite - Ready!' );
+			//console.log( 'X.AudioSprite - Ready!' );
 			
 			if( X_AudioSprite_TEMP.tmpEvent ){
 				// このタイミングで tmpEvent が存在する場合は、タッチをスキップして Web Audio が再生可能になった
@@ -468,14 +479,14 @@ function X_AudioSprite_handleEvent( e ){
 		
 		// TODO Android Firefox で アクティブ検出できない！
 		case X_EVENT_VIEW_ACTIVATE :
-			console.log( '■ アクティブ' );
+			//console.log( '■ アクティブ' );
 			// track.play(); or iOS need touch??
 			tracks = X_AudioSprite_TEMP.pauseTracks;
 			while( tracks.length ) tracks.pop().actualPlay();
 			break;
 
 		case X_EVENT_VIEW_DEACTIVATE :
-			console.log( '■ デアクティブ' );
+			//console.log( '■ デアクティブ' );
 			// track.pause();
 			tracks = X_AudioSprite_TEMP.tracks;
 			i      = X_AudioSprite_numTracks;

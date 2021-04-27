@@ -31,7 +31,7 @@ var
 					case 'message' :
 						if( e.origin === X.URL.BASE_URL ){
 							i = e.data.indexOf( '-' );
-							console.log( 'msg ||| ' + e.data.substr( 0, i ) );
+							//console.log( 'msg ||| ' + e.data.substr( 0, i ) );
 							if( e.data.substr( 0, i ) == X_System_postMessageAccessKey ){
 								name = e.data.substr( i, _i = e.data.indexOf( ' ' ) );
 								if( X_System_MESSAGE_RECIVERS[ name ] ){
@@ -39,7 +39,7 @@ var
 								};
 							};
 						};
-						console.log( e.origin + ' ' + X.URL.BASE_URL );
+						//console.log( e.origin + ' ' + X.URL.BASE_URL );
 						
 						return X_CALLBACK_PREVENT_DEFAULT | X_CALLBACK_STOP_PROPAGATION;
 				};

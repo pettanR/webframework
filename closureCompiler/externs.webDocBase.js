@@ -15,7 +15,8 @@ var UserAgentObject = {
     BRAND_VERSION    : '',
     DEVICE           : '',
     DEVICE_VERSION   : '',
-    PC_MODE          : true,
+    DEVICE_TYPE      : 1,
+    PCSITE_REQUESTED : true,
 
 // PLATFORM
     NDS           : 1,
@@ -26,39 +27,43 @@ var UserAgentObject = {
     WiiU          : 1,
     Wii           : 1,
     PSVita        : 1,
+    PSPGo         : 1,
     PSP           : 1,
     PS3           : 3.5,
+    PS4           : 1,
     XBoxOne       : 1,
     XBox360       : 1,
+
+    FeaturePhone  : true,
     Mylo          : 2,
-    iOS           : 12.2,
     Kobo          : 1,
     SonyReader    : 1,
+    Kindle        : 3.0,
+
+    WinCE         : true,
+    WindowsMobile : true,
+    iOS           : 12.2,
+    Android       : 5,
     ChromeOS      : 1,
     FirefoxOS     : 2.2,
     webOS         : 1,
     Tizen         : 2,
     WindowsPhone  : 8.1,
-    FeaturePhone  : true,
     FireOS        : 6.3,
-    Kindle        : 3.0,
     MeeGo         : true,
     Maemo         : true,
-    WindowsMobile : true,
-    WinCE         : true,
+    BlackBerry    : 10,
+
     Win16         : 3.1,
     Win32         : 5.1,
     Win64         : 10,
     MacPPC        : true,
     Mac68K        : true,
     MacIntel      : 10.12,
-    BlackBerry    : 10,
-    FireTV        : 1,
     SunOS         : true,
     FreeBSD       : true,
     OpenBSD       : true,
     NetBSD        : true,
-    Android       : 5,
     Ubuntu        : true,
     Mint          : true,
     Fedora        : true,
@@ -66,28 +71,29 @@ var UserAgentObject = {
     Linux         : true,
 // ENGINE
     WebKit         : 533,
-    NetFront       : 3.3,
-    Sony           : 3.5,
     SafariMobile   : 12.2,
     iOSWebView     : 12.2,
-    AOSP           : 4.4,
-    Samsung        : 2,
-    Fennec         : 18,
-    PrestoMobile   : 12.1,
     Presto         : 12.1,
-    TridentMobile  : 11,
+    PrestoMobile   : 12.1,
+    OperaMini      : 11,
     Tasman         : 5.2,
     Trident        : 4,
+    TridentMobile  : 11,
     EdgeHTML       : 12,
+    EdgeMobile     : 12,
     Goanna         : 3,
     Gecko          : 64,
+    Fennec         : 18,
     Chromium       : 70,
-    iCab           : 3,
-    OperaMini      : 11,
-    UCWEB          : 2,
-    KHTML          : 3,
     ChromiumMobile : 70,
     ChromeWebView  : 9,
+    iCab           : 3,
+    UCWEB          : 2,
+    KHTML          : 3,
+    NetFront       : 3.3,
+    Sony           : 3.5,
+    AOSP           : 4.4,
+    Samsung        : 2,
 // BRAND
     NetFrontNX   : 1,
     Safari       : 12.2,
@@ -98,6 +104,7 @@ var UserAgentObject = {
     Edge         : 17,
     Coast        : 1,
     OperaTouch   : 3,
+    OperaGX      : 68,
     Yahoo        : 1,
     UC           : 1,
     Silk         : 1,
@@ -108,7 +115,6 @@ var UserAgentObject = {
     Camino       : 1,
     Sogou        : true,
     Focus        : 1,
-    Klar         : 1,
     AOL          : 1,
     IceDragon    : 1,
     Iceweasel    : 1,
@@ -142,8 +148,10 @@ var UserAgentObject = {
     NN           : 9,
     Iris         : 1,
     LINE         : 1,
+    Facebook     : 1,
     QtWebEngine  : 5.12,
     QtWebKit     : 1,
+    DuckDuckGo   : 1,
     Firefox      : 64,
     Chrome       : 74,
     IE           : 11,
@@ -157,7 +165,7 @@ var UserAgentObject = {
 /**
  * @type {Object}
  */
-Window.prototype.puffinDevice = {};
+var puffinDevice = {};
 
 /**
  * @type {Object}
@@ -176,9 +184,9 @@ var PuffinDeviceClientInfoObject = {
 };
 
 /**
- * @type {*}
+ * @type {function()}
  */
-Window.prototype.onmoztimechange;
+var onmoztimechange = function(){};
 
 /**
  * @type {boolean}
@@ -203,12 +211,12 @@ var outerHeight;
 /**
  * @type {Object}
  */
-Window.prototype.chrome = {};
+var chrome = {};
 
 /**
  * @type {Object}
  */
-Window.prototype.opr = {};
+var opr = {};
 
 /**
  * @type {Object}
@@ -224,24 +232,37 @@ var FNRBrowser = {}
 /**
  * @type {Object}
  */
-Window.prototype.operamini = {};
+var operamini = {};
 
 /**
  * @type {function()}
  */
-Window.prototype.palmGetResource = function(){};
+var palmGetResource = function(){};
 
 /**
  * @type {Object}
  */
-Window.prototype.WebAssembly = {};
-
-/**
- * @type {Object}
- */
-Window.prototype.searchBoxJavaBridge_ = {};
+var searchBoxJavaBridge_ = {};
 
 /**
  * @type {string}
  */
 HTMLElement.prototype.msContentZoomFactor;
+
+/**
+ * FireTV Firefox
+ * @type {Object}
+ */
+var _firefoxTV_playbackStateObserverJava = {}
+
+/**
+ * Maybe Lunascape Android
+ * @type {Object}
+ */
+var ReactNativeWebView = {}
+
+/**
+ * Opera GX LVL2 (core: 68.0.3618.206)
+ * @type {function()}
+ */
+var onoperadetachedviewchange = function(){};

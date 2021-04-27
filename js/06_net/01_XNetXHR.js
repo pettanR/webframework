@@ -1,4 +1,4 @@
-//{+xhr"XHR,XDR,MSXMLによる通信"(XMLHTTPRequest, XDomainRequest, ActiveX-MSXML を使った通信)[+net]
+//{+xhr"XHR,XDR,MSXMLによる通信"(XMLHttpRequest, XDomainRequest, ActiveX-MSXML を使った通信)[+net]
 
 // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
 // https://web.archive.org/web/20071101021832/http://web.paulownia.jp/script/ajax/xmlhttp4.html
@@ -102,27 +102,23 @@ if( X_XHR_createMSXML ){
 		X_XHR_createMSXML = null;
 	})();
 };
-
+/*
 X[ 'XHR' ] = {
 
 	'W3C'         : X_XHR_createW3C   ? 1 : 0,
 	'MSXML'       : X_XHR_createMSXML ? 2 : 0,
 	'XDR'         : X_XHR_createXDR   ? 4 : 0,
 
-/*
- * http://hakuhin.jp/as/import.html
- * ファイルの読み込みについて(4 or 5 or 6+)
- * http://hakuhin.jp/as/javascript.html
- * Flash から JavaScript にアクセスする(3+)
- */
+// http://hakuhin.jp/as/import.html
+// ファイルの読み込みについて(4 or 5 or 6+)
+// http://hakuhin.jp/as/javascript.html
+// Flash から JavaScript にアクセスする(3+)
 	'FLASH'       : 4 <= X_Plugin_FLASH_VERSION ? 8 : 0,
 	
 	'GADGET'      : 5.5 <= ( X_UA.Trident || X_UA.TridentMobile ) || !( X_UA.Trident || X_UA.TridentMobile ) ? 16 : 0,
 
-/**
- * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
- * Progress Events 	Chrome7, firefox3.5, ie10, opera12, Safari?, Chrome for Android 0.16
- */
+// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+// Progress Events 	Chrome7, firefox3.5, ie10, opera12, Safari?, Chrome for Android 0.16
 	'PROGRESS'        : X_XHR_progress,
 
 	'UPLOAD_PROGRESS' : X_XHR_upload,
@@ -133,7 +129,7 @@ X[ 'XHR' ] = {
 	'BINARY'          : X_Script_VBS_ENABLED
 };
 
-if( X_XHR_msXMLVer ) X[ 'XHR' ][ 'MSXML_VERSION' ] = X_XHR_msXMLVer;
+if( X_XHR_msXMLVer ) X[ 'XHR' ][ 'MSXML_VERSION' ] = X_XHR_msXMLVer; */
 
 if( X_XHR_w3c || X_XHR_msXML ){
 
@@ -287,7 +283,7 @@ if( X_XHR_w3c || X_XHR_msXML ){
 						headers[ 'If-Modified-Since' ] = 'Thu, 01 Jun 1970 00:00:00 GMT';
 					} */
 
-					// http://8note.phpapps.jp/jquery-ajax%E3%81%A7%E3%81%AE412%E3%82%A8%E3%83%A9%E3%83%BC/
+					// http://web.archive.org/web/20150404021641/http://8note.phpapps.jp/jquery-ajax%E3%81%A7%E3%81%AE412%E3%82%A8%E3%83%A9%E3%83%BC/
 					if( 'document json text'.indexOf( X_XHR._dataType ) !== -1 && X_UA.WebKit ){
 						headers[ 'If-Modified-Since' ] = 'Thu, 01 Jun 1970 00:00:00 GMT';
 					};
@@ -554,7 +550,7 @@ JKL.ParseXML.HTTP.prototype.documentElement = function() {
     // debug.print( 'documentElement: '+this.req );
     if ( ! this.req ) return;
     if ( this.req.responseXML ) {
-        return this.req.responseXML.documentElement;    // XMLHTTPRequest
+        return this.req.responseXML.documentElement;    // XMLHttpRequest
     } else {
         return this.req.documentElement;                // IXMLDOMDocument
     }

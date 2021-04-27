@@ -19,8 +19,9 @@
 
 var X_TextRange_range,
 	X_TextRange_selection,
-	X_TextRange_isW3C = !document.selection || 9 <= ( X_UA.Trident || X_UA.TridentMobile ) || X_UA.EdgeHTML;
+    X_TextRange_isW3C = !document.selection || 9 <= ( X_UA.Trident || X_UA.TridentMobile ) || X_UA.EdgeHTML;
 
+if( X_USE_DOM_RANGE ){
 /**
  * ユーザーによって選択されたテキストへの参照や文字の座標の取得
  * @alias X.TextRange
@@ -80,6 +81,8 @@ var X_TextRange = X_Class_create(
 	}
 );
 
+};
+
 // TextNode を探して flat な配列に格納する
 function X_TextRange_collectTextNodes( elm, ary ){
 	var kids = elm.childNodes,
@@ -121,14 +124,14 @@ function X_TextRange_getRawRange( tr ){
 					//selection = window.getSelection();
 					
 		            if( selection.getRangeAt ){
-		            	return selection.rangeCount && selection.getRangeAt( 0 );
+		            	return  { 'hitRange' : selection.rangeCount && selection.getRangeAt( 0 ) };
 		            };
 		            // http://d.hatena.ne.jp/dayflower/20080423/1208941641
 		            // for Safari 1.3
 		            //range = document.createRange();
 		            range.setStart( selection.anchorNode, selection.anchorOffset );
 		            range.setEnd( selection.focusNode, selection.focusOffset );
-					return range;
+					return { 'hitRange' : range };
 				} else {
 					switch( document.selection.type ){
 						case 'text' :
@@ -144,17 +147,18 @@ function X_TextRange_getRawRange( tr ){
 				if( X_TextRange_isW3C ){
 					// textarea で異なる
 					// TextNode をフラットな配列に回収
-					X_TextRange_collectTextNodes( elm, texts = [] );						
-					
+					X_TextRange_collectTextNodes( elm, texts = [] );
+
 					x = tr[ 'v1' ];
 					y = tr[ 'v2' ];
-					
+
 					for( i = offset = 0; text = texts[ i ]; ++i ){
 						range.selectNodeContents( text ); // selectNodeContents は TextNode のみ?? Firefox
 						l = text.data.length;
 
 				        for( j = 0; j < l; ++j ){
-				            if( ( X_UA.Trident || X_UA.TridentMobile ) || X_UA.EdgeHTML ){
+                            if( !( xnode[ '_flags' ] & X_NodeFlags_IS_SVG ) && 
+                                ( X_UA.Trident || X_UA.TridentMobile ) || X_UA.EdgeHTML ){
 				            	// 改行の直前の文字を選択すると rect が巨大になってしまう
 					        	range.setEnd( text, j );
 					            range.setStart( text, j );
@@ -245,8 +249,8 @@ function X_TextRange_getRect(){
 	
 	if( result ){
 		if( X_TextRange_isW3C ){
-			if( result.hitRange ){
-				rect = result.hitRange.getBoundingClientRect();
+			if( result[ 'hitRange' ] ){
+				rect = result[ 'hitRange' ].getBoundingClientRect();
 				ret = {
 					'x'      : rect.left,
 					'y'      : rect.top,
@@ -315,7 +319,7 @@ function X_TextRange_getOffset(){
 	} else
 	if( result = X_TextRange_getRawRange( this ) ){
 		if( X_TextRange_isW3C ){
-			range = result.hitRange;
+			range = result[ 'hitRange' ];
 			ret = {
 				'offset' : result.offset,
 				'from'   : this[ 'v1' ] = range.startOffset,

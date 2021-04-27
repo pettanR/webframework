@@ -53,4 +53,4 @@ info	サーバ情報
 debug	デバック用の情報
 */
 
-console.log( 'X.Core.Log' );
+//console.log( 'X.Core.Log' );

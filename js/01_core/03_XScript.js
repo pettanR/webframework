@@ -132,5 +132,3 @@ if( ( X_UA.Trident || X_UA.TridentMobile ) === 6 && // error @ NN7.2
 		 */
 		X_Script_ie6ExeComError = true;
 };
-
-

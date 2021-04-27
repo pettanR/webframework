@@ -527,10 +527,11 @@ function X_Class_getClassDef( KlassOrInstance ){
 };
 
 /* src のプロパティを target にコピーする．ただし target の プロパティが優先, force で解除 */
+/* Class.create() で ClassBase のメソッドを上書きしていた場合の警告が必要 */
 function X_Class_override( target, src, force ){
 	var p;
 	for( p in src ){
-        if( p === 'Constructor' ) continue;
+        if( src[ p ] === src[ 'Constructor' ] ) continue; // TODO src[P] === src.Constructor closure compiler の改名に対応
         if( X_IS_DEV ){
             if( p === '__proto__' || p === 'prototype' || p === 'constructor' ){
                 X_error( 'X.Class.override : ' + p + ' is reserved!' );

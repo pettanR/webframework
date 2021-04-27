@@ -24,12 +24,26 @@ var // undefined,
 	X_emptyFunction = new Function,
 	X_shortcutFunction,
     X_shortcutContext,
+    g_X_uniqueStamp = 0,
     
     X_HAS_DEV_TOOL = !!window.console,
     /** @define {boolean} */
-    X_IS_DEV = false;
+    X_IS_DEV = false,
+    /** @define {boolean} */
+    X_DEFINE_IS_TEST = false,
+    /** @define {boolean} */
+    X_USE_DOM_RANGE = true,
+    /** @define {boolean} */
+    X_USE_AUDIO = true,
+    /** @define {boolean} */
+    X_USE_GAMEPAD = true,
+    /** @define {boolean} */
+    X_USE_JSONDB = true,
+    /** @define {number} */
+    X_DEFINE_BUILD_TIMESTAMP = 0;
 
 if( X_IS_DEV ){
+    X.buildTimeStamp = X_DEFINE_BUILD_TIMESTAMP;
     if( !X_HAS_DEV_TOOL ){
         console = {
             log : X_emptyFunction,

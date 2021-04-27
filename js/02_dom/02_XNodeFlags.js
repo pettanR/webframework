@@ -39,7 +39,9 @@ var X_NodeFlags_DESTROYED              = 0x0,
 	X_NodeFlags_IE4_DIRTY_CHILDREN     = ( X_UA.Trident || X_UA.TridentMobile ) < 5 ? 2 << 23 : 0,
 	X_NodeFlags_IE4_FIXED              = ( X_UA.Trident || X_UA.TridentMobile ) < 5 ? 2 << 24 : 0,
 
-	X_NodeFlags_IE5_DISPLAY_NONE_FIX   = 5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 && X_UA_ActiveX ? 2 << 24 : 0,
+    X_NodeFlags_IE5_DISPLAY_NONE_FIX   = 5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 &&
+                                             X_UA.Win32 !== 10 && /* 2020/4/7 Win10 では不要 */
+                                             X_UA_ActiveX ? 2 << 24 : 0,
 	X_NodeFlags_IE8_OPACITY_FIX        = 0,//( X_UA.Trident || X_UA.TridentMobile ) === 8 && X_UA_ActiveX ? 2 << 25 : 0,
 	X_NodeFlags_IE_FILTER_FIX_AFTER    = X_UA_ActiveX && 2 << 26,
 	

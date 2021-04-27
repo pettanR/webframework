@@ -174,6 +174,9 @@ function X_Closure_proxyCallback( xfunc, _args ){
 	switch( xfunc.cbKind ){
 
 		case X_CLOSURE_THIS_FUNC :
+            // closure 作成時に this オブジェクトに func が居るか調べ、funcName を調べる。( supplement が居ない場合 )
+            // arg.length < 2 であり、現在も this[ funcName ] === func なら this[ funcName ]( arg[ 0 ] ) で呼び出す。
+            // this[ funcName ] !== func なら funcName を削除
 			return args.length === 0 ? func.call( thisObj ) : func.apply( thisObj, args );
 		
 		case X_CLOSURE_THIS_FUNCNAME :
@@ -210,8 +213,13 @@ function X_Closure_correct( f ){
 		obj;
 
 	if( i !== -1 ){
-		X_CLOSURE_LIVE_LIST.splice( i, 1 );
-		X_CLOSURE_POOL_LIST[ X_CLOSURE_POOL_LIST.length ] = f;
+        X_CLOSURE_LIVE_LIST.splice( i, 1 );
+        // 2020.3.16 Firefox74 Windows10 クロージャのリユースが出来ず、DOM Event のコールバックで再利用前の設定で呼ばれてしまう！
+        // 2020.3.31 Chrome80 Windows10 でも確認。
+        // 
+        if( !( 69 <= X_UA.Gecko && X_UA.Win32 ) && !( 80 <= X_UA.Chromium && X_UA.Win32 ) && !( X_UA.Trident === 8 && X_UA.Win32 === 10 ) ){
+            X_CLOSURE_POOL_LIST[ X_CLOSURE_POOL_LIST.length ] = f;
+        };
 		obj = f( X_Closure_COMMAND_BACK );
 		X_Object_clear( obj );
 		return true;

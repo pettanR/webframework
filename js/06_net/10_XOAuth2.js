@@ -108,7 +108,7 @@ X[ 'OAuth2' ] = X_EventDispatcher[ 'inherits' ](
 				
 				// TODO pointer event 内か？チェック
 				if( !e || !e.pointerType ){
-					alert( 'タッチイベント以外での popup! ' + ( e ? e.type : '' ) );
+					//alert( 'タッチイベント以外での popup! ' + ( e ? e.type : '' ) );
 					return;
 				};
 				

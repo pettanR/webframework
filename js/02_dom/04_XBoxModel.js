@@ -27,14 +27,14 @@ X_ViewPort[ 'listenOnce' ]( X_EVENT_INIT, function(){
 	
 	/*
 	 * 古い Gekco、 Presto、 WebKit では影がレイアウトに影響します。たとえば、width が 100% のボックスに外向きの box-shadow を指定すると、横スクロールバーが表示されてしまいます。
-	 * TODO boxShadow が有効な要素に対して offsetWidth 等の補正(?)
+	 * TODO boxShadow が有効な要素に対して offsetWidth 等の補正(?) -> 隠し要素を生成してその要素で描画
 	 */
 	if( X_Node_CSS_Support[ 'boxShadow' ] &&
 		node[ 'cssText' ](
 				X_Node_CSS_uncamelize( X_Node_CSS_VENDER_PREFIX.boxShadow ) + ':10px 10px 0 0 #000;width:10px;'
 			)[ 'width' ]() !== 10
 	){
-	 	console.log( node[ 'cssText' ]() + node[ 'width' ]() );
+	 	//console.log( node[ 'cssText' ]() + node[ 'width' ]() );
 		X_Node_CSS_Support[ 'boxShadowLayoutBug' ] = true;
 	};
 
@@ -62,14 +62,18 @@ X_ViewPort[ 'listenOnce' ]( X_EVENT_INIT, function(){
  * getBoundingClientRect
  */
 
-function X_Node_BoxModel_mesure( that, name ){
+function X_Node_BoxModel_mesure( that, name, svgName ){
 	var flags = that[ '_flags' ], elm;
 	
 	if( !that[ '_tag' ] || ( ( flags & X_NodeFlags_IN_TREE ) === 0 ) || ( flags & X_NodeFlags_STYLE_IS_DISPLAY_NONE ) ) return 0;
 	
 	X_Node_updateTimerID && X_Node_startUpdate();
 	
-	elm = that[ '_rawObject' ] || X_Node__ie4getRawNode && X_Node__ie4getRawNode( that );
+    elm = that[ '_rawObject' ] || X_Node__ie4getRawNode && X_Node__ie4getRawNode( that );
+
+    if( that[ '_flags' ] & X_NodeFlags_IS_SVG ){
+        return elm ? elm.getBoundingClientRect()[ svgName ] | 0 : 0;
+    };
 	return elm ? elm[ name ] : 0;
 };
 
@@ -80,7 +84,7 @@ function X_Node_BoxModel_mesure( that, name ){
  * @example node.width();
  */
 function X_Node_width(){
-	return X_Node_BoxModel_mesure( this, 'offsetWidth' );
+	return X_Node_BoxModel_mesure( this, 'offsetWidth', 'width' );
 	
 	// TODO width : length + overflow : hidden ならそれを返す? <- block or inline
 	// TODO TextNode どうする?
@@ -95,7 +99,7 @@ function X_Node_width(){
  * @example node.height();
  */
 function X_Node_height(){
-	return X_Node_BoxModel_mesure( this, 'offsetHeight' );
+	return X_Node_BoxModel_mesure( this, 'offsetHeight', 'height' );
 	
 	// this[ 'css' ]( X_Node_CSS_Unit.px, 'height' );
 	//if( X_UA_DOM.IE4 ) return elm ? elm.style.pixelHeight : 0;
@@ -109,7 +113,7 @@ function X_Node_height(){
  * @example node.clientWidth();
  */
 function X_Node_clientWidth(){
-	return X_Node_BoxModel_mesure( this, 'clientWidth' );
+	return X_Node_BoxModel_mesure( this, 'clientWidth', 'width' );
 	
 	// this[ 'css' ]( X_Node_CSS_Unit.px, 'width' );
 	//return elm ? elm.clientWidth : 0;
@@ -122,7 +126,7 @@ function X_Node_clientWidth(){
  * @example node.clientHeight();
  */
 function X_Node_clientHeight(){
-	return X_Node_BoxModel_mesure( this, 'clientHeight' );
+	return X_Node_BoxModel_mesure( this, 'clientHeight', 'height' );
 
 	// this[ 'css' ]( X_Node_CSS_Unit.px, 'height' );
 	//return elm ? elm.clientHeight : 0;
@@ -135,7 +139,7 @@ function X_Node_clientHeight(){
  * @example node.scrollWidth();
  */
 function X_Node_scrollWidth(){
-	return X_Node_BoxModel_mesure( this, 'scrollWidth' );
+	return X_Node_BoxModel_mesure( this, 'scrollWidth', 'width' );
 
 	// this[ 'css' ]( X_Node_CSS_Unit.px, 'width' );
 	//return elm ? elm.scrollWidth : 0;
@@ -148,7 +152,7 @@ function X_Node_scrollWidth(){
  * @example node.scrollHeight();
  */
 function X_Node_scrollHeight(){
-	return X_Node_BoxModel_mesure( this, 'scrollHeight' );
+	return X_Node_BoxModel_mesure( this, 'scrollHeight', 'height' );
 };
 
 /**
@@ -158,6 +162,9 @@ function X_Node_scrollHeight(){
  * @example node.scrollLeft();
  */
 function X_Node_scrollLeft(){
+    if( this[ '_flags' ] & X_NodeFlags_IS_SVG ){
+        return 0;
+    };
 	return X_Node_BoxModel_mesure( this, 'scrollLeft' );
 };
 
@@ -168,6 +175,9 @@ function X_Node_scrollLeft(){
  * @example node.scrollTop();
  */
 function X_Node_scrollTop(){
+    if( this[ '_flags' ] & X_NodeFlags_IS_SVG ){
+        return 0;
+    };
 	return X_Node_BoxModel_mesure( this, 'scrollTop' );
 };
 
@@ -189,7 +199,7 @@ function X_Node_scrollTop(){
  * @example node.x();
  */
 function X_Node_x(){
-	return X_Node_BoxModel_mesure( this, 'offsetLeft' );
+	return X_Node_BoxModel_mesure( this, 'offsetLeft', 'left' );
 	
 	// this[ 'css' ]( X_Node_CSS_Unit.px, 'left' );
 	// this[ 'css' ]( X_Node_CSS_Unit.px, 'translateX' );
@@ -204,7 +214,7 @@ function X_Node_x(){
  * @example node.y();
  */
 function X_Node_y(){
-	return X_Node_BoxModel_mesure( this, 'offsetTop' );
+	return X_Node_BoxModel_mesure( this, 'offsetTop', 'top' );
 	
 	// this[ 'css' ]( X_Node_CSS_Unit.px, 'top' );
 	// this[ 'css' ]( X_Node_CSS_Unit.px, 'transisitonY' );

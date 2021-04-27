@@ -37,7 +37,7 @@ X_TEMP.X_JSONP_cb = function( accessKey, jsonString, time, opt_json2FileSize ){
 			
 			X_JSONP_errorTimerID && X_Timer_remove( X_JSONP_errorTimerID );
 			
-			console.log( 'ms : ' + time + ' speed : ' + ( ( jsonString.length + ( opt_json2FileSize || 0 ) ) / time * 1000 ) + ' バイト/秒.' );
+			//console.log( 'ms : ' + time + ' speed : ' + ( ( jsonString.length + ( opt_json2FileSize || 0 ) ) / time * 1000 ) + ' バイト/秒.' );
 	};
 
 var X_JSONP_ACCESS_KEY = Math.random(),

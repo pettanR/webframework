@@ -59,19 +59,19 @@ X_ViewPort = X_Class_override(
 					break;
 
 				case 'visibilitychange' :
-					console.log( e.type + ':' + document[ 'hidden' ] );
+					//console.log( e.type + ':' + document[ 'hidden' ] );
 					X_ViewPort[ 'dispatch' ]( ( X_ViewPort_active = !document[ 'hidden' ] ) ? X_EVENT_VIEW_ACTIVATE : X_EVENT_VIEW_DEACTIVATE );
 					break;
 				case 'msvisibilitychange' :
-					console.log( e.type + ':' + document[ 'msHidden' ] );
+					//console.log( e.type + ':' + document[ 'msHidden' ] );
 					X_ViewPort[ 'dispatch' ]( ( X_ViewPort_active = !document[ 'msHidden' ] ) ? X_EVENT_VIEW_ACTIVATE : X_EVENT_VIEW_DEACTIVATE );
 					break;
 				case 'mozvisibilitychange' :
-					console.log( e.type + ':' + document[ 'mozHidden' ] );
+					//console.log( e.type + ':' + document[ 'mozHidden' ] );
 					X_ViewPort[ 'dispatch' ]( ( X_ViewPort_active = !document[ 'mozHidden' ] ) ? X_EVENT_VIEW_ACTIVATE : X_EVENT_VIEW_DEACTIVATE );
 					break;
 				case 'webkitvisibilitychange' :
-					console.log( e.type + ':' + document[ 'webkitHidden' ] );
+					//console.log( e.type + ':' + document[ 'webkitHidden' ] );
 					X_ViewPort[ 'dispatch' ]( ( X_ViewPort_active = !document[ 'webkitHidden' ] ) ? X_EVENT_VIEW_ACTIVATE : X_EVENT_VIEW_DEACTIVATE );
 					break;
 	
@@ -114,7 +114,7 @@ function X_ViewPort_detectFocusForIE( e ){
 
 	if( elmActive && this[ '_rawObject' ] !== elmActive ){
 		this[ 'unlisten' ]( X_ViewPort_active ? 'blur' : 'focus', X_ViewPort_detectFocusForIE );
-		console.log( '>>>>>> activeElement 取得 不一致 ' + this._tag );
+		//console.log( '>>>>>> activeElement 取得 不一致 ' + this._tag );
 	} else
 	if( !elmActive ){
 		//console.log( '******** activeElement 取得のエラー' );
@@ -288,19 +288,19 @@ X[ 'ViewPort' ] = {
 	'getDocumentSize' : function(){
 		// Opera は互換モードでは document.body.scrollHeight、標準モードでは document.documentElement.scrollHeight でページの高さが取れる。と思ってたんだけど、例外があった。
 		// http://orera.g.hatena.ne.jp/edvakf/20100515/1273908051
-	//http://onozaty.hatenablog.com/entry/20060803/p1
-	// Safari2.0.4では標準・互換どちらも document.body
-	// http://hisasann.com/housetect/2008/08/jqueryheightwidthopera95.html このdocument.body[ 'client' + name ]はおそらくOpera9.5未満のバージョンで有効なんじゃないかな？
+	    // http://onozaty.hatenablog.com/entry/20060803/p1
+	    // Safari2.0.4では標準・互換どちらも document.body
+	    // http://hisasann.com/housetect/2008/08/jqueryheightwidthopera95.html このdocument.body[ 'client' + name ]はおそらくOpera9.5未満のバージョンで有効なんじゃないかな？
 		
 		X_Node_updateTimerID && X_Node_startUpdate();
 		/*( X_UA.Presto || X_UA.PrestoMobile ) ?
 			( document.documentElement && document.documentElement.clientWidth ?
 				new Function( 'return[document.documentElement.clientWidth,document.documentElement.clientHeight]' ) :
 				new Function( 'return[X_elmBody.clientWidth,X_elmBody.clientHeight]' )
-			) :*/			
+			) :*/
 		return [
-			X_ViewPort_rootElement.scrollWidth  || X_ViewPort_rootElement.offsetWidth,
-			X_ViewPort_rootElement.scrollHeight || X_ViewPort_rootElement.offsetHeight
+			X_ViewPort_rootElement.scrollWidth  || X_ViewPort_rootElement.offsetWidth  || X_ViewPort_rootElement.clientWidth, // SafariMobile12.x でまれに0になる模様 form atr
+			X_ViewPort_rootElement.scrollHeight || X_ViewPort_rootElement.offsetHeight || X_ViewPort_rootElement.clientHeight
 		];
 	},
 
@@ -458,7 +458,7 @@ X[ 'ViewPort' ] = {
 			
 			html[ 'appendTo' ] = html[ 'prev' ] = html[ 'next' ] = html[ 'clone' ] = html[ 'remove' ] = html[ 'kill' ] =
 			html[ 'create' ] = html[ 'createText' ] = html[ 'createAt' ] = html[ 'createTextAt' ] = html[ 'append' ] = html[ 'appendAt' ] = html[ 'empty' ] = html[ 'html' ] = html[ 'text' ] =
-			html[ 'css' ] = html[ 'cssText' ] =
+			/* html[ 'css' ] = html[ 'cssText' ] = */
 			head[ 'appendTo' ] = head[ 'prev' ] = head[ 'clone' ] = head[ 'remove' ] = head[ 'kill' ] =
 			head[ 'createText' ] = head[ 'createTextAt' ] = head[ 'empty' ] = head[ 'html' ] = head[ 'text' ] = head[ 'css' ] = head[ 'cssText' ] =
 			body[ 'appendTo' ] = body[ 'next' ] = body[ 'clone' ] = body[ 'remove' ] = body[ 'kill' ] = new Function( 'return this' );
@@ -584,12 +584,16 @@ X[ 'ViewPort' ] = {
 
 		function X_ViewPort_getWindowSize(){
 			return ( X_UA.Trident || X_UA.TridentMobile ) ?
-				[ X_ViewPort_rootElement.clientWidth, X_ViewPort_rootElement.clientHeight ] :
+				    [ X_ViewPort_rootElement.clientWidth, X_ViewPort_rootElement.clientHeight ] :
 				( X_UA.Presto || X_UA.PrestoMobile ) < 12 ? // Opera10.1 では ズーム + resize 時に表示領域のサイズが取れない！
-                [ X_ViewPort_rootElement.offsetWidth, X_ViewPort_rootElement.offsetHeight ] :
+                    [ X_ViewPort_rootElement.offsetWidth, X_ViewPort_rootElement.offsetHeight ] :
+                ( X_UA.Samsung ) ?
+                    [ window.outerWidth, window.outerHeight ] :
                 // wemo.tech/470
                 // iOS12.2 + Firefox + iPad の場合、outerHeight がアドレスバーのサイズを除いた意図した値を返す
-				[ window.innerWidth, window.innerHeight ];
+                ( X_UA.iOSWebView && X_UA.Firefox ) ?
+                    [ window.outerWidth, window.outerHeight ] :
+				    [ window.innerWidth, window.innerHeight ];
 		};
 
 

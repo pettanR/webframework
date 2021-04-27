@@ -12,6 +12,9 @@
  * SilverlLight5 ie6&7(ietester,winxp), ie8(winxp) で動作確認。firefox32 では動作しない。(4以下の方がよい？)
  */
 
+/** use audio ============================================================== */
+if( X_USE_AUDIO ){
+
 var X_SLAudio,
 	X_SLAudio_uid = 0;
 
@@ -44,7 +47,7 @@ if( X_Plugin_SILVER_LIGHT_VERSION ){
 			'_rawType'      : X_EventDispatcher_EVENT_TARGET_SILVER_LIGHT,
 
     		_onload         : '',
-    		_callback       : null,    		
+    		_callback       : null,
     		xnodeObject     : null,
 			_source         : '',
 			_ended          : true,
@@ -53,7 +56,7 @@ if( X_Plugin_SILVER_LIGHT_VERSION ){
 			_lastState      : '',
 			_interval       : 0, // setInterval timer id
 			
-			'Constructor' : function( dispatcher, source, option ){
+			'Constructor' : function( dispatcher, source, option, ext ){
 				!X_SLAudio_uid && X_TEMP.slaudioInit();
 				
 				/*
@@ -61,7 +64,7 @@ if( X_Plugin_SILVER_LIGHT_VERSION ){
 				 * http://www.atmarkit.co.jp/fdotnet/dotnettips/902slobjcallfromjs/slobjcallfromjs.html
 				 * このページのサンプルは sl5+firefox32 環境で動いている。xaml を js から利用する形ではなく、.xap を sl4 以下で作るのがよさそう.
 				 */
-				this.dispatcher   = dispatcher || this;
+				this.dispatcher  = dispatcher || this;
 				this._source     = source;
 				// X.Audio._slOnload_ は不可
     			this._onload     = 'XAudioSilverlightOnLoad' + ( ++X_SLAudio_uid );
@@ -111,7 +114,7 @@ if( X_Plugin_SILVER_LIGHT_VERSION ){
 			handleEvent : function( e ){
 				var lastState, currentState;
 				
-				console.log( e.type );
+				//console.log( e.type );
 				switch( e.type ){
 					
 					case 'MediaFailed' :
@@ -150,7 +153,7 @@ if( X_Plugin_SILVER_LIGHT_VERSION ){
 						};
 						this._lastState = currentState; // update last state
 				
-						console.log( ' > ' + currentState + ' - ' + this._lastUserAction );
+						//console.log( ' > ' + currentState + ' - ' + this._lastUserAction );
 				
 						switch( currentState ){
 							case 'Buffering' :
@@ -236,7 +239,6 @@ if( X_Plugin_SILVER_LIGHT_VERSION ){
 						if( this._onload ){
 							// window への delete に ie5 は対応しないが、そもそも ie5 は Silverlight に非対応
 							window[ this._onload ] = null;
-							delete this._onload;
 							X_Closure_correct( this._callback );
 						};
 						this.xnodeObject[ 'kill' ]();
@@ -267,7 +269,7 @@ if( X_Plugin_SILVER_LIGHT_VERSION ){
 			    
 			    this.setCurrentTime( this._beginTime = begin );
 			    
-			    console.log( '[play] ' + begin + ' -> ' + end );
+			    //console.log( '[play] ' + begin + ' -> ' + end );
 			    
 			    /*
 			    if( offset = begin - this.getActualCurrentTime() ){
@@ -277,7 +279,7 @@ if( X_Plugin_SILVER_LIGHT_VERSION ){
 			    };*/
 			    
 			    if( !this.playing || this._ended ){
-			    	console.log( '[play] play()' + begin + ' -> ' + end );
+			    	//console.log( '[play] play()' + begin + ' -> ' + end );
 				    this[ '_rawObject' ].play();
 		            this.playing = true;
 		            this._ended  = false;
@@ -309,10 +311,10 @@ if( X_Plugin_SILVER_LIGHT_VERSION ){
 		            	time = this.getActualCurrentTime();
 		            	
 		            	if( time < this._beginTime ){
-		            		console.log( '== waiting ' + time + ' < begin:' + this._beginTime );
+		            		//console.log( '== waiting ' + time + ' < begin:' + this._beginTime );
 		            		this.setCurrentTime( this._beginTime );
 		            		time = this.getActualCurrentTime();
-		            		console.log( '    > ' + time );
+		            		//console.log( '    > ' + time );
 		            		this._ended && this[ '_rawObject' ].play();
 		            		this._ended = false;
 		            		this.dispatcher[ 'dispatch' ]( X_EVENT_MEDIA_WAITING );
@@ -322,7 +324,7 @@ if( X_Plugin_SILVER_LIGHT_VERSION ){
 		            	
 		            	time -= X_Audio_getEndTime( this );
 		            	if( time < -50 ){
-	            			console.log( ' > まだ終わらない ' + time );
+	            			//console.log( ' > まだ終わらない ' + time );
 	            			this._ended && this[ '_rawObject' ].play();
 	            			this._ended = false;
 	            			this._timerID = X_Timer_once( -time, this, this._onEnded );
@@ -330,15 +332,15 @@ if( X_Plugin_SILVER_LIGHT_VERSION ){
 		            	};
 		            	
 		            	if( this.autoLoop ){
-		            		console.log( '========= loop?' );
+		            		//console.log( '========= loop?' );
 		            		if( !( this.dispatcher[ 'dispatch' ]( X_EVENT_MEDIA_BEFORE_LOOP ) & X_CALLBACK_PREVENT_DEFAULT ) ){
-		            			console.log( '========== loopした' );
+		            			//console.log( '========== loopした' );
 		            			this.looped = true;
 		            			this.dispatcher[ 'dispatch' ]( X_EVENT_MEDIA_LOOPED );
 		            			this.actualPlay();
 			            	};
 		            	} else {
-		            		console.log( '========= pause' );
+		            		//console.log( '========= pause' );
 		            		this.actualPause();
 		            		this.dispatcher[ 'dispatch' ]( X_EVENT_MEDIA_ENDED );
 		            	};
@@ -421,3 +423,6 @@ if( X_Plugin_SILVER_LIGHT_VERSION ){
 	} );
 
 };
+
+};
+/** / use audio ============================================================ */

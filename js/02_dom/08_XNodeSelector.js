@@ -275,7 +275,7 @@ function X_Node_Selector__parse( query, last ){
 
 		/*@+debug[*/
 		if( X_ViewPort_readyState < X_EVENT_XDOM_READY ){
-			alert( 'not ready! use X.ViewPort.listenOnce( X_EVENT_XDOM_READY, callback )' );
+			// alert( 'not ready! use X.ViewPort.listenOnce( X_EVENT_XDOM_READY, callback )' );
 			return;
 		};
 		/*]@+debug*/

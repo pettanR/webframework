@@ -1,0 +1,28 @@
+{
+  "name": "webframework",
+  "version": "0.6.1",
+  "description": "pettanR client framework.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pettanR/webframework.git"
+  },
+  "author": "itozyun@gmail.com",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/pettanR/webframework/issues"
+  },
+  "homepage": "https://github.com/pettanR/webframework#readme",
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-sourcemaps": "^2.6.5",
+    "node": "^10.15.3",
+    "google-closure-compiler": "^20190513.0.0"
+  },
+  "dependencies": {
+  }
+}

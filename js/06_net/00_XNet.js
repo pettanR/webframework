@@ -90,7 +90,7 @@
  * // load &lt;script&gt;, &lt;link&gt;
  */
 X[ 'Net' ] = X_EventDispatcher[ 'inherits' ](
-		'X.Net',
+		//'X.Net',
 		X_Class.NONE,
 		{
 			
@@ -303,7 +303,7 @@ function X_NET_shiftQueue( currentKilled ){
 		X_NET_currentQueue = X_NET_currentWrapper = X_NET_currentData = null;
 	};
 	
-	console.log( '■■------------ X_NET_shiftQueue ' + X_NET_QUEUE_LIST.length );
+	//console.log( '■■------------ X_NET_shiftQueue ' + X_NET_QUEUE_LIST.length );
 	
 	if( !X_NET_QUEUE_LIST.length ) return;
 
