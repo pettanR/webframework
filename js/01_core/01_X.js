@@ -18,37 +18,56 @@ function X( v ){
     };
 };
 
-//{+DEV
-if( !window['console'] || ( window.parent && window.parent.log ) ){
-    console = {
-        log : function(a){
-                var elm;
-                //alert(a);
-                if( window.parent ){
-                    elm = parent.document.all ? parent.document.all.log : parent.log || parent.document.getElementById( 'log' );
-                    elm && ( elm.innerHTML = a + '<br>' + elm.innerHTML );
-                };
-            }
-    };    
-};
-
-if( !console.dir ) console.dir = function(){};
-//+DEV}
-
-//{-AUDIO
-//-AUDIO}
-
-var undefined,
+var // undefined,
     X_EMPTY_OBJECT = {},
     X_TEMP = { onSystemReady : [] },
     X_emptyFunction = new Function,
     X_shortcutFunction,
-    X_shortcutContext;
+    X_shortcutContext,
+    g_X_uniqueStamp = 0,
+    
+    X_HAS_DEV_TOOL = !!window.console,
+    /** @define {boolean} */
+    X_IS_DEV = false,
+    /** @define {boolean} */
+    X_DEFINE_IS_TEST = false,
+    /** @define {boolean} */
+    X_USE_DOM_RANGE = true,
+    /** @define {boolean} */
+    X_USE_AUDIO = true,
+    /** @define {boolean} */
+    X_USE_GAMEPAD = true,
+    /** @define {boolean} */
+    X_USE_JSONDB = true,
+    /** @define {number} */
+    X_DEFINE_BUILD_TIMESTAMP = 0;
+
+if( X_IS_DEV ){
+    X.buildTimeStamp = X_DEFINE_BUILD_TIMESTAMP;
+    if( !X_HAS_DEV_TOOL ){
+        console = {
+            log : X_emptyFunction,
+            dir : X_emptyFunction
+        };
+    };  
+} else {
+    if( X_HAS_DEV_TOOL ){
+        console.log = console.dir = function(){};
+    };
+};
+
+function X_error( msg ){
+    if( X_HAS_DEV_TOOL ){
+        eval( 'throw "' + msg + '"' );
+    } else {
+        alert( msg );
+    };
+};
 
 /**
  * バージョン文字列:"0.6.xxx"
  * @type {string} */
-X[ 'VERSION' ] = '0.6.181';
+X[ 'VERSION' ] = '0.7.0';
 
 /**
  * ブートタイム ms
