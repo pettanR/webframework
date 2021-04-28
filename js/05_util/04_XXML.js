@@ -93,7 +93,7 @@ function XMLWrapper_get( index ){
  */
 function XMLWrapper_val( queryString, type ){
     var wrapper, xml, v;
-    
+
     switch( queryString ){
         case 'number' :
         case 'int' :
@@ -103,7 +103,7 @@ function XMLWrapper_val( queryString, type ){
             type = queryString;
             queryString = 0;
     };
-        
+
     wrapper = queryString ? this.find( queryString ) : this;
     xml     = wrapper.length === 1 ? wrapper._rawXML : wrapper[ 0 ];
 
@@ -274,11 +274,11 @@ function XMLWrapper_val( queryString, type ){
                         //console.log( l + ' >> ' + xmlList.length + ' tag:' + tagName );
                     };
             };
-            
+
             isStart = false;
-            
+
             //alert( 'pre-selector:' + ( xmlList && xmlList.length ) )
-            
+
             switch( selector ){
                 // #, ID
                 case 2 :
@@ -331,13 +331,13 @@ function XMLWrapper_val( queryString, type ){
                 case 9 :
                     if( links = document.links ){
                         for( xmlList = [], i = links.length; i; ){
-                            xmlList[ --i ] = new Node( links[ i ] );
+                            xmlList[ --i ] = new X_Node( links[ i ] );
                         };
                     } else {
                         // area[href],a[href]
                     }; */
             };
-            
+
             if( filter && xmlList.length ){
                 // filter.mが関数の場合
                 if( filter.m ){
@@ -354,11 +354,11 @@ function XMLWrapper_val( queryString, type ){
                 if( X_Type_isFunction( filter ) ){
                     tmp = [];
                     for( i = 0, n = -1; xml = xmlList[ i ]; ++i ){
-                        if( ( !!filter( xml ) ) ^ isNot ) tmp[ ++n ] = xml;    
+                        if( ( !!filter( xml ) ) ^ isNot ) tmp[ ++n ] = xml;
                     };
                     xmlList = tmp;
                 } else {
-                // 属性セレクター            
+                // 属性セレクター
                     tmp = [];
                     key = filter[ 0 ];
                     op  = filter[ 1 ];

@@ -1,8 +1,7 @@
 
 
 var FocusUtility_lastElmFocused;
-// iframe 内でフォーカスの無い時に activeElement に障るとエラーに
-var FocusUtility_docActiveElmSupport = ( X_UA[ 'IE' ] && window.parent === window ) || document.activeElement !== undefined;
+var FocusUtility_docActiveElmSupport = ( X_UA.Trident || X_UA.TridentMobile ) || document.activeElement !== undefined;
 var FocusUtility_fixActiveElm;
 
 // https://developer.mozilla.org/ja/docs/Web/API/Document/activeElement
@@ -22,20 +21,18 @@ if( !FocusUtility_docActiveElmSupport ){
             if( tgt === FocusUtility_fixActiveElm ) FocusUtility_fixActiveElm = null;
         }, false );        
     } else if( document.attachEvent ){
-        
+
     };
 };
 
 function FocusUtility_getFocusedElement(){
-    if( !FocusUtility_docActiveElmSupport ){
-        return FocusUtility_fixActiveElm;
-    };
-    return (
+    return FocusUtility_fixActiveElm ||
+        (
             X_Script_gte15 ?
                 X_Script_try( X_Object_find, [ document, 'activeElement' ] ) :
                 // ieは iframe 内で focus がない場合に activeElement に触ると エラーになる
                 // VBS 経由で activeElement に触り安全確認する
-                ( window[ 'vbs_testAE' ]() && document.activeElement )
+                ( X_Script_VBS_ENABLED && vbs_testAE() && document.activeElement )
         );
 };
 
@@ -70,4 +67,3 @@ function FocusUtility_restoreFocus(){
     };
     FocusUtility_lastElmFocused = null;
 };
-

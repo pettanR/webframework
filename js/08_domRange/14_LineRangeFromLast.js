@@ -36,7 +36,7 @@ function LineRangeFromLast_getRawRange( range, xnode, isTextField, from, to ){
                 isLast = i + j === 1;
                 range.setEnd( currentNode, j );
                 range.setStart( currentNode, j - 1 );
-                rect = X_TextRange_getCorrectRect( isTextField, range );
+                rect = X_TextRange_getCorrectRect( false, range, xnode );
                 if( sumup(
                     is1st,
                     isLast,
@@ -56,7 +56,7 @@ function LineRangeFromLast_getRawRange( range, xnode, isTextField, from, to ){
                     range.setEnd( endLineTextNode, endLineOffset );
                     return {
                         range : range,
-                        rect  : X_TextRange_getCorrectRect( isTextField, range ),
+                        rect  : X_TextRange_getCorrectRect( false, range, xnode ),
                         from  : startLineFrom,
                         to    : startLineFrom + ( range + '' ).length
                     };
@@ -81,7 +81,7 @@ function LineRangeFromLast_getRawRange( range, xnode, isTextField, from, to ){
         range.moveStart( 'character', -1 );
         for( ; i; --i ){
             isLast = i === 1;
-            rect = X_TextRange_getCorrectRect( isTextField, range );
+            rect = X_TextRange_getCorrectRect( isTextField, range, xnode );
             if( sumup(
                 i === l,
                 isLast,
@@ -94,7 +94,7 @@ function LineRangeFromLast_getRawRange( range, xnode, isTextField, from, to ){
                 if( isLast ) --i;
                 return {
                     range : range,
-                    rect  : X_TextRange_getCorrectRect( isTextField, range ),
+                    rect  : X_TextRange_getCorrectRect( isTextField, range, xnode ),
                     from  : i,
                     to    : i + range.text.length
                 };    

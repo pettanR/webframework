@@ -55,21 +55,21 @@ X[ 'URL' ] = {
     'PARAMS'         : X_URL_PARAMS,
 
     'create'         : X_URL_create,
-    
+
     'toAbsolutePath' : X_URL_toAbsolutePath,
-    
+
     'objToParam'     : X_URL_objToParam,
 
     'paramToObj'     : X_URL_paramToObj,
 
     'isSameDomain'   : X_URL_isSameDomain,
-    
+
     'isSameProtocol' : X_URL_isSameProtocol,
-    
+
     'isLocal'        : X_URL_isLocal,
-    
+
     'cleanup'        : X_URL_cleanup,
-    
+
     'getEXT'         : X_URL_getEXT,
 
     'getSearch'      : X_URL_getSearch,
@@ -98,7 +98,7 @@ function X_URL_toAbsolutePath( path ){
     ary  = _ary[ 1 ].split( s );
 
     if( path.charAt( 0 ) === s ) return [ _ary[ 0 ], ss, ary[ 0 ], path ].join( '' );
-        
+
     if( path.substr( 0, 2 ) === './' ){
         path = path.substr( 2 );
     } else {
@@ -167,7 +167,7 @@ function X_URL_getSearch( path ){
     path = path.split( '#' )[ 0 ].split( '?' );
     path.splice( 0, 1 );
     return path.join( '?' );
-}
+};
 /**
  * ハッシュフラグメントを返します。
  * @alias X.URL.getHash
@@ -178,7 +178,7 @@ function X_URL_getHash( path ){
     path = path.split( '#' );
     path.splice( 0, 1 );
     return path.join( '#' );
-}
+};
 
 /**
  * object を url パラメータにします。値が object の場合、データは失われます。
@@ -193,7 +193,7 @@ function X_URL_objToParam( data ){
         result[ ++n ] = k;
         result[ ++n ] = '=';
         result[ ++n ] = encodeURIComponent( data[ k ] );
-    }
+    };
     return result.join( '' );
 };
 /**
@@ -205,7 +205,7 @@ function X_URL_objToParam( data ){
  */
 function X_URL_create( url, params ){
     if( !X_Type_isObject( params ) || !( params = X_URL_objToParam( params ) ) ) return url;
-    
+
     return url + ( url.indexOf( '?' ) !== -1 ? '&' : '?' ) + params;
 };
 
@@ -221,7 +221,7 @@ function X_URL_paramToObj( str ){
         parts, l, pair, p;
 
     if( !str ) return obj;
-    
+
     for( parts = str.split( '&' ), l = parts.length; i < l; ++i ){
         pair = parts[ i ];
         p    = pair.indexOf( '=' );
@@ -232,5 +232,5 @@ function X_URL_paramToObj( str ){
         };
     };
 
-    return obj;    
+    return obj;
 };

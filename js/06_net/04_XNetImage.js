@@ -10,7 +10,9 @@ var // IE では厳密には HTMLImageElement ではなく、appendChild して�
     X_ImgLoader_isElement,
     // http://uupaa.hatenablog.com/entry/2013/12/17/171809
     // お手軽に画像の読み込みをハンドリングする、今どきな方法
-    X_ImgLoader_0forError = !X_UA[ 'IE' ] || X_UA[ 'IE' ] === 11 || X_UA[ 'IEHost' ] === 11;
+    // https://gist.github.com/uupaa/8001551
+    // uupaa/image.onload.error.md
+    X_ImgLoader_0forError = !( X_UA.Trident || X_UA.TridentMobile ) || ( X_UA.Trident || X_UA.TridentMobile ) === 11 || X_UA.IEHost === 11;
 
 /*
  * new Image() のときに Image オブジェクトを作るもの(IE8-)と、HTMLImageElement を作るものがある。
@@ -19,10 +21,10 @@ var // IE では厳密には HTMLImageElement ではなく、appendChild して�
 X_TEMP.X_ImgLoader_init = function(){
     var image = new Image(); // ここで無用なアクセスをIEがしているかも
 
-    X_ImgLoader_isElement = !( X_UA[ 'IE' ] < 9 ) && X_Type_isHTMLElement( image );
+    X_ImgLoader_isElement = !( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ) && X_Type_isHTMLElement( image );
 
     X_ImgLoader = X_Class_override(
-        X_ImgLoader_isElement ? Node( image ) : X_EventDispatcher( image ),
+        X_ImgLoader_isElement ? X_Node( image ) : X_EventDispatcher( image ),
         X_TEMP.X_ImgLoader_params
     );
     
@@ -49,7 +51,7 @@ X_TEMP.X_ImgLoader_params = {
 
             this[ '_rawObject' ].src = this.abspath;
 
-            if( X_UA[ 'Opera' ] < 8 && this[ '_rawObject' ].complete ){
+            if( X_UA.Presto < 8 && this[ '_rawObject' ].complete ){ // X_UA.PrestoMobile 7 は非 DHTML ブラウザ。
                 this[ 'asyncDispatch' ]( 'load' );
             } else {
                 this.timerID = X_Timer_add( this.delay, 0, this, X_ImgLoader_detect );
@@ -102,11 +104,11 @@ function X_ImgLoader_detect(){
 
 function X_ImgLoader_handleEvent( e ){
     var raw = this[ '_rawObject' ], size;
-    
+
     // IE11 reset() 時にここに入ってくる...
     if( !this.abspath ) return;
     //console.log( 'X.Net.Image:handleEvent ' + e.type );
-    
+
     switch( e.type ){
         case 'error' :
             // ie11(10,9 開発モード)で mineType 不正の場合、画像取得に成功してもエラーイベントが起こるのを無視する。
@@ -124,14 +126,14 @@ function X_ImgLoader_handleEvent( e ){
         // if( timer ) return; // これがあると safari3.2 で駄目、、、
             this.finish = true;
             this.timerID && X_Timer_remove( this.timerID );
-            if( X_UA[ 'Prsto' ] && !raw.complete ){
+            if( ( X_UA.Presto || X_UA.PrestoMobile ) && !raw.complete ){
                 this.timerID = this[ 'asyncDispatch' ]( X_EVENT_ERROR );
                 return;
             };
 
             //console.log( '* X.Net.Image:LOAD @handle ' + this.abspath + X.Timer.now() );
             //console.dir( raw );
-            
+
             size = X_Util_Image_getActualDimension( X_ImgLoader_isElement ? this : this.abspath );
             this.timerID = this[ 'asyncDispatch' ]( {
                 'type' : X_EVENT_SUCCESS,

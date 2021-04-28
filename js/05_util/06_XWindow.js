@@ -134,15 +134,15 @@ function X_Util_Window_handleEvent( e ){
         case X_EVENT_UNLOAD :
             this[ 'kill' ]();
             break;
-        
+
         case X_EVENT_KILL_INSTANCE :
             if( page && !this[ 'closed' ]() ){
-                if( 9 < X_UA[ 'IEHost' ] ){
+                if( 9 < X_UA.IEHost ){
                     page.close();
                 } else {
                     page.open( 'about:blank', '_self' ).close();
                 };
-                X_Pair_release( this, page );                
+                X_Pair_release( this, page );
             };
             pair.timerID && X_Timer_remove( pair.timerID );
             X_ViewPort[ 'unlisten' ]( X_EVENT_UNLOAD, this, X_Util_Window_handleEvent );

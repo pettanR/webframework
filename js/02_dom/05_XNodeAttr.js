@@ -1,71 +1,71 @@
 var X_Node_Attr_noValue = {
-        'checked'  : 1,
-        'compact'  : 1,
-        'declare'  : 1,
-        'defer'    : 1,
-        'disabled' : 1,
-        'ismap'    : 1,
-        'multiple' : 1,
-        'nohref'   : 1,
-        'noresize' : 1,
-        'noshade'  : 1,
-        'nowrap'   : 1,
-        'readonly' : 1,
-        'selected' : 1
+    checked  : 1,
+    compact  : 1,
+    declare  : 1,
+    defer    : 1,
+    disabled : 1,
+    ismap    : 1,
+    multiple : 1,
+    nohref   : 1,
+    noresize : 1,
+    noshade  : 1,
+    nowrap   : 1,
+    readonly : 1,
+    selected : 1
 },
 X_Node_Attr_renameForDOM = {
-        'class'            : 'className',
-        'accesskey'        : 'accessKey',
-        'accept-charset'   : 'acceptCharset',
-        'bgcolor'          : 'bgColor',
-        'cellpadding'      : 'cellPadding',
-        'cellspacing'      : 'cellSpacing',
-        'char'             : 'ch',
-        'charoff'          : 'chOff',
-        'codebase'         : 'codeBase',
-        'codetype'         : 'codeType',
-        'colspan'          : 'colSpan',
-        'datetime'         : 'dateTime',
-        'for'              : 'htmlFor',
-        'frameborder'      : 'frameBorder',
-        'http-equiv'       : 'httpEquiv',
-        'ismap'            : 'isMap',
-        'longdesc'         : 'longDesc',
-        'maxlength'        : 'maxLength',
-        'nohref'           : 'noHref',
-        'readonly'         : 'readOnly',
-        'rowspan'          : 'rowSpan',
-        'tabindex'         : 'tabIndex',
-        'usemap'           : 'useMap',
-        'valuetype'        : 'valueType',
-        'checked'          : 'defaultChecked'
+    'class'          : 'className',
+    accesskey        : 'accessKey',
+    'accept-charset' : 'acceptCharset',
+    bgcolor          : 'bgColor',
+    cellpadding      : 'cellPadding',
+    cellspacing      : 'cellSpacing',
+    'char'           : 'ch',
+    charoff          : 'chOff',
+    codebase         : 'codeBase',
+    codetype         : 'codeType',
+    colspan          : 'colSpan',
+    datetime         : 'dateTime',
+    'for'            : 'htmlFor',
+    frameborder      : 'frameBorder',
+    'http-equiv'     : 'httpEquiv',
+    ismap            : 'isMap',
+    longdesc         : 'longDesc',
+    maxlength        : 'maxLength',
+    nohref           : 'noHref',
+    readonly         : 'readOnly',
+    rowspan          : 'rowSpan',
+    tabindex         : 'tabIndex',
+    usemap           : 'useMap',
+    valuetype        : 'valueType',
+    checked          : 'defaultChecked'
 },
 
 X_Node_Attr_HAS_VALUE = {
-        'INPUT'    : true,
-        'TEXTAREA' : true,
-        'SELECT'   : true,
-        'BUTTON'   : true,
-        'OBJECT'   : true,
-        'PARAM'    : true // FlashVars が flash 側から書き換えられるケースがある??
+    INPUT    : true,
+    TEXTAREA : true,
+    SELECT   : true,
+    BUTTON   : true,
+    OBJECT   : true,
+    PARAM    : true // FlashVars が flash 側から書き換えられるケースがある??
 },
 
 // <input type=button,hidden,submit,reset,radio,checkbox> の場合、value の値はユーザーで変えることはない
 // <input type=text,password,file> はユーザーによって常に変更される HTML5 ではこれにさらにいろいろ加わる
 X_Node_Attr_STATIC_VALUE_TYPES = {
-    'button'   : true,
-    'hidden'   : true,
-    'submit'   : true,
-    'reset'    : true,
-    'radio'    : true,
-    'checkbox' : true
+    button   : true,
+    hidden   : true,
+    submit   : true,
+    reset    : true,
+    radio    : true,
+    checkbox : true
 },
 
 // 自由な内容が入るため、参照文字への変換が必要
 X_Node_Attr_toChrReferance = {
-    'value' : true,
-    'title' : true,
-    'alt'   : true
+    value : true,
+    title : true,
+    alt   : true
 },
 
 X_Node_Attr_renameForTag = {};
@@ -89,12 +89,12 @@ function X_Node_Attr_objToAttrText( that, skipNetworkForElmCreation ){
         that[ '_flags' ] &= ~X_NodeFlags_OLD_ATTRTEXT;
         // 完全な attrText
     };
-    
+
     if( !obj ){ // Opera7
         delete that[ '_attrText' ];
         return '';
     };
-    
+
     for( k in obj ){
         if( plain[ k ] ) continue;
         
@@ -217,25 +217,25 @@ function X_Node_attr( nameOrObj /* v */ ){
                     return attrs[ nameOrObj ] = elm[ nameOrObj ]; // getAttribute( nameOrObj )?
                 };
                 break;
-                
+
             case 'selected' :
                 // kquery.js : safariのバグ対策
                 // if ($.browser.safari && key === "selected" && tmp) tmp.selectedIndex;
                 // 親ノードの selectedIndex の getter を呼んでおくと値が正しくなる、ということ?( by itozyun )
-                if( X_UA[ 'WebKit' ] && ( elm = this[ '_rawObject' ] ) ){
+                if( X_UA.WebKit && ( elm = this[ '_rawObject' ] ) ){
                     elm.parentNode && elm.selectedIndex;
                 };
             case 'value' :
                 if( tag === 'INPUT' && X_Node_Attr_STATIC_VALUE_TYPES[ attrs[ 'type' ] ] ) break;
             case 'checked' :
-            case 'disabled' :            
+            case 'disabled' :
             case 'selectedIndex' :
                 if( X_Node_Attr_HAS_VALUE[ tag ] ){
                     if( this[ '_newAttrs' ] && X_Object_inObject( nameOrObj, this[ '_newAttrs' ] ) ) return this[ '_newAttrs' ][ nameOrObj ];
                     if( elm = X_UA_DOM.IE4 ? this[ '_rawObject' ] || X_Node__ie4getRawNode( this ) : this[ '_rawObject' ] ){
                         if( !attrs ) attrs = this[ '_attrs' ] = {};
                         
-                        if( tag === 'TEXTAREA' && nameOrObj === 'value' && X_UA[ 'IE' ] < 9 ){
+                        if( tag === 'TEXTAREA' && nameOrObj === 'value' && ( X_UA.Trident || X_UA.TridentMobile ) < 9 ){
                             return attrs[ nameOrObj ] = X_Node_Attr_getValueForIE( elm );
                         };
                         return attrs[ nameOrObj ] = elm[ nameOrObj ]; // getAttribute( nameOrObj )?
@@ -267,7 +267,7 @@ function X_Node_Attr_setAttr( that, attrs, newAttrs, name, v ){
                 that[ '_flags' ] |= X_NodeFlags_IS_VML;
             };
             return;
-        
+
         // case 'type' : TODO IE は input, button, object に対して type の再設定が出来ない _state が要素生成済なら不可
         case 'UID' :
         case 'tag' :
@@ -281,7 +281,7 @@ function X_Node_Attr_setAttr( that, attrs, newAttrs, name, v ){
                 that[ '_flags' ] |= X_NodeFlags_DIRTY_ID;
                 that[ '_flags' ] & X_NodeFlags_IN_TREE && X_Node_reserveUpdate();
             };
-            return;    
+            return;
         case 'class' :
         case 'className' :
             return that[ 'className' ]( v );
@@ -294,14 +294,14 @@ function X_Node_Attr_setAttr( that, attrs, newAttrs, name, v ){
             return that[ 'html' ]( v );
     };
     // debug
-    if( name.indexOf( 'on' ) === 0 ){
-        X.Logger.warn( 'xnode.attr("' + name + '") is wrong, xnode.listen() & xnode.unlisten().' );
+    if( X_IS_DEV && !X_TEMP.X_Dom_useBuilder && name.indexOf( 'on' ) === 0 ){ // TreeBuilder 中は許可する
+        X_error( 'X.Node.attr : xnode.attr(' + name + ') is wrong, Use xnode.listen() & xnode.unlisten().' );
         return;
     };
-    
+
     name = X_Node_Attr_renameForTag[ name ] || name;
     if( attrs[ name ] === v ) return;
-    
+
     if( v == null ){
         newAttrs[ name ] = undefined;
         if( X_Object_inObject( name, attrs ) ) delete attrs[ name ];

@@ -8,7 +8,7 @@ X_TEMP._isCleanupTarget = function( elm ){
         ( X_Dom_DTD_CLEANUP_TAGS[ tag ] || cname.indexOf( ' cleanup-target ' ) !== -1 );
 };
 
-if( X_UA[ 'MacIE' ] ){
+if( X_UA.Tasman ){
 
     X_TEMP._fixed_remove = function( node ){
         var parent   = node.parentNode, l;
@@ -88,7 +88,7 @@ if( X_UA[ 'MacIE' ] ){
     };
     
 } else
-if( X_UA[ 'Opera' ] < 8 ){
+if( ( X_UA.Presto || X_UA.PrestoMobile ) < 8 ){
 
     X_TEMP._fixed_remove = function( node ){
         if( node.nodeType === 1 || node.nodeType === 3 ){
@@ -115,20 +115,21 @@ X_TEMP._onPreInit =
         body = X_elmBody,
         copy, i, l, node, html,
         elmProgress;
-    
+
     if( !X_TEMP.X_Dom_useBuilder ) return;
-    
+
     X_HTMLParser_skipFixNesting = true;
-    
+
     // TODO
     // textarea の内容を控えて、消す。xnode tree 構築後に復帰。でないと、html パースでこける
-    //X_UA[ 'MacIE' ] && alert( body.innerHTML );
-    // cleanup tree    
+    //X_UA.Tasman && alert( body.innerHTML );
+    // cleanup tree
     function cleanUpTree( elm, skip ){
         var nodes      = X_Array_copy( elm.childNodes ),
             i          = 0,
             l          = nodes.length,
             node, tag, textNode, content;
+
         for( ; i < l; ++i ){
             node = nodes[ i ];
             switch( node.nodeType ){
@@ -149,7 +150,7 @@ X_TEMP._onPreInit =
                     break;
                 case 3 :
                     content = skip ? node.data : X_String_cleanupWhiteSpace( node.data );
-                    //console.log( 'Delete space ' + node.data.length + ' => ' + content.length );                
+                    //console.log( 'Delete space ' + node.data.length + ' => ' + content.length );
                     if( !textNode && content !== ' ' && content.length ){
                         node.data = content;
                         textNode  = node;
@@ -161,7 +162,7 @@ X_TEMP._onPreInit =
                     // ブロック要素直下のスペースだけは削除？？
                 default :
                     //console.log( 'Remove type: ' + node.nodeType + ' value: ' + node.nodeValue );
-                    if( !( X_UA[ 'Opera' ] < 8 ) /*&& !X_UA[ 'MacIE' ] */ ){
+                    if( !( X_UA.Presto < 8 ) /*&& !X_UA.Tasman */ ){
                         elm.removeChild( node );
                     } else {
                         X_TEMP._fixed_remove( node );
@@ -171,18 +172,18 @@ X_TEMP._onPreInit =
         };
     };
 
-    cleanUpTree( X_UA[ 'MacIE' ] ? ( copy = body.cloneNode( true ) ) : body );
+    cleanUpTree( X_UA.Tasman ? ( copy = body.cloneNode( true ) ) : body );
 
-    if( X_UA[ 'MacIE' ] ){
+    if( X_UA.Tasman ){
         document.write( html = copy.innerHTML );
     } else {
         // body の属性値の取得
-        if( X_UA[ 'IE' ] <= 8 ){
+        if( ( X_UA.Trident || X_UA.TridentMobile ) <= 8 ){
             html = body.innerHTML.split( X_String_CRLF ).join( '' ); // 不要な改行が入る
         } else {
             html = body.innerHTML;
         };
-        
+
         // Nokia s60 Safari
         if( html === 'fastinnerhtml!' ){
             html = '';
@@ -190,13 +191,13 @@ X_TEMP._onPreInit =
                 node = body.childNodes[ i ];
                 html += ( node.outerHTML || node.data );
             };
-        };        
+        };
     };
-    
+
     body.appendChild( X_TEMP.elmProgress = elmProgress = document.createElement( 'div' ) );
     elmProgress.style.cssText = 'position:absolute;top:0;left:0;z-index:9999;width:0;height:0.5em;background:#00f;overflow:hidden;';
     elmProgress.setAttribute( 'style', 'position:absolute;top:0;left:0;z-index:9999;width:0;height:0.5em;background:#00f;overflow:hidden;' );
-    
+
     X_HTMLParser_asyncParse( html, true )
         [ 'listen' ]( X_EVENT_PROGRESS, X_TEMP._handleEvent )
         [ 'listenOnce' ]( X_EVENT_SUCCESS, X_TEMP._handleEvent );
@@ -255,7 +256,7 @@ X_TEMP.asyncCreateTree = function( parent, elems, elmProgress, async ){
         l           = async ? 0           : xnodes.length,
         stack       = async ? async.stack : [],
         done        = async ? async.done  : 0,
-        startTime   = X_Timer_now(),        
+        startTime   = X_Timer_now(),
         current     = async ? async.current : {
             me     : parent,
             xnodes : xnodes,
@@ -274,16 +275,16 @@ X_TEMP.asyncCreateTree = function( parent, elems, elmProgress, async ){
         if( i < l ){
             parent = current.me;
             xnodes = current.xnodes;
-            while( xnode = xnodes[ i ] ){            
+            while( xnode = xnodes[ i ] ){
                 //
                 dive = X_TEMP.bindElementToXnode( parent, xnode, current );
-                
+
                 ++i;
                 ++done;
                 if( dive ){
                     current.i = i;
                     stack[ stack.length ] = current;
-                    
+
                     current = dive;
                     i       = 0;
                     l       = dive.l;
@@ -291,7 +292,7 @@ X_TEMP.asyncCreateTree = function( parent, elems, elmProgress, async ){
                     xnodes  = dive.xnodes;
                     continue;
                 };
-                
+
                 if( startTime + X_Timer_INTERVAL_TIME <= X_Timer_now() ){
                     current.i = i;
                     if( async ){
@@ -304,26 +305,26 @@ X_TEMP.asyncCreateTree = function( parent, elems, elmProgress, async ){
                     elmProgress.style.width = ( ( 1 - done / X_Node_CHASHE.length ) * 100 | 0 ) + '%';
                     return;
                 };
-            };            
+            };
         };
         current = null;
     };
     // complete
-    console.log( 'xtree 作成完了' );
+    //console.log( 'xtree 作成完了' );
     X_ViewPort[ 'asyncDispatch' ]( X_EVENT_XTREE_READY );
-    
-    if( X_UA[ 'IE' ] < 6 ){
+
+    if( ( X_UA.Trident || X_UA.TridentMobile ) < 6 ){
         // IE5.01 でビルド時間が短い時に removeChild を通るとエラー!
         elmProgress.outerHTML = '';
     } else {
         elmProgress.parentNode.removeChild( elmProgress );
     };
-    
+
     delete X_TEMP.asyncCreateTree;
     delete X_TEMP.bindElementToXnode;
     delete X_TEMP.X_Dom_useBuilder;
     delete X_TEMP._isCleanupTarget;
-    
+
     X_HTMLParser_skipFixNesting = false;
 };
 
@@ -337,39 +338,39 @@ X_TEMP.bindElementToXnode =
                 skipCleanup = current.skipCleanup,
                 inPreTag    = current.inPreTag,
                 elm, tag, text;
-        
+
             xnode.parent = parent;
-        
+
             for( ; current.j < m; ++current.j ){
                 elm = elems[ current.j ];
                 tag = elm.tagName && elm.tagName.toUpperCase();
                 if( ( elm.nodeType !== 1 && elm.nodeType !== 3 ) || tag === '!' || ( tag && tag.charAt( 0 ) === '/' ) ){
-                    if( !( X_UA[ 'Opera' ] < 8 ) && !X_UA[ 'MacIE' ] ){
+                    if( !( X_UA.Presto < 8 ) && !X_UA.Tasman ){
                         elm.parentNode.removeChild( elm );
                     } else {
                         X_TEMP._fixed_remove( elm );
                     };
                     continue;
                 };
-        
+
                 if( xnode[ '_tag' ] ){
                     if( elm.nodeType === 3 ){
                         if( !( text = elm.data ) || ( text = X_String_cleanupWhiteSpace( text ) ) === ' ' ){
-                            if( !( X_UA[ 'Opera' ] < 8 ) && !X_UA[ 'MacIE' ] ){
+                            if( !( X_UA.Presto < 8 ) && !X_UA.Tasman ){
                                 elm.parentNode.removeChild( elm );
                             } else {
                                 X_TEMP._fixed_remove( elm );
                             };
                             continue;
                         };
-                        alert( '1:[' +parent[ '_tag' ] + '>' +xnode[ '_tag' ] + '] !== ' + elm.nodeType + '\n' + ( elm.data ) );
+                        //alert( '1:[' +parent[ '_tag' ] + '>' +xnode[ '_tag' ] + '] !== ' + elm.nodeType + '\n' + ( elm.data ) );
                     } else
                     if( X_Dom_DTD_MOVE_TO_HEAD[ tag ] ){
-                        alert( tag );
+                        //alert( tag );
                         continue;
                     } else
                     if( xnode[ '_tag' ] !== tag ){
-                        alert( '2:[' +parent[ '_tag' ] + '>' +xnode[ '_tag' ] + ' len:' + (xnode[ '_xnodes' ] ? xnode[ '_xnodes' ].length : '' ) + '] !== ' + tag + ' ' + (elm.childNodes ? elm.childNodes.length : '' ) + '\n' + elm.outerHTML );
+                        //alert( '2:[' +parent[ '_tag' ] + '>' +xnode[ '_tag' ] + ' len:' + (xnode[ '_xnodes' ] ? xnode[ '_xnodes' ].length : '' ) + '] !== ' + tag + ' ' + (elm.childNodes ? elm.childNodes.length : '' ) + '\n' + elm.outerHTML );
                     } else {
                         xnode[ '_rawObject' ] = elm;
                         //if( ( doc = elm.ownerDocument || elm.document ) && ( doc.createElement( 'p' ).tagName === doc.createElement( 'P' ).tagName ) ){
@@ -380,16 +381,16 @@ X_TEMP.bindElementToXnode =
                         xnode[ '_flags' ] &= X_Node_BitMask_RESET_DIRTY;
                         elm[ 'UID' ]       = xnode[ '_uid' ];
                         current.xtext = null;
-                        
+
                         if( tag === 'TEXTAREA' ){
                             xnode[ 'attr' ]( 'value', xnode[ 'html' ]() )[ 'empty' ]();
-                            
+
                         } else
                         if( elm.childNodes && elm.childNodes.length ){
                             //alert( '[' +parent[ '_tag' ] + '>' + xnode[ '_tag' ] + ' ' + (xnode[ '_xnodes' ] ? xnode[ '_xnodes' ].length : '' ) + '] === ' + tag + ' ' + (elm.childNodes ? elm.childNodes.length : '' ) + ' Hit\n' + elm.outerHTML );
                             //current.xtext = null;
                             ++current.j;
-                            
+
                             return {
                                 me     : xnode,
                                 xnodes : X_Array_copy( xnode[ '_xnodes' ] ),
@@ -408,10 +409,10 @@ X_TEMP.bindElementToXnode =
                     ++current.j;
                     break;
                 };
-                
+
                 if( elm.nodeType !== 3 ){
                     if( !( text = xnode[ '_text' ] ) || ( text = X_String_cleanupWhiteSpace( text ) ) === ' ' ){
-                        console.log( '[' +parent[ '_tag' ] + '> UID:' + xnode[ '_uid' ] + ' len:' + xnode[ '_text' ].length + ' code : ' + xnode[ '_text' ].charCodeAt( 0 ) + ',' + xnode[ '_text' ].charCodeAt( 1 ) + '] destroyed.' );
+                        //console.log( '[' +parent[ '_tag' ] + '> UID:' + xnode[ '_uid' ] + ' len:' + xnode[ '_text' ].length + ' code : ' + xnode[ '_text' ].charCodeAt( 0 ) + ',' + xnode[ '_text' ].charCodeAt( 1 ) + '] destroyed.' );
                         xnode[ 'kill' ]();
                         break;
                     };
@@ -421,21 +422,21 @@ X_TEMP.bindElementToXnode =
                         'html : ' + elm.outerHTML );
                     break;
                 };
-                
+
                 ++current.j;
                 xnode[ '_rawObject' ] = elm;
                 xnode[ '_flags' ]    |= X_NodeFlags_IN_TREE;
                 xnode[ '_flags' ]    &= X_Node_BitMask_RESET_DIRTY;
                 xnode[ '_text' ]      = elm.data; // 正確
-                
+
                 if( !skipCleanup ){
                     if( !( text = xnode[ '_text' ] ) || ( text = X_String_cleanupWhiteSpace( text ) ) === ' ' ){
-                        console.log( '[' +parent[ '_tag' ] + '>' + xnode[ '_uid' ] + '] destroy ... ' );
+                        //console.log( '[' +parent[ '_tag' ] + '>' + xnode[ '_uid' ] + '] destroy ... ' );
                         xnode[ 'kill' ]();
                     };
                     if( xtext ){
                         xtext[ 'text' ]( xtext[ '_text' ] + text );
-                        console.log( '[' +parent[ '_tag' ] + '>' + xnode[ '_uid' ] + '] xtext,destroy ... ' );
+                        //console.log( '[' +parent[ '_tag' ] + '>' + xnode[ '_uid' ] + '] xtext,destroy ... ' );
                         xnode[ 'kill' ]();
                     } else {
                         //alert( parent[ '_tag' ] + '>' + '"' + text + '"\n' + elm.data );
@@ -444,7 +445,7 @@ X_TEMP.bindElementToXnode =
                 } else
                 if( xtext ){
                     xtext[ 'text' ]( xtext[ '_text' ] + xnode[ '_text' ] );
-                    console.log( '[' +parent[ '_tag' ] + '>' + xnode[ '_uid' ] + '] xtext,destroy ... ' );
+                    //console.log( '[' +parent[ '_tag' ] + '>' + xnode[ '_uid' ] + '] xtext,destroy ... ' );
                     xnode[ 'kill' ]();
                 };
                 current.xtext = xtext || xnode;
@@ -458,9 +459,9 @@ X_TEMP.bindElementToXnode =
                 xtext = current.xtext,
                 skipCleanup = current.skipCleanup,
                 elm, tag, text;
-        
+
             xnode.parent = parent;
-            
+
             if( !xnode[ '_tag' ] ){
                 xnode[ '_flags' ] |= X_NodeFlags_IN_TREE;
                 xnode[ '_flags' ] &= X_Node_BitMask_RESET_DIRTY;
@@ -489,7 +490,7 @@ X_TEMP.bindElementToXnode =
                 parent[ '_flags' ] |= X_NodeFlags_IE4_HAS_TEXTNODE;
                 return;
             };
-            
+
             for( ; j < m; ++j, ++current.j ){
                 elm = elems[ j ];
                 tag = elm.tagName;
@@ -501,10 +502,10 @@ X_TEMP.bindElementToXnode =
                     continue;
                 } else
                 if( xnode[ '_tag' ] !== tag ){
-                    alert( xnode[ '_tag' ] + ' ' + ' !== ' + tag + '\nxnode.html():' + xnode.attr('cite') + '\nelm.outerHTML:' +  elm.outerHTML );
+                    //alert( xnode[ '_tag' ] + ' ' + ' !== ' + tag + '\nxnode.html():' + xnode.attr('cite') + '\nelm.outerHTML:' +  elm.outerHTML );
                 } else {
                     ++current.j;
-                    
+
                     xnode[ '_rawObject' ] = elm;
                     xnode[ '_flags' ]    |= X_NodeFlags_IN_TREE;
                     xnode[ '_flags' ]    &= X_Node_BitMask_RESET_DIRTY;
@@ -513,10 +514,10 @@ X_TEMP.bindElementToXnode =
                         xnode[ 'kill' ]();
                         break;
                     };
-                    
+
                     !xnode[ '_id' ] && elm.setAttribute( 'id', 'ie4uid' + xnode[ '_uid' ] );
                     elm.setAttribute( 'UID', xnode[ '_uid' ] );
-                    
+
                     tag === 'INPUT' && (
                         !xnode[ '_attrs' ] ?
                             ( xnode[ '_attrs' ] = { type : 'text' } ) :
@@ -524,7 +525,7 @@ X_TEMP.bindElementToXnode =
                     );
                     parent[ '_flags' ] |= X_NodeFlags_IE4_HAS_ELEMENT;
                     current.xtext = null;
-                    
+
                     if( tag === 'TEXTAREA' ){
                         xnode[ 'attr' ]( 'value', xnode[ 'html' ]() )[ 'empty' ]();
                     } else
@@ -546,9 +547,9 @@ X_TEMP.bindElementToXnode =
             };
             // for
             if( !xnode[ '_rawObject' ] ){
-                alert( xnode[ '_tag' ] + ' ' + xnode[ '_id' ] + ' !== none...' );
+                //alert( xnode[ '_tag' ] + ' ' + xnode[ '_id' ] + ' !== none...' );
             };
         });
 
-console.log( 'X.Dom.Builder' );
-console.log( 'bootTime : ' + ( X_Timer_now() - X.bootTime ) );
+//console.log( 'X.Dom.Builder' );
+//console.log( 'bootTime : ' + ( X_Timer_now() - X.bootTime ) );

@@ -8,15 +8,15 @@ var X_JSON = X[ 'JSON' ] =
 
                         // JavaScriptでunicode文字列をunescapeする
                         // http://perutago.seesaa.net/article/202801583.html
-                        
-                        // http://blog.livedoor.jp/dankogai/archives/51503830.html        
+
+                        // http://blog.livedoor.jp/dankogai/archives/51503830.html
                         // Ajax - IE8にもJSON入ってます。使えるとは限らないけど
                         // Compatibility mode (別名Quirks mode) では、JSONオブジェクトは無効になります。iframeもだめです
-X_UA[ 'IE8' ] ? {
+( 8 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 9 ) ? {
     'stringify' : function( o ){
         return unescape( JSON.stringify( o ) );
     },
-    
+
     'parse' : JSON.parse
 } :
 

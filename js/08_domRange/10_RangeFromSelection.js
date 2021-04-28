@@ -65,7 +65,7 @@ function RangeFromSelection_getRawRange( xnode, isTextField, truncate ){
         if( range ){
             return {
                 range : range,
-                rect  : X_TextRange_getCorrectRect( isTextField, range )
+                rect  : X_TextRange_getCorrectRect( false, range, xnode )
             };
         };
     } else {
@@ -79,7 +79,7 @@ function RangeFromSelection_getRawRange( xnode, isTextField, truncate ){
                 if( elm === parent || elm.contains( parent ) ){
                     return {
                         range : range,
-                        rect  : X_TextRange_getCorrectRect( isTextField, range )
+                        rect  : X_TextRange_getCorrectRect( isTextField, range, xnode )
                     };
                 };
                 if( truncate && parent.contains( elm ) ){
@@ -97,7 +97,7 @@ function RangeFromSelection_getRawRange( xnode, isTextField, truncate ){
                     };
                     return {
                         range : range,
-                        rect  : X_TextRange_getCorrectRect( isTextField, range )
+                        rect  : X_TextRange_getCorrectRect( isTextField, range, xnode )
                     };
                 };
                 break;
@@ -107,7 +107,9 @@ function RangeFromSelection_getRawRange( xnode, isTextField, truncate ){
 
     // ie11, ie11-10mode, ie11-9mode は startContainer に contains が効かない！
     function contains( elm, kid ){
-        if( X_UA[ 'IE' ] === 11 || X_UA[ 'IEHost' ] === 11 ){
+        if( ( X_UA.Trident || X_UA.TridentMobile ) === 11 || // for IE11
+              X_UA.IEHost === 11 // for IE11 9~10 mode
+          ){
             parent = kid.parentNode;
             return elm === parent || elm.contains( parent );
         } else {
@@ -149,7 +151,7 @@ function RangeFromSelection_getOffsetTextField(){
         selection_range, before_range, text;
         
     if( X_TextRange_canGetCursorPosition ){
-        if( X_UA[ 'IE' ] ){
+        if( ( X_UA.Trident || X_UA.TridentMobile ) ){
             l    = elm.value.length;
             from = elm.selectionStart;
             to   = elm.selectionEnd;

@@ -62,7 +62,6 @@ function X_Object_copy( src ){
     
     ret = {};
     for( k in src ){
-        //if( X_EMPTY_OBJECT[ k ] ) continue;
         ret[ k ] = src[ k ];
     };
     return ret;
@@ -79,7 +78,6 @@ function X_Object_override( target, src ){
     var k;
     if( !src || !X_Type_isObject( src ) ) return target;
     for( k in src ){
-        //if( X_EMPTY_OBJECT[ k ] ) continue;
         target[ k ] = src[ k ];
     };
     return target;
@@ -112,7 +110,7 @@ function X_Object_deepCopy( src ){
 
 function X_Object_deepCopy_( src, objSrc, objCopy, n ){
     var ret, i, k;
-    
+
     if( !src ){ // 0, "", null, undefined, NaN, false
         return src;
     } else
@@ -132,7 +130,6 @@ function X_Object_deepCopy_( src, objSrc, objCopy, n ){
         return src;
     };
     for( k in src ){
-        //if( X_EMPTY_OBJECT[ k ] ) continue;
         ret[ k ] = X_Object_deepCopy_( src[ k ], objSrc, objCopy, n );
     };
     return ret;
@@ -147,7 +144,6 @@ function X_Object_deepCopy_( src, objSrc, objCopy, n ){
 function X_Object_isEmpty( v ){
     if( !v ) return;
     for( var k in v ){
-        //if( X_EMPTY_OBJECT[ _k ] ) continue;
         return false;//if( v.hasOwnProperty && v.hasOwnProperty( p ) ) return false; ie4 で動かない、、、
     };
     return true;
@@ -171,6 +167,7 @@ function X_Object_find( obj, selector ){
 };
 
 // TODO X.Object.own( obj, name )
+// delete obj[ name ] の戻り値で知ることが出来ない？
 /*
  * Safari の JavaScript の不備 
  * http://nanto.asablo.jp/blog/2006/01/13/209495

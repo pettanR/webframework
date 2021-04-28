@@ -9,9 +9,11 @@ var CHECK_TEXTAREA_INTERVAL = 16,
     xnodeBody, xnodeRoot, xnodeCurrent, xnodeForm, xnodeTextarea,
     lastTextareaValue, lastKeyName, lastCursorOffset,
     timerID,
-    editStartAction  = X.UA[ 'iOS' ] || X.UA[ 'Android' ] && ( X.UA[ 'Gecko' ] || X.UA[ 'Blink' ] || X.UA[ 'CrWV' ] ) ? 'click' : 'pointerup',
-    isIeOrEdge       = X.UA[ 'IE' ] || X.UA[ 'Edge' ],
-    scrollAfterInput = true || X.UA[ 'iOS' ];
+    editStartAction  = X.UA.SafariMobile || X.UA.iOSWebView ||
+                       X.UA.Android &&
+                           ( X.UA.Fennec || X_UA.ChromiumMobile || X_UA.Samsung || X_UA.ChromeWebView ) ? 'click' : 'pointerup',
+    isIeOrEdge       = X.UA.Trident || X.UA.TridentMobile || X.UA.EdgeHTML || X.UA.EdgeMobile,
+    scrollAfterInput = true || X.UA.SafariMobile || X.UA.iOSWebView;
 
 X(function(){
     X.KB.listen( 'keydown', onKeyDown );

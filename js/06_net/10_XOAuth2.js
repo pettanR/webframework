@@ -87,7 +87,7 @@ X[ 'OAuth2' ] = X_EventDispatcher[ 'inherits' ](
             'state' : function(){
                 return X_Pair_get( this ).oauth2State || 0;
             },
-            
+
             /**
              * 認可用 window をポップアップする。ポップアップブロックが働かないように必ず pointer event 内で呼ぶこと。
              * <dl>
@@ -102,18 +102,18 @@ X[ 'OAuth2' ] = X_EventDispatcher[ 'inherits' ](
             'requestAuth' : function(){
                 var e = X_EventDispatcher_CURRENT_EVENTS[ X_EventDispatcher_CURRENT_EVENTS.length - 1 ],
                     /* w, h, */ pair;
-                
+
                 // TODO pointer event 内か？チェック
-                if( !e || !e[ 'pointerType' ] ){
-                    alert( 'タッチイベント以外での popup! ' + ( e ? e.type : '' ) );
+                if( !e || !e.pointerType ){
+                    //alert( 'タッチイベント以外での popup! ' + ( e ? e.type : '' ) );
                     return;
                 };
-                
+
                 // 二つ以上の popup を作らない
                 if( X_OAUTH2_authWindow ) return;
-                
+
                 pair = X_Pair_get( this );
-                
+
                 if( pair.net || pair.oauth2State ) return;
 
                 // Google の OAuth パネルで下に切れるコンテンツが表示できない問題に遭遇。以降はタブで表示されるようにする。
@@ -123,10 +123,10 @@ X[ 'OAuth2' ] = X_EventDispatcher[ 'inherits' ](
                 X_OAUTH2_authWindow = X_Window( {
                     'url' : X_URL_create( pair[ 'authorizeEndpoint' ],
                             {
-                                'response_type' : 'code',
-                                'client_id'     : pair[ 'clientID' ],
-                                'redirect_uri'  : pair[ 'redirectURI' ],
-                                'scope'         : ( pair[ 'scopes' ] || [] ).join( ' ' )
+                                response_type : 'code',
+                                client_id     : pair[ 'clientID' ],
+                                redirect_uri  : pair[ 'redirectURI' ],
+                                scope         : ( pair[ 'scopes' ] || [] ).join( ' ' )
                             }
                         ),
                     'name'   : 'oauthauthorize' /*,
@@ -136,79 +136,79 @@ X[ 'OAuth2' ] = X_EventDispatcher[ 'inherits' ](
                         + ',top='  + ( screen.height - h ) / 2
                         + ',menubar=no,toolbar=no' */
                 } )[ 'listen' ]( X_EVENT_UNLOAD, this, X_OAuth2_detectAuthPopup );
-                
+
                 X_OAUTH2_authTimerID = X_Timer_add( 333, 0, this, X_OAuth2_detectAuthPopup );
-                
+
                 pair.oauth2State = 1;
-                
+
                 this[ 'asyncDispatch' ]( { type : X_EVENT_PROGRESS, message : 'Start to auth.' } );
             },
-            
+
             /**
              * 認可プロセスのキャンセル。ポップアップを閉じて認可用の通信は中断する。
              */
             'cancelAuth' : function(){
                 var pair = X_Pair_get( this );
-                
+
                 if( pair.net ){
                     pair.net[ 'kill' ]();
                     delete pair.net;
                 };
-                
+
                 if( pair.oauth2State !== 1 ){
                     return;
                 };
-                
+
                 // http://kojikoji75.hatenablog.com/entry/2013/12/15/223839
                 if( X_OAUTH2_authWindow ){
                     X_OAUTH2_authWindow[ 'kill' ]();
                     X_OAUTH2_authWindow = null;                    
                 };
-                
+
                 X_OAUTH2_authTimerID && X_Timer_remove( X_OAUTH2_authTimerID );
                 X_OAUTH2_authTimerID = 0;
-                
+
                 this[ 'asyncDispatch' ]( X_EVENT_CANCELED );
             },
-            
+
             /**
              * アクセストークンのリフレッシュ。
              */
             'refreshToken' : function(){
                 var pair = X_Pair_get( this ),
                     refreshToken = X_OAuth2_getRefreshToken( this );
-                
+
                 if( !refreshToken ){
                     pair.oauth2State = 0;
                     this[ 'asyncDispatch' ]( X_EVENT_NEED_AUTH );
                     return;
                 };
-                
+
                 if( pair.net ) return;
-                
+
                 if( pair.refreshTimerID ){
                     X_Timer_remove( pair.refreshTimerID );
                     delete pair.refreshTimerID;
                 };
-                
+
                 pair.oauth2State = 3;
-                
+
                 pair.net = X.Net( {
                     'xhr'      : pair[ 'tokenEndpoint' ],
                     'postdata' : X_URL_objToParam({
-                        'client_id'     : pair[ 'clientID' ],
-                        'client_secret' : pair[ 'clientSecret' ],
-                        'grant_type'    : 'refresh_token',
-                        'refresh_token' : refreshToken
+                        client_id     : pair[ 'clientID' ],
+                        client_secret : pair[ 'clientSecret' ],
+                        grant_type    : 'refresh_token',
+                        refresh_token : refreshToken
                     }),
                     'dataType' : 'json',
                     'headers'  : {
-                                    'Accept'       : 'application/json',
+                                    Accept         : 'application/json',
                                     'Content-Type' : 'application/x-www-form-urlencoded'
                                 },
                     'test'     : 'gadget' // canuse
                 } ).listenOnce( [ X_EVENT_SUCCESS, X_EVENT_ERROR ], this, X_OAuth2_responceHandler );
-                
+
                 this[ 'asyncDispatch' ]( { type : X_EVENT_PROGRESS, message : 'Start to refresh token.' } );
             }
         }

@@ -10,7 +10,7 @@ X_TextRange = function( xnode, rangeType, a, b ){
             ( tag === 'INPUT' && ( 0 < ' text,search,url,telephone,password'.indexOf( type ) ) );
 
     function canCreateRange(){
-        if( X_TextRange_canGetCursorPosition === undefined && isTextField && !( X_UA[ 'IE' ] < 9 ) ){
+        if( X_TextRange_canGetCursorPosition === undefined && isTextField && !( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ) ){
             X_TextRange_canGetCursorPosition = !!elm.setSelectionRange;
         };
         return !isTextField || X_TextRange_canGetCursorPosition || X_TextRange_ieRange;
@@ -69,11 +69,13 @@ function X_TextRange_collectTextNodes( elm, ary ){
 
 // 行の最後の文字の端をクリックすると次の行の文字が選択されてしまう ie, edge
 // 選択を移動して補正する https://msdn.microsoft.com/ja-jp/library/ms535872(v=vs.85).aspx
-function X_TextRange_getCorrectRect( isTextField, range ){
+function X_TextRange_getCorrectRect( isTextField, range, xnode ){
     var rect, endOffset, endContainer, _rect, left, height, right, _left, _height;
 
     if( !isTextField && X_TextRange_w3cRange ){
-        if( !X_UA[ 'IE' ] && !X_UA[ 'Edge' ] ){
+        if( ( xnode[ '_flags' ] & X_NodeFlags_IS_SVG ) || // SVG の場合はこちら
+            !( X_UA.Trident || X_UA.TridentMobile ) && !( X_UA.EdgeHTML || X_UA.EdgeMobile )
+        ){
             return range.getBoundingClientRect();
         } else {
             rect = range.getBoundingClientRect();
@@ -94,7 +96,7 @@ function X_TextRange_getCorrectRect( isTextField, range ){
                 };
                 range.setEnd( endContainer, endOffset );
             };
-            return rect;            
+            return rect;
         };
     } else {
         rect   = range;
@@ -115,7 +117,7 @@ function X_TextRange_getCorrectRect( isTextField, range ){
                     height : _height
                 };
                 range.moveEnd( 'character', 1 );
-                if( X_UA[ 'IE' ] < 8 ){ // ie11 7mode で確認
+                if( ( X_UA.Trident || X_UA.TridentMobile ) < 8 ){ // ie11 7mode で確認
                     if( rect.width === 0 ){
                         range.moveStart( 'character', 1 );
                         rect.top    = range.boundingTop;
@@ -172,7 +174,7 @@ function X_TextRange_getRect(){
         rect = result.rect;
     
     if( !rect ){
-        rect = result.rect = X_TextRange_getCorrectRect( this._isTextField, result.range );
+        rect = result.rect = X_TextRange_getCorrectRect( this._isTextField, result.range, this._xnode );
     };
 
     if( !this._isTextField && X_TextRange_w3cRange ){
@@ -251,7 +253,7 @@ function X_TextRange_move( from, to ){
         };
     } else if( X_TextRange_ieRange ){
         // http://blog.enjoyxstudy.com/entry/20060305/p1
-        if( X_UA[ 'Prsto' ] ){
+        if( X_UA.Presto || X_UA.PrestoMobile ){
             FocusUtility_setTemporarilyFocus( elm );
         };
         // レンジを elm に一致させる必要がある。しかし moveToElementText は不可
@@ -308,7 +310,7 @@ function X_TextRange_text( v ){
             range.text = v;
         } else {
             elm = this._xnode[ '_rawObject' ];
-            val = X_UA[ 'IE' ] < 9 ? X_Node_Attr_getValueForIE( elm ) : elm.value;
+            val = ( X_UA.Trident || X_UA.TridentMobile ) < 9 ? X_Node_Attr_getValueForIE( elm ) : elm.value;
             elm.value = val.substr( 0, from ) + v + val.substr( to );
         };
             
@@ -345,7 +347,7 @@ function X_TextRange_select(){
         if( FocusUtility_getFocusedElement() !== elm ){
             elm.focus();
         };
-        if( X_UA[ 'IE' ] < 11 ){
+        if( ( X_UA.Trident || X_UA.TridentMobile ) < 11 ){
             elm.setSelectionRange( result.from, result.to );
         };
     } else {

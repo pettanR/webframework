@@ -44,14 +44,14 @@ var X_EventDispatcher_once         = false,
     X_EventDispatcher_lock         = false,
     X_EventDispatcher_unlock       = false,
     X_EventDispatcher_needsIndex   = false,
-    
+
     X_EventDispatcher_safariPreventDefault = false, // Safari3-
 
     X_EventDispatcher_LAZY_TIMERS  = {},// Object.<number, X.EventDispatcher> number は timerID
-    
+
     // iOS と MacOSX Iron36 で発生。連続してアニメーションが起こると、クロージャの束縛された obj へのアクセスに失敗する。Win では起きない?
     // むしろ、MacOSX のブラウザ全般で起こる??
-    X_EventDispatcher_ANIME_EVENTS = ( X_UA[ 'WebKit' ] || X_UA[ 'Blink' ] ) && {
+    X_EventDispatcher_ANIME_EVENTS = ( X_UA.WebKit || X_UA.SafariMobile || X_UA.iOSWebView || X_UA.Chromium ) && {
         'transitionend'      : true, 'webkitTransitionEnd'      : true, 'mozTransitionEnd'    : true, 'oTransitionEnd' : true, 'otransitionEnd' : true,
         'animationend'       : true, 'webkitAnimationEnd'       : true, 'oAnimationEnd'       : true,
         'animationstart'     : true, 'webkitAnimationStart'     : true, 'oAnimationStart'     : true,
@@ -92,8 +92,8 @@ var X_EventDispatcher_once         = false,
  */
 var X_EventDispatcher = X[ 'EventDispatcher' ] =
     X_Class_create(
-        'EventDispatcher',
-        
+        //'EventDispatcher',
+
         /** @lends EventDispatcher.prototype */
         {
 
@@ -105,7 +105,7 @@ var X_EventDispatcher = X[ 'EventDispatcher' ] =
          * @type {number}
          */
             '_rawType'      : X_EventDispatcher_EVENT_TARGET_OTHER,
-        
+
         /**
          * イベントリスナをイベント名文字列や数値(5以上、フレームワーク内で定義)をキーとするArrayで記憶します。<br>
          * Arrayには、{cbKind:種類,context:コンテキスト(thisObject),func:コールバック関数,supplement:サプリメントする引数の配列} というハッシュ、または関数が蓄えられています。
@@ -140,7 +140,7 @@ var X_EventDispatcher = X[ 'EventDispatcher' ] =
             'dispatch' : X_EventDispatcher_dispatch,
             
             'listen' : X_EventDispatcher_listen,
-        
+
         /**
          * dispatch 時に自動で unlisten されるフラグを立てて listen する。
          * @param {string|number|Array.<string,number>} type 配列を指定した場合、複数のイベントタイプに対して同じコールバックを登録する。
@@ -216,16 +216,17 @@ var X_EventDispatcher = X[ 'EventDispatcher' ] =
          * @param {number|eventHash|string} delay ms 省略した場合は 0 として扱う asyncDispatch( 'myevent' ) -> asyncDispatch( 0, 'myevent' )
          * @param {eventHash|string|number} e イベントを表す数値、文字列、{ type : XXX, ... } なオブジェクト
          * @return {number} X.Timer.add() の戻り値
-         */            
+         */
             'asyncDispatch' : function( delay, e ){
                 var timerID;
+
                 if( delay && e === undefined ){
                     e = delay;
                     delay = 0;
+                } else if( X_IS_DEV && delay === undefined ){
+                    X_error( 'X.EventDispatcher#asyncDispatch: Invalid EventType=' + delay );
+                    return;
                 };
-                //{+dev
-                delay === undefined && eval( 'throw "asyncDispatch で undefined イベントが指定されました"' );
-                //}+dev
                 timerID = X_Timer_add( delay, 1, this, X_EventDispatcher_dispatch, [ e ] );
                 X_EventDispatcher_LAZY_TIMERS[ timerID ] = this;
                 return timerID;
@@ -250,17 +251,17 @@ function X_EventDispatcher_dispatch( e ){
     var listeners = this[ '_listeners' ],
         ret       = X_CALLBACK_NONE,
         type      = e[ 'type' ],
-        list, unlistens, i, l, args, f, r, sysOnly, timerID, k;
-    
+        list, unlistens, i, l, args, f, r, sysOnly, k;
+
     if( !listeners || !( list = listeners[ type || e ] ) ) return X_CALLBACK_NONE;
-    
+
     // 数値, 文字が渡された場合
     if( !type ){
         e = { 'type' : type = e };
     };
     e[ 'target' ]        = e[ 'target' ] || this;
     e[ 'currentTarget' ] = e[ 'currentTarget' ] || this;
-    
+
     if( listeners[ X_LISTENERS_DISPATCHING ] ){
         ++listeners[ X_LISTENERS_DISPATCHING ];
     } else {
@@ -269,7 +270,7 @@ function X_EventDispatcher_dispatch( e ){
 
     //listeners[ X_LISTENERS_UNLISTENS ] = listeners[ X_LISTENERS_UNLISTENS ] || {};
     //unlistens = listeners[ X_LISTENERS_UNLISTENS ][ type ];
-    
+
     for( i = 0; i < list.length; ++i ){
         f = list[ i ];
         // TODO removed フラグは?
@@ -280,9 +281,9 @@ function X_EventDispatcher_dispatch( e ){
         };
         if( unlistens && unlistens.indexOf( f ) !== -1 ) continue;
         */
-        
+
         r = X_Closure_proxyCallback( f, args || ( args = [ e ] ) );
-        
+
         if( f.once || ( r & X_CALLBACK_UN_LISTEN ) ){
             // dispatch 中に unlisten が作られることがある
             if( !unlistens ){
@@ -292,17 +293,17 @@ function X_EventDispatcher_dispatch( e ){
             unlistens.indexOf( f ) === -1 && ( unlistens[ unlistens.length ] = f );
         };
         ret |= X_Type_isFinite( r ) ? r : 0;
-        
+
         if( ( r & X_CALLBACK_STOP_NOW ) === X_CALLBACK_STOP_NOW ){ // iOS では ( & ) 括弧が無いと判定を誤る
             sysOnly = true;
             break;
         };
     };
-    
+
     if( ( --listeners[ X_LISTENERS_DISPATCHING ] ) === 0 ){
 
         delete listeners[ X_LISTENERS_DISPATCHING ];
-        
+
         // dispatch 中に listen されたイベントの追加
         if( list = listeners[ X_LISTENERS_RESERVES ] ){
             for( i = 0, l = list.length; i < l; ++i ){
@@ -315,12 +316,12 @@ function X_EventDispatcher_dispatch( e ){
             list.length = 0;
             X_EventDispatcher_once = X_EventDispatcher_lock = false;
             delete listeners[ X_LISTENERS_RESERVES ];
-        };        
-        
+        };
+
         // dispatch 中に unlisten されたイベントの削除
         if( unlistens = listeners[ X_LISTENERS_UNLISTENS ] ){
             delete listeners[ X_LISTENERS_UNLISTENS ];
-            
+
             // _unlistens に入っている callbackHash は、lock をクリアしている
             X_EventDispatcher_unlock = true;
             for( k in unlistens ){
@@ -334,16 +335,20 @@ function X_EventDispatcher_dispatch( e ){
             };
             X_EventDispatcher_unlock = false;
         };
-        
+
         if( X_EventDispatcher_LAZY_TIMERS[ X_Timer_currentUID ] === this ){
             delete X_EventDispatcher_LAZY_TIMERS[ X_Timer_currentUID ];
         };
 
         if( listeners[ X_LISTENERS_KILL_RESERVED ] ){
-            this[ 'kill' ]();
+            // this[ 'kill' ]();
+            // RESERVED されるのは、ClassBase.kill なので、それを呼び出す。
+            // kill(e) e.type === X.EVENT.ANIME_END などと処理を分岐していたら、X_Node_onKill() が走らない問題に遭遇
+            // this.superCall( this.kill ) では他の処理は走っている
+            X_Class_CommonMethods[ 'kill' ].call( this );
         };
     };
-    
+
     return ret;
 };
 
@@ -380,20 +385,20 @@ function X_EventDispatcher_listen( type, opt_arg1, opt_arg2, opt_arg3 ){
         i, raw, add, list, f;
 
     if( !type ) return this;
-    
+
     if( listeners && listeners[ X_LISTENERS_DISPATCHING ] ){
         if( !listeners[ X_LISTENERS_RESERVES ] ) listeners[ X_LISTENERS_RESERVES ] = [];
         listeners[ X_LISTENERS_RESERVES ][ listeners[ X_LISTENERS_RESERVES ].length ] = [ type, opt_arg1, opt_arg2, opt_arg3, X_EventDispatcher_once, X_EventDispatcher_lock ];
         return this;
     };
-    
+
     if( X_Type_isArray( type ) ){
         for( i = type.length; i; ){
             this[ 'listen' ]( type[ --i ], opt_arg1, opt_arg2, opt_arg3 );
         };
         return this;
     };
-    
+
     raw = this[ '_rawObject' ] || X_UA_DOM.IE4 && X_Node__ie4getRawNode( this );
     add = raw && ( !listeners || !listeners[ type ] ) && X_Type_isString( type );
 
@@ -401,14 +406,14 @@ function X_EventDispatcher_listen( type, opt_arg1, opt_arg2, opt_arg3 ){
 
     if( !listeners ) listeners = this[ '_listeners' ] = {};
     list = listeners[ type ] || ( listeners[ type ] = [] );
-    
+
     add && X_EventDispatcher_actualAddEvent( this, type, raw, list );
-    
+
     f = X_Closure_classifyCallbackArgs( opt_arg1, opt_arg2, opt_arg3, this );
     list[ list.length ] = f;
     f.once = X_EventDispatcher_once;
     f.lock = X_EventDispatcher_lock;
-    
+
     return this;
 };
 
@@ -432,12 +437,12 @@ function X_EventDispatcher_unlisten( opt_type, opt_arg1, opt_arg2, opt_arg3 ){
         list, reserves, unlistens, i, f, raw, k, empty;
 
     if( !listeners ) return this;
-    
+
     if( X_Type_isArray( opt_type ) ){
         for( i = opt_type.length; i; ){
             this[ 'unlisten' ]( opt_type[ --i ], opt_arg1, opt_arg2, opt_arg3 );
             if( !opt_type[ i ] ){
-                alert( '不正な unlisten Array' );
+                //alert( '不正な unlisten Array' );
             };
         };
         return this;
@@ -453,14 +458,14 @@ function X_EventDispatcher_unlisten( opt_type, opt_arg1, opt_arg2, opt_arg3 ){
             };
         };
     };
-    
+
     X_EventDispatcher_needsIndex = true;
     i = this[ 'listening' ]( opt_type, opt_arg1, opt_arg2, opt_arg3 );
     X_EventDispatcher_needsIndex = false;
     if( i === false ) return this;
 
     f = ( list = listeners[ opt_type ] )[ i ];
-    
+
     if( listeners[ X_LISTENERS_DISPATCHING ] ){
         unlistens = listeners[ X_LISTENERS_UNLISTENS ] || ( listeners[ X_LISTENERS_UNLISTENS ] = {} );
         // _unlistens に入っている callbackHash は、lock のチェックは済んでいる
@@ -491,7 +496,7 @@ function X_EventDispatcher_unlisten( opt_type, opt_arg1, opt_arg2, opt_arg3 ){
                 raw = this[ '_rawObject' ] || X_UA_DOM.IE4 && X_Node__ie4getRawNode( this );
                 raw && X_EventDispatcher_actualRemoveEvent( this, opt_type, raw, list, !empty );
             };
-            
+
             if( empty ) delete this[ '_listeners' ];
         };
     };
@@ -526,27 +531,27 @@ function X_EventDispatcher_actualAddEvent( that, type, raw, list ){
     var i, f;
 
     X_EventDispatcher_lock || ( type = X_Event_Rename[ type ] || type );
-    
+
     if( X_Type_isArray( type ) ){
         for( i = type.length; i; ){
             X_EventDispatcher_systemListen( that, type[ --i ], X_emptyFunction );
-            console.log( 'events fix > ' + type[ i ] );
+            //console.log( 'events fix > ' + type[ i ] );
         };
     } else {
-        
+
     // Days on the Moon DOM Events とブラウザの実装 
     // http://nanto.asablo.jp/blog/2007/03/23/1339502
     // Safari 2 では関数オブジェクトしか EventListener として使えませんが、Safari のナイトリービルドでは handleEvent メソッドを持つオブジェクトも EventListener として使えるようです。
-        
+
         if( X_UA_EVENT.W3C ){
             switch( that[ '_rawType' ] ){
                 case X_EventDispatcher_EVENT_TARGET_SILVER_LIGHT :
                     list.slcallback = X_Closure_create( that, X_EventDispatcher_sliverLightDispatch, [ type ] );
                     list.sltoken    = raw[ 'AddEventListener' ]( type, list.slcallback );
                     break;
-                
+
                 case X_EventDispatcher_EVENT_TARGET_XHR :
-                    if( X_UA[ 'Opera' ] < 12 ){
+                    if( ( X_UA.Presto || X_UA.PrestoMobile ) < 12 ){
                         // Opera11- の XHR は event オブジェクトが返らないため, eventType 毎に callback を指定する addEventListener もない
                         raw[ 'on' + type ] = X_Closure_create( that, X_EventDispatcher_dispatch, [ type ] );
                         break;
@@ -557,7 +562,7 @@ function X_EventDispatcher_actualAddEvent( that, type, raw, list ){
                         raw.addEventListener( type, X_EventDispatcher_iOSTransitionEndDispatch, false );
                     } else {
                         f = that[ '_listeners' ][ X_LISTENERS_ACTUAL_HANDLER ] || ( that[ '_listeners' ][ X_LISTENERS_ACTUAL_HANDLER ] = X_Closure_create( that, X_EventDispatcher_actualHandleEvent ) );
-        
+
                         if( raw.addEventListener ){
                             raw.addEventListener( type, f, false );
                         } else {
@@ -568,21 +573,21 @@ function X_EventDispatcher_actualAddEvent( that, type, raw, list ){
             };
         } else
         if( X_UA_EVENT.IE ){
-            switch( that[ '_rawType' ] ){    
+            switch( that[ '_rawType' ] ){
                 case X_EventDispatcher_EVENT_TARGET_SILVER_LIGHT :
                     list.slcallback = X_Closure_create( that, X_EventDispatcher_sliverLightDispatch, [ type ] );
                     list.sltoken    = raw[ 'AddEventListener' ]( type, list.slcallback );
-                    break;                
-                
+                    break;
+
                 case X_EventDispatcher_EVENT_TARGET_XHR :
-                    console.log( 'XHR addEvent ' + type );
+                    //console.log( 'XHR addEvent ' + type );
                     // ie8- の XHR は window.event が更新されないため, eventType 毎に callback を指定する
                     raw[ 'on' + type ] = X_Closure_create( that, X_EventDispatcher_dispatch, [ type ] );
                     break;
-                
+
                 default :
                     f = that[ '_listeners' ][ X_LISTENERS_ACTUAL_HANDLER ] || ( that[ '_listeners' ][ X_LISTENERS_ACTUAL_HANDLER ] = X_Closure_create( that, X_EventDispatcher_actualHandleEvent ) );
-                    
+
                     if( raw.attachEvent ){
                         raw.attachEvent( 'on' + type, f );
                     } else {
@@ -596,8 +601,8 @@ function X_EventDispatcher_actualAddEvent( that, type, raw, list ){
                     // DOM0 で Silverlight ってあるの -> ie4 mobile?
                     list.slcallback = X_Closure_create( that, X_EventDispatcher_sliverLightDispatch, [ type ] );
                     list.sltoken    = raw[ 'AddEventListener' ]( type, list.slcallback );
-                    break;                
-                
+                    break;
+
                 case X_EventDispatcher_EVENT_TARGET_XHR :
                     // ie4 mobile は XHR をサポート！
                     raw[ 'on' + type ] = X_Closure_create( that, X_EventDispatcher_dispatch, [ type ] );
@@ -627,6 +632,7 @@ function X_EventDispatcher_iOSTransitionEndDispatch( e ){
  * http://msdn.microsoft.com/ja-jp/library/cc189018%28v=vs.95%29.aspx#the_sender_parameter_and_event_data
  */
 function X_EventDispatcher_sliverLightDispatch( sender, e, type ){
+    ++g_X_uniqueStamp;
     return this[ 'dispatch' ]( type );
 };
 
@@ -648,9 +654,9 @@ function X_EventDispatcher_actualRemoveEvent( that, type, raw, list, skip ){
                     delete list.sltoken;
                     delete list.slcallback;
                     break;
-                
+
                 case X_EventDispatcher_EVENT_TARGET_XHR :
-                    if( X_UA[ 'Opera' ] < 12 ){
+                    if( ( X_UA.Presto || X_UA.PrestoMobile ) < 12 ){
                         // Opera11- の XHR は event オブジェクトが返らないため, eventType 毎に callback を指定する addEventListener もない
                         X_Closure_correct( raw[ 'on' + type ] );
                         raw[ 'on' + type ] = '';
@@ -666,7 +672,7 @@ function X_EventDispatcher_actualRemoveEvent( that, type, raw, list, skip ){
                     } else {
                         raw[ 'on' + type ] = null;
                     };
-                    
+
                     if( !skip && that[ '_listeners' ][ X_LISTENERS_ACTUAL_HANDLER ] ){
                         X_Closure_correct( that[ '_listeners' ][ X_LISTENERS_ACTUAL_HANDLER ] );
                         delete that[ '_listeners' ][ X_LISTENERS_ACTUAL_HANDLER ];
@@ -681,23 +687,23 @@ function X_EventDispatcher_actualRemoveEvent( that, type, raw, list, skip ){
                     delete list.sltoken;
                     delete list.slcallback;
                     break;
-                
+
                 case X_EventDispatcher_EVENT_TARGET_XHR :
                     X_Closure_correct( raw[ 'on' + type ] );
                     raw[ 'on' + type ] = X_emptyFunction;
                     raw[ 'on' + type ] = '';
-                    console.log( 'XHR rmEvent ' + type );
+                    //console.log( 'XHR rmEvent ' + type );
                     break;
 
                 default :
                     if( raw.attachEvent ){
                         raw.detachEvent( 'on' + type, that[ '_listeners' ][ X_LISTENERS_ACTUAL_HANDLER ] );
-                        console.log( 'raw rmEvent ' + type );
+                        //console.log( 'raw rmEvent ' + type );
                     } else {
                         raw[ 'on' + type ] = X_emptyFunction;
                         raw[ 'on' + type ] = '';
                     };
-                    
+
                     if( !skip ){
                         X_Closure_correct( that[ '_listeners' ][ X_LISTENERS_ACTUAL_HANDLER ] );
                         delete that[ '_listeners' ][ X_LISTENERS_ACTUAL_HANDLER ];
@@ -711,7 +717,7 @@ function X_EventDispatcher_actualRemoveEvent( that, type, raw, list, skip ){
                     delete list.sltoken;
                     delete list.slcallback;
                     break;
-                
+
                 case X_EventDispatcher_EVENT_TARGET_XHR :
                     X_Closure_correct( raw[ 'on' + type ] );
                     raw[ 'on' + type ] = X_emptyFunction;
@@ -751,9 +757,10 @@ var X_EventDispatcher_actualHandleEvent =
                 e.cancelBubble = true;
                 return;
             };
-            
+            ++g_X_uniqueStamp;
+
             X_EventDispatcher_rawEvent = e;
-            
+
             ev = new X_DomEvent( e, this, elm );
 
             X_EventDispatcher_CURRENT_EVENTS[ X_EventDispatcher_CURRENT_EVENTS.length ] = ev;
@@ -767,9 +774,9 @@ var X_EventDispatcher_actualHandleEvent =
             if( ret & X_CALLBACK_STOP_PROPAGATION ){
                 e.cancelBubble = true;
             };
-            
+
             if( !X_EventDispatcher_CURRENT_EVENTS.length ) ExecuteAtEnd_onEnd();
-            
+
             if( ret & X_CALLBACK_PREVENT_DEFAULT ){
                 X_EventDispatcher_ignoreActualEvent = true;
                 this[ '_tag' ] === 'A' && elm.blur(); // おかしくない??
@@ -782,14 +789,15 @@ var X_EventDispatcher_actualHandleEvent =
             var ret = X_CALLBACK_NONE,
                 elm = this[ '_rawObject' ],
                 ev, i, l;
-            
+
             if( X_EventDispatcher_ignoreActualEvent ){
                 e.stopPropagation();
                 return;
             };
+            ++g_X_uniqueStamp;
 
             X_EventDispatcher_rawEvent = e;
-            
+
             ev  = new X_DomEvent( e, this );
             X_EventDispatcher_CURRENT_EVENTS[ X_EventDispatcher_CURRENT_EVENTS.length ] = ev;
 
@@ -807,13 +815,13 @@ var X_EventDispatcher_actualHandleEvent =
             } else {
                 ret = this[ 'dispatch' ]( ev );
             };
-            
+
             if( X_EventDispatcher_rawEvent === e ) X_EventDispatcher_rawEvent = null;
-            
+
             --X_EventDispatcher_CURRENT_EVENTS.length;
-            
+
             if( !X_EventDispatcher_CURRENT_EVENTS.length ) ExecuteAtEnd_onEnd();
-            
+
             if( ret & X_CALLBACK_STOP_PROPAGATION ){
                 e.stopPropagation();
             };
@@ -821,9 +829,9 @@ var X_EventDispatcher_actualHandleEvent =
                 X_EventDispatcher_ignoreActualEvent = true;
                 this[ '_tag' ] === 'A' && elm.blur();
                 X_EventDispatcher_ignoreActualEvent = false;
-                
+
                 e.preventDefault();
-                if( X_UA[ 'WebKit' ] < 525.13 ){ // Safari3-
+                if( X_UA.WebKit < 525.13 ){ // Safari3-
                     if( e.type === 'click' || e.type === 'dbclick' ){
                         X_EventDispatcher_safariPreventDefault = true;
                     };
@@ -832,9 +840,9 @@ var X_EventDispatcher_actualHandleEvent =
             };
         });
 
-if( X_UA[ 'WebKit' ] < 525.13 ){ // Safari3-
-    document.documentElement.onclick =
-    document.documentElement[ 'ondbclick' ] = function( e ){
+if( X_UA.WebKit < 525.13 ){ // Safari3-
+    X_elmHtml.onclick =
+    X_elmHtml[ 'ondbclick' ] = function( e ){
             if( X_EventDispatcher_safariPreventDefault ){
                 X_EventDispatcher_safariPreventDefault = false;
                 e.preventDefault();
@@ -860,6 +868,3 @@ function X_EventDispatcher_toggleAllEvents( that, add ){
         };
     };
 };
-
-
-console.log( 'X.Core.EventDispatcher' );

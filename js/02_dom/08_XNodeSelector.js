@@ -24,13 +24,13 @@ var
         'disabled'         : 8,
         'contains'         : 8,
         'last-child'       : 10,
-        'only-child'       : 10,            
+        'only-child'       : 10,
         'first-child'      : 11,
         'last-of-type'     : 12,
-        'only-of-type'     : 12,        
+        'only-of-type'     : 12,
         'first-of-type'    : 13
     },
-    
+
     X_Node_Selector__COMBINATOR = {
         ''    : 0, // none
         ' '   : 1, // 子孫セレクタ
@@ -38,25 +38,25 @@ var
         '+'   : 3, // 兄弟セレクタ,共通の親を持つ、1番目要素が2番目要素の1つ前にある
         '~'   : 4, // 一般兄弟セレクタ,共通の親を持つ、1番目要素が2番目要素の前 (直前でなくともよい) にある
         ','   : 5,
-        '@'   : 6  // XML 用の拡張、属性ノードを辿る http://www.marguerite.jp/Nihongo/WWW/RefDOM/_Attr_interface.html
+        '@'   : 6  // XML 用の拡張、属性ノードを辿る　http://www.marguerite.jp/Nihongo/WWW/RefDOM/_Attr_interface.html
     },
     X_Node_Selector__SELECTOR = {
-        ''      : 0, // none
-        'tag'   : 1,
-        '#'     : 2,
-        '.'     : 3,
-        ':'     : 4,
-        '['     : 5,
-        'not'   : 6,
-        'scope' : 7,
-        'root'  : 8,
-        'link'  : 9
+        ''    : 0, // none
+        tag   : 1,
+        '#'   : 2,
+        '.'   : 3,
+        ':'   : 4,
+        '['   : 5,
+        not   : 6,
+        scope : 7,
+        root  : 8,
+        link  : 9
     },
     X_Node_Selector__OPERATORS = { '==' : 1, '!=': 2, '~=': 3, '^=': 4, '$=': 5, '*=': 6, '|=': 7 }, // '':0 は属性が存在するならtrue
     // TODO { a : 1, A : 2, _ : 3,,, }
     X_Node_Selector__ALPHABET  = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-0123456789\\',
     X_Node_Selector__NUMBER    = '+-0123456789';
-        
+
 /*
  * セレクタ文字列の解析、但し一挙に行わず、ひと塊づつ
  * 結合子 + 単体セレクタ( タグ,*,#,.,[],: )
@@ -91,8 +91,8 @@ function X_Node_Selector__parse( query, last ){
                     ( ( selector = 1 ) && ( phase = 0x2 ) && ( start = i ) ) :
                 !not && ( tmp = COMBINATOR[ chr ] ) ? (
                     ( 1 < tmp && 1 < combinator ) ?
-                        ( phase = 0xf ) :
-                        ( phase = tmp === 5 ? 0xe : 0x0 ) & ( ( 1 < tmp || combinator < 1 ) && ( combinator = tmp ) ) & ( tmp === 5 && ++i ) ) : // ' ' でない結合子の上書きはエラー
+                        ( phase = 0xf ) : // ' ' でない結合子の上書きはエラー
+                        ( phase = tmp === 5 ? 0xe : 0x0 ) & ( ( 1 < tmp || combinator < 1 ) && ( combinator = tmp ) ) & ( tmp === 5 && ++i ) ) :
                 ( tmp = SELECTOR[ chr ] ) ? // [
                     ( selector = tmp ) && ( phase = selector === 5 ? 0x4 : 0x1 ) : // 7:[, 0<:
                 chr === '*' ?
@@ -142,8 +142,8 @@ function X_Node_Selector__parse( query, last ){
                 chr === quot ?
                     !escape && !value && ( value = query.substring( start, i ) ) :
                 chr === ']' ?
-                    ( ( value || ( value = query.substring( start, i ) ) ) && ( phase = 0xe ) && ++i ) :    
-                chr === ' ' && !quot && !value && ( value = query.substring( start, i ) );            
+                    ( ( value || ( value = query.substring( start, i ) ) ) && ( phase = 0xe ) && ++i ) :
+                chr === ' ' && !quot && !value && ( value = query.substring( start, i ) );
                     //( chr === '"' || chr === "'" ) && !quot && ( quot = chr ) && ( start = i + 1 );
                 break;
                 
@@ -155,7 +155,7 @@ function X_Node_Selector__parse( query, last ){
                 query.substr( i, 4 ) === 'even' ?
                     ( ( a = 2 ) && !( b = 0 ) && ( i += 3 ) ) :
                 query.substr( i, 3 ) === 'odd' ?
-                    ( ( a = 2 ) && ( b = 1 ) && ( i += 2 ) ) :                    
+                    ( ( a = 2 ) && ( b = 1 ) && ( i += 2 ) ) :
                 chr === ')' && ( phase = a ? 0xe : 0xf ) && ++i;
                 //console.log( '0x8: ' + name1st + ' ' + chrCode + ' ' + chr + ' ' + phase + ' ' + name );
                 break;
@@ -174,18 +174,18 @@ function X_Node_Selector__parse( query, last ){
             case 0xb :
                 ( chr === '"' || chr === "'" ) && !escape && !quot &&
                     ( quot = chr ) && ( start = i + 1 ) && ( phase = 0xc );
-                break;    
+                break;
             case 0xc :
                 chr === quot && !escape && ( value = query.substring( start, i ) ) && ( phase = 0xd );
                 break;
             case 0xd :
-                chr === ')' && ( phase = 0xe ) && ++i;                
+                chr === ')' && ( phase = 0xe ) && ++i;
                 break;
             default :
         };
-        
+
         if( phase === 0xf ) return i;
-        
+
         //alert( chr + ' ' + phase + ' ' + selector + ' ' + name + ' ' + name1st )
         if( phase === 0xe ){
             if( selector === 4 ){// :not
@@ -206,7 +206,7 @@ function X_Node_Selector__parse( query, last ){
                 } else {
                     if( a !== a || b !== b ) return i;
                     result = [ not ? 0 : combinator, SELECTOR[ name ] || selector, name, a, b ];
-                    break;    
+                    break;
                 };
             } else {
                 result =
@@ -215,7 +215,7 @@ function X_Node_Selector__parse( query, last ){
                     selector === 5 ?
                         [ not ? 0 : combinator, selector, key, operator, value ] :
                         [ not ? 0 : combinator, selector, name.split( '\\' ).join( '' ) ];
-                break;                
+                break;
             };
         };
 
@@ -243,17 +243,17 @@ function X_Node_Selector__parse( query, last ){
      * @return {Node|NodeList}
      */
     X_NodeList.prototype[ 'find' ] = X_Node_find;
-    
+
     /**
      * selector を使って Node, NodeList を取得する
      * @alias Node.prototype.find
      * @function
      * @param {string} セレクター文字列
      * @return {Node|NodeList}
-     */    
+     */
     function X_Node_find( queryString ){
         var HTML      = X_Node_html,
-            scope     = this.constructor === X_NodeList && this.length ? this : [ this.constructor === Node || this[ 'instanceOf' ] && this[ 'instanceOf' ]( Node ) ? this : X_Node_body ],
+            scope     = this.constructor === X_NodeList && this.length ? this : [ this.constructor === X_Node || this[ 'instanceOf' ] && this[ 'instanceOf' ]( X_Node ) ? this : X_Node_body ],
             parents   = scope, // 探索元の親要素 XNodeList の場合あり
             // TODO { title : true,,, }
             noLower   = 'title id name class for action archive background cite classid codebase data href longdesc profile src usemap',// + X_Dom_DTD_ATTR_VAL_IS_URI.join( ' ' ),
@@ -294,7 +294,7 @@ function X_Node_Selector__parse( query, last ){
 
         /*@+debug[*/
         if( X_ViewPort_readyState < X_EVENT_XDOM_READY ){
-            alert( 'not ready! use X.ViewPort.listenOnce( X_EVENT_XDOM_READY, callback )' );
+            // alert( 'not ready! use X.ViewPort.listenOnce( X_EVENT_XDOM_READY, callback )' );
             return;
         };
         /*]@+debug*/
@@ -342,7 +342,7 @@ function X_Node_Selector__parse( query, last ){
             if( !isStart ){
                 if( !xnodes.length ){
                     parsed = null;
-                    continue;                    
+                    continue;
                 } else
                 if( combinator !== 0 ){
                     parents = xnodes;
@@ -368,7 +368,7 @@ function X_Node_Selector__parse( query, last ){
                                 xnode = children[ j ];
                                 if( xnode[ '_tag' ] && ( isAll || tagName === xnode[ '_tag' ] ) ) xnodes[ ++n ] = xnode;
                             };
-                        };            
+                        };
                     };
                     break;
                 // + TagName|*
@@ -394,8 +394,8 @@ function X_Node_Selector__parse( query, last ){
                             if( xnode[ '_tag' ] ){
                                 if( isAll || tagName === xnode[ '_tag' ] ) xnodes[ ++n ] = xnode;
                                 break;
-                            };                                    
-                        };    */                            
+                            };
+                        };    */
                     };
                     break;
                 // ~ TagName|*
@@ -411,14 +411,14 @@ function X_Node_Selector__parse( query, last ){
                                     merge[ uid ] = true;
                                     xnodes[ ++n ] = xnode;
                                 };
-                            };                                    
-                        };                                
+                            };
+                        };
                     };
                     break;
-                
+
                 // case 6 : 属性ノードは実装しない
-                
-                default :                
+
+                default :
                     if( combinator === 1 || ( isStart && selector < 7 ) ){
                         if( isStart ){
                             if( tagName === 'HTML' ){
@@ -433,7 +433,7 @@ function X_Node_Selector__parse( query, last ){
                                 xnodes[ 0 ] = X_Node_body;
                                 break;
                             };
-                            
+
                         };
                         //console.log( l + ' > ' + xnodes.length + ' tag:' + tagName );
                         merge = {};
@@ -443,9 +443,9 @@ function X_Node_Selector__parse( query, last ){
             };
 
             isStart = false;
-            
+
             //alert( 'pre-selector:' + ( xnodes && xnodes.length ) )
-            
+
             switch( selector ){
                 // #, ID
                 case 2 :
@@ -498,7 +498,7 @@ function X_Node_Selector__parse( query, last ){
                 case 9 :
                     if( links = document.links ){
                         for( xnodes = [], i = links.length; i; ){
-                            xnodes[ --i ] = Node( links[ i ] );
+                            xnodes[ --i ] = X_Node( links[ i ] );
                         };
                     } else {
                         // area[href],a[href]
@@ -525,7 +525,7 @@ function X_Node_Selector__parse( query, last ){
                     };
                     xnodes = tmp;
                 } else {
-                // 属性セレクター            
+                // 属性セレクター
                     tmp = [];
                     key = filter[ 0 ];
                     op  = filter[ 1 ];
@@ -545,7 +545,7 @@ function X_Node_Selector__parse( query, last ){
                         // 諦めて、funcAttrを呼ぶ
                         // flag_call  = ($.browser.safari && key === 'selected');
                         // getAttributeを使わない
-                        useName = X_UA[ 'IE' ] && key !== 'href' && key !== 'src';
+                        useName = ( X_UA.Trident || X_UA.TridentMobile ) && key !== 'href' && key !== 'src';
                         toLower = !!val && !isXML && noLower.indexOf( key ) === -1; //!noLower.test(key);
                         if( toLower ) val = val.toLowerCase();
                         if( op === 3 ) val = _ + val + _;
@@ -609,7 +609,7 @@ function X_Node_Selector__parse( query, last ){
             xnodes && xnodes.length && ARY_PUSH.apply( ret, xnodes );
             l = ret.length;
             if( l < 2 ) return ret[ 0 ] || X_Node_none;
-            
+
             xnodes = [];
             merge  = {};
             for( i = 0, n = -1; i < l; ++i ){
@@ -718,8 +718,8 @@ function X_Node_Selector__parse( query, last ){
                     if( node[ '_tag' ] && ( flag_all || tagName === node[ '_tag' ] ) ){
                         tmp = false;
                         break;
-                    };        
-                };                        
+                    };
+                };
             };
             if( tmp === null ) tmp = true;
             if( tmp ^ flag_not ) res[ ++n ] = xnode;
@@ -740,7 +740,7 @@ function X_Node_Selector__parse( query, last ){
                     if( node[ '_tag' ] && ( flag_all || tagName === node[ '_tag' ] ) ){
                         ++c;
                         checked[ node[ '_uid' ] ] = a === 0 ? c === b : (c - b) % a === 0 && (c - b) / a >= 0;
-                    };                            
+                    };
                 };
                 tmp = checked[ uid ];
             };
@@ -759,17 +759,17 @@ function X_Node_Selector__parse( query, last ){
     };
 
 var X_Node_Selector__filter = {
-    'root' : function(){
+    root : function(){
         return X_Node_html;
     },
-    'target' : {
+    target : {
         m : function( flags, xnodes ){
             var res  = [],
                 hash = location.hash.slice( 1 ),
                 flag_not = flags.not,
                 i = 0, n = -1, xnode;
             for ( ; xnode = xnodes[ i ]; ++i ){
-                if( ( ( xnode[ '_id' ] || xnode[ '_attrs' ] && xnode[ '_attrs' ][ 'name' ] ) === hash ) ^ flag_not ) res[ ++n ] = xnode;                        
+                if( ( ( xnode[ '_id' ] || xnode[ '_attrs' ] && xnode[ '_attrs' ][ 'name' ] ) === hash ) ^ flag_not ) res[ ++n ] = xnode;
             };
             return res;
         }
@@ -804,7 +804,7 @@ var X_Node_Selector__filter = {
     'nth-last-of-type' : {
         m : function( flags, xnodes, a, b ){ return X_Node_Selector__funcSelectorNth( 'lastChild', 'prev', false, flags, xnodes, a, b ); }
     },
-    'empty' : {
+    empty : {
         m : function( flags, xnodes ){
             var res = [],
                 flag_not = flags.not,
@@ -815,14 +815,14 @@ var X_Node_Selector__filter = {
                     if( node[ '_tag' ] || node[ '_text' ] ){
                         tmp = false;
                         break;
-                    };                
+                    };
                 };
                 if( tmp ^ flag_not ) res[ ++n ] = xnode;
             };
             return res;
         }
     },
-    'link' : {
+    link : {
         m : function( flags, xnodes ){
             var links = document.links,
                 res   = [],
@@ -831,7 +831,7 @@ var X_Node_Selector__filter = {
             checked = {};
             flag_not = flags.not;
             for( i = 0; link = links[ i ]; ++i ){
-                checked[ ( Node( link ) )[ '_uid' ] ] = true;
+                checked[ ( X_Node( link ) )[ '_uid' ] ] = true;
             };
             for( i = 0, n = -1; xnode = xnodes[ i ]; ++i ){
                 if( checked[ xnode[ '_uid' ] ] ^ flag_not ) res[ ++n ] = xnode;
@@ -839,7 +839,7 @@ var X_Node_Selector__filter = {
             return res;
         }
     },
-    'lang' : {
+    lang : {
         m : function( flags, xnodes, arg ){
             var res = [],
                 //reg = new RegExp('^' + arg, 'i'),
@@ -856,22 +856,23 @@ var X_Node_Selector__filter = {
             return res;
         }
     },
-    'enabled' : {
+    enabled : {
         m : function( flags, xnodes ){ return X_Node_Selector__funcSelectorProp( 'disabled', false, flags, xnodes ); }
     },
-    'disabled' : {
+    disabled : {
         m : function( flags, xnodes ){ return X_Node_Selector__funcSelectorProp( 'disabled', true, flags, xnodes ); }
     },
-    'checked' : {
+    checked : {
         m : function( flags, xnodes ){ return X_Node_Selector__funcSelectorProp( 'checked', true, flags, xnodes ); }
     },
-    'contains' : {
+    contains : {
         m : function( flags, xnodes, arg ){
             var res = [],
                 flag_not = flags.not,
                 i = 0, n = -1, xnode;
+
             for( ; xnode = xnodes[ i ]; ++i ){
-                if ( ( -1 < ( xnode[ 'text' ]() ).indexOf( arg ) ) ^ flag_not ) res[ ++n ] = xnode;                        
+                if ( ( -1 < ( xnode[ 'text' ]() ).indexOf( arg ) ) ^ flag_not ) res[ ++n ] = xnode;
             };
             return res;
         }

@@ -17,32 +17,32 @@
  * 
  */
 
-var X_GadgetXHR_canUse         = 5.5 <= X_UA[ 'IE' ] || !X_UA[ 'IE' ],
-    
+var X_GadgetXHR_canUse         = 5.5 <= ( X_UA.Trident || X_UA.TridentMobile ) || !( X_UA.Trident || X_UA.TridentMobile ),
+
     X_GadgetXHR_iframeName     = 'gadgetProxy_' + ( Math.random() * 100000 | 0 ),
-    
+
     X_GadgetXHR_GADGET_XML_URL = 'http://pettanr.github.io/webframework/gadget/X.Net.XHRGadget.xml',
-    
+
     // https://kldleov8fp2dl82hphfmor8riij82tof-a-sites-opensocial.googleusercontent.com/gadgets/ifr
     X_GadgetXHR_GADGET_URL     = 'http://www.ig.gmodules.com/gadgets/ifr?url=' + encodeURIComponent( X_GadgetXHR_GADGET_XML_URL ) + '&nocache=1',
-    
+
     X_GadgetXHR_IMAGE_URL      = 'img/opacity0.gif',
-    
+
     // https://code.google.com/p/xssinterface/source/browse/trunk/js/xssinterface.js
-    X_GadgetXHR_maxQueryLength = X_UA[ 'IE' ] || X_UA[ 'Edge' ] ? 2000 : 6000,
-    
+    X_GadgetXHR_maxQueryLength = ( X_UA.Trident || X_UA.TridentMobile ) ? 2000 : 6000,
+
     X_GadgetXHR_useMessage     = window.onmessage !== undefined, // Edge で iframe+img を使った xdomain 通信ができない...
 
     X_GadgetXHR_requestBatches,
-    
+
     X_GadgetXHR_requestOriginal,
-    
+
     X_GadgetXHR_timerID,
-    
+
     X_GadgetXHR_phase = -1,
-    
+
     X_GadgetXHR_lastHashString,
-    
+
     X_GadgetXHR_isReceiveBatches, X_GadgetXHR_receivedString = '';
 
 
@@ -59,7 +59,7 @@ function X_GadgetXHR_detectImageOverIframe(){
             };
             if( ret && ret !== X_GadgetXHR_lastHashString ){
                 X_GadgetXHR_lastHashString = ret;
-                return X_GadgetXHR_workForReceivedMessage( ret.substr( 1 ), X_UA[ 'Gecko' ] ? unescape : decodeURIComponent ); // http://outcloud.blogspot.jp/2015/06/gecko-location-hash.html
+                return X_GadgetXHR_workForReceivedMessage( ret.substr( 1 ), ( X_UA.Gecko || X_UA.Fennec ) ? unescape : decodeURIComponent ); // http://outcloud.blogspot.jp/2015/06/gecko-location-hash.html
             };
         };
     };
@@ -146,14 +146,14 @@ X_TEMP.X_GadgetXHR_init = function(){
     var params = {
         'len'  : X_GadgetXHR_maxQueryLength,
         'itv'  : 333,
-        'gck'  : X_UA[ 'Gecko' ] ? 1 : 0,
+        'gck'  : ( X_UA.Gecko || X_UA.Fennec ) ? 1 : 0,
         'err'  : X_EVENT_ERROR,
         'suc'  : X_EVENT_SUCCESS
     };
 
     if( X_GadgetXHR_useMessage ){
         params[ 'tfo' ] = location.protocol + '//' + location.host;//location.origin;
-        if( X_UA[ 'IE' ] < 9 ){
+        if( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ){
             window.attachEvent( 'onmessage', X_GadgetXHR_onMessageFromGadget );
         } else {
             window.addEventListener( 'message', X_GadgetXHR_onMessageFromGadget );
@@ -170,17 +170,17 @@ X_TEMP.X_GadgetXHR_init = function(){
                     id                : X_GadgetXHR_iframeName,
                     src               : X_GadgetXHR_GADGET_URL + '#' + encodeURIComponent( X_JSON_stringify( params ) ),
                     scrolling         : 'no',
-                    allowtransparency : 'no',                    
+                    allowtransparency : 'no',
                     frameborder       : 0,
                     tabindex          : -1
                     } ),
             X_TEMP.X_GadgetXHR_props );
-    
+
     delete X_TEMP.X_GadgetXHR_init;
-    delete X_TEMP.X_GadgetXHR_props;    
-    
+    delete X_TEMP.X_GadgetXHR_props;
+
     X_GadgetXHR_requestBatches = [];
-    
+
     return X_GadgetXHR;
 };
 

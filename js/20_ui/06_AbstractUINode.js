@@ -1,4 +1,4 @@
-// TODO -> Node[ 'inherits' ]
+// TODO -> X_Node[ 'inherits' ]
 var XUI_AbstractUINode = X_EventDispatcher[ 'inherits' ](
     'X.UI._AbstractUINode',
     X_Class.ABSTRACT,
@@ -357,29 +357,29 @@ var XUI_AbstractUINode = X_EventDispatcher[ 'inherits' ](
 
         calculate : function( isNeedsDetection, x, y, allowedW, allowedH ){
             this.preMesure( allowedW, allowedH );
-            
+
             this.noWidth  = this.boxWidth === XUI_Attr_AUTO;
             this.noHeight = this.boxHeight === XUI_Attr_AUTO;
-            
+
             if( this.noWidth || this.noHeight ){
                 this.mesure();
                 this.postMesure();
             };
-            
+
             if( !isNeedsDetection ){
                 this.boxX += x;
-                this.boxY += y;            
+                this.boxY += y;
             };
         },
-        
+
         /*
          * X_Node_BoxModel の情報を引きながら top,left,width,height,padding,border の設定
          */
         updateLayout : function(){
             var x = this.boxX + ( this.parentData ? this.parentData.paddingL : 0 ),
                 y = this.boxY + ( this.parentData ? this.parentData.paddingT : 0 ),
-                w = X_UA[ 'IE' ] < 6 ? this.boxWidth  : this.contentWidth, // IE6 の互換モードも
-                h = X_UA[ 'IE' ] < 6 ? this.boxHeight : this.contentHeight;
+                w = ( X_UA.Trident || X_UA.TridentMobile ) < 6 ? this.boxWidth  : this.contentWidth, // IE6 の互換モードも
+                h = ( X_UA.Trident || X_UA.TridentMobile ) < 6 ? this.boxHeight : this.contentHeight;
 
             this.xnode
                 [ 'css' ]( 'left',        x ? x + 'em' : 0 ) // 親の padding 分ずらす
@@ -847,7 +847,7 @@ X.UI.AbstractUINode = X_Class_create(
         root : function(){
             return X_Pair_get( this ).root;
         },
-        
+
         /*
          * unverifiedAttrs に全ての指定を控える
          * サポートされていない場合は無視される．親のレイアウトによって変わる
@@ -923,12 +923,12 @@ X.UI.AbstractUINode = X_Class_create(
         dispatch : function( e ){
             return X_Pair_get( this )[ 'dispatch' ]( e );
         },
-            
+
         nextNode : function(){
-            
+
         },
         prevNode : function(){
-            
+
         },
         nodeIndex : function( v ){
             var data = X_Pair_get( this );
@@ -939,7 +939,7 @@ X.UI.AbstractUINode = X_Class_create(
             return data.parentData ? data.parentData.nodes.indexOf( data ) : 0;
         },
         displayIndex : function(){
-            
+
         },
         getX : function(){
             // dirty の場合、rootData.calculate
@@ -965,7 +965,7 @@ X.UI.AbstractUINode = X_Class_create(
             // dirty の場合、rootData.calculate
             return X_Pair_get( this ).boxHeight;
         },
-        
+
         /*
          * Repeater に於いて、繰り返されるアイテムの元(itemRenderer)からの複製に使用
          */
@@ -998,9 +998,9 @@ X.UI.AbstractUINode = X_Class_create(
                     //console.log( k );
                 //};
             };
-            
 
-            
+
+
             // listener もコピーする!
             if( opt_cloneListener && ( listeners = pair[ '_listeners' ] ) ){
                 for( type in listeners ){
@@ -1009,33 +1009,39 @@ X.UI.AbstractUINode = X_Class_create(
                         f = list[ i ];
                         switch( f.cbKind ){
                             case X_CLOSURE_THIS_FUNC :
-                                newNode[ f.once ? 'listenOnce' : 'listen' ]( type, f.context === this ? newNode : f.context, f.func, f.supplement );
+                                f.once ?
+                                    newNode[ 'listenOnce' ]( type, f.context === this ? newNode : f.context, f.func, f.supplement ) :
+                                    newNode[ 'listen' ]( type, f.context === this ? newNode : f.context, f.func, f.supplement );
                                 break;
                             case X_CLOSURE_HANDLEEVENT :
-                                newNode[ f.once ? 'listenOnce' : 'listen' ]( type, f.context === this ? newNode : f.context, f.supplement );
+                                f.once ?
+                                    newNode[ 'listenOnce' ]( type, f.context === this ? newNode : f.context, f.supplement ) :
+                                    newNode[ 'listen' ]( type, f.context === this ? newNode : f.context, f.supplement );
                                 break;
                             /*
                             case X_CLOSURE_FUNC_ONLY :
                                 if( f.lock ){
                                     newNode[ 'listen' ]( type, f.func, f.supplement );
                                 } else {
-                                    newNode[ f.once ? 'listenOnce' : 'listen' ]( type, f.func, f.supplement );
+                                    f.once ?
+                                        newNode[ 'listenOnce' ]( type, f.func, f.supplement ) :
+                                        newNode[ 'listen' ]( type, f.func, f.supplement );
                                 };
                                 break;
                             default :
                                 newNode[ 'listen' ]( type, f );
                                 break; */
                         };
-                    };                
+                    };
                 };
             } else
             if( opt_cloneListener && ( list = this.reserveEvents ) ){
                 for( i = 0, l = list.length; i < l; ++i ){
                     f = list[ i ];
                     newNode[ f.once ? 'listenOnce' : 'listen' ]( f[ 0 ], newNode, f[ 1 ], f[ 2 ] );
-                };    
+                };
             };
-            
+
             return newNode;
         }
     }

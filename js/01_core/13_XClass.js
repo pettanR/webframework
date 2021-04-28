@@ -25,11 +25,11 @@ var
     X_Class_traits             = null,
     X_Class_useObjectCreate    = false, // !!Object.create, http://jsperf.com/prototype-vs-object-create-perf
     // Opera Mobile 12.10 Android11 IS01 でクラスのメンバが欠落する問題に遭遇。__proto__ を辞めると動作,,,
-    X_Class_use_proto_         = !X_UA[ 'OperaMobile' ] && !X_UA[ 'OperaTablet' ] &&
+    X_Class_use_proto_         = !( X_UA.PrestoMobile && X_UA.Android ) &&
                                 // Android で原因不明のエラーに遭遇しているのは、この辺りが怪しい... 2016.3.9
-                                 !X_UA[ 'AOSP' ] && !X_UA[ 'ChromeWV' ] &&
+                                 !X_UA.AOSP && !X_UA.ChromiumMobile && !X_UA.Samsung && !X_UA.ChromeWebView &&
                                     !!X_emptyFunction.prototype.__proto__,
-    X_Class_constructorFix     = X_UA[ 'AOSP' ] < 3 || X_UA[ 'iOS' ] < 5,
+    X_Class_constructorFix     = X_UA.AOSP < 3 || ( X_UA.SafariMobile || X_UA.iOSWebView ) < 5, // WebKit < 533 が怪しい…
     X_Class_SEAL_KILLING       = [],
 
 X_Class_CommonMethods =
@@ -80,7 +80,7 @@ X_Class_CommonMethods =
                     listeners[ X_LISTENERS_KILL_RESERVED ] = true;
                     return;
                 };
-                
+
                 if( listeners[ X_EVENT_KILL_INSTANCE ] ){
                     X_Class_SEAL_KILLING[ i = X_Class_SEAL_KILLING.length ] = this;
 
@@ -100,11 +100,11 @@ X_Class_CommonMethods =
                         for( i = list.length; i; ){
                             this[ 'unlisten' ]( p, list[ --i ] );
                         };
-                    };                    
+                    };
                 };
             };
 
-            if( this[ 'instanceOf' ]( Node ) ){
+            if( this[ 'instanceOf' ]( X_Node ) ){
                 // console.log( 'KILL : ' + this.call( 'outerHTML' ) );
                 X_Node_onKill( this );
             };
@@ -114,22 +114,22 @@ X_Class_CommonMethods =
             // asyncDispatch の削除
             for( p in timers ){
                 if( timers[ p ] === this ){
-                     // delete X_EventDispatcher_LAZY_TIMERS[ p ]; コレ不要
+                     // delete X_EventDispatcher_LAZY_TIMERS[ p ];　コレ不要
                     X_Timer_remove( p );
                 };
             };
         };
-        
+
         X_Object_clear( this );
-        
+
         def = X_Class_getClassDef( this );
-        
+
         if( def.pool ){
             def.live.splice( def.live.indexOf( this ), 1 );
             def.pool[ def.pool.length ] = this;
         };
     },
-    
+
     /**
      * 関数は Constructor 内で使用します。クラス定義を辿ってスーパークラスのコンストラクタを呼び出します。<br>
      * 内部的には、呼び出したコンストラクタは配列に控え(X_Class_CALLING_SUPER)、呼び出したコンストラクタ内でさらに Super が呼ばれた場合、配列を元にさらにスーパーなコンストラクタを辿ります。
@@ -151,11 +151,11 @@ X_Class_CommonMethods =
             t = stack = X_Class_SUPER_STACKS[ i ] = 0;
         } else {
             t = stack = X_Class_SUPER_STACKS[ i ];
-            
+
             while( t ){
                 sClass = X_Class_getClassDef( sClass ).SuperClass;
                 --t;
-            };            
+            };
         };
 
         while( sClass ){
@@ -170,14 +170,14 @@ X_Class_CommonMethods =
                 break;
             };
         };
-        
+
         // index が替わっている可能性があるので取り直し
         if( X_Class_SUPER_CALLER[ i ] !== me ) i = X_Class_SUPER_CALLER.indexOf( me );
         
         if( X_Class_SUPER_STACKS[ i ] === stack ){
             //console.log( 'スーパークラス、またはスーパークラスのコンストラクタは存在しません' );
         };
-        
+
         if( stack === 0 ){
             X_Class_SUPER_CALLER.splice( i, 1 );
             X_Class_SUPER_STACKS.splice( i, 1 );
@@ -204,7 +204,7 @@ X_Class_CommonMethods =
      * <li>superCall 以外の手段で親関数を呼び、そのなかで superCall を呼んだ
      * </ol>
      * 通常の X.Class.create の書き方ではこのような状況は起きませんが、js はなんでもいろいろ出来てしまいますから…<br>
-     * 参考:<a href="http://qiita.com/no22@github/items/d3bead2acbb7ff1fb86b" target="_blank">ES5なJavascriptでモダンなクラス的継承＆スーパー呼び出し </a><br>
+     * 参考:<a href="http://qiita.com/no22@github/items/d3bead2acbb7ff1fb86b" target="_blank">ES5なJavascriptでモダンなクラス的継承＆スーパー呼び出し</a><br>
      * original:<a href="http://javascript.crockford.com/inheritance.html" target="_blank">Classical Inheritance in JavaScript</a>
      * @param myFunc {Function|string} オーバーライド済の自身の(自身から参照できる)関数。
      * @param var_args {...*} オーバーライド元関数に渡す任意の数の引数
@@ -233,7 +233,7 @@ X_Class_CommonMethods =
         } else {
             return;
         };
-            
+
         if( i === -1 ){
             X_Class_SUPER_CALLER[ i = X_Class_SUPER_CALLER.length ] = me;
             t = stack = X_Class_SUPER_STACKS[ i ] = 0;
@@ -243,7 +243,7 @@ X_Class_CommonMethods =
             while( t ){
                 sClass = X_Class_getClassDef( sClass ).SuperClass;
                 --t;
-            };            
+            };
         };
 
         if( sClass ){
@@ -274,7 +274,7 @@ X_Class_CommonMethods =
                                 args = X_Array_copy( args );
                                 args.shift();
                                 ret = sFunc.apply( me, args );
-                                break;                            
+                                break;
                         };
                     };
                     break;
@@ -293,7 +293,7 @@ X_Class_CommonMethods =
         };
         return ret;
     },
-    
+
     /**
      * インスタンスのクラスか？またはスーパークラスか？調べる。<br>
      * instanceof 構文をサポートしない環境(IE5以下)を想定する場合、必ずこのメソッドを使用すること。<br>
@@ -356,14 +356,14 @@ X[ 'Class' ] = /** @lends X.Class */ {
      * @const
      */    
     'NONE'         : X_Class.NONE,
-    
+
     // TODO この指定、フレームワーク内だけ！
     /**
      * インスタンスは破棄時(this.kill())に回収され、次回の new MyClass() 時に再利用されます。
      * @const
      */
     'POOL_OBJECT'  :  X_Class.POOL_OBJECT,
-    
+
     /**
      * 定義するクラスは抽象クラスになります。new AbstractClass() とするとエラーになります。
      * @const
@@ -383,7 +383,7 @@ X[ 'Class' ] = /** @lends X.Class */ {
     'SINGLETON'    : X_Class.SINGLETON,
 
     'create'       : X_Class_create
-    
+
     // TODO collect
 };
 
@@ -428,26 +428,28 @@ X[ 'Class' ] = /** @lends X.Class */ {
             classDef = {},
             cbHash = { proxy : X_Class_actualConstructor, classDef : classDef };
 
-        if( X_Type_isString( displayName ) === true ){
+        if( X_Type_isString( displayName ) ){
             classDef.displayName = displayName;
             args.shift();
         };
-        
+
         // クラス設定
         classDef.setting = classSetting = args[ 0 ];
         if( X_Type_isNumber( classSetting ) ){
             opt_pool     = !!( classSetting & X_Class.POOL_OBJECT  );
             opt_abstract = !!( classSetting & X_Class.ABSTRACT     );
             opt_final    = !!( classSetting & X_Class.FINAL        );
-            if( opt_final && opt_abstract ){
-                X.Logger.critical( 'final & Abstract!' );
-                return;
-            };    
+            if( X_IS_DEV ){
+                if( opt_final && opt_abstract ){
+                    X_error( 'X.Class : final & Abstract!' );
+                    return;
+                };
+            };
             args.shift();
         } else {
             classDef.setting = 0;
         };
-        
+
         // インスタンスのメンバー
         props = args[ 0 ];
         if( !X_Type_isObject( props ) ){
@@ -455,12 +457,12 @@ X[ 'Class' ] = /** @lends X.Class */ {
             props = {};
         } else
         if( props[ 'Constructor' ] ){
-            //{+dev
-            if( !X_Type_isFunction( props[ 'Constructor' ] ) ){
-                alert( '"Constructor" is not function.' );
-                return;
+            if( X_IS_DEV ){
+                if( !X_Type_isFunction( props[ 'Constructor' ] ) ){
+                    X_error( 'X.Class : "Constructor" is not function. displayName=' + classDef.displayName );
+                    return;
+                };
             };
-            //}+dev
             classDef.Constructor = props[ 'Constructor' ];
         };
 
@@ -468,7 +470,7 @@ X[ 'Class' ] = /** @lends X.Class */ {
         cbHash.klass = klass;
         klass[ 'superClassOf' ] = X_Class_superClassOf;
         klass[ 'subClassOf' ]   = X_Class_subClassOf;
-        
+
         if( X_Class_useObjectCreate ){
             klass.prototype = X_Class_override( X_Class_override( X_Class_traits || klass.prototype, props, true ), X_Class_CommonMethods, false );
             klass.prototype.constructor = klass;
@@ -484,22 +486,22 @@ X[ 'Class' ] = /** @lends X.Class */ {
             klass.prototype = X_Class_override( X_Class_override( X_Class_traits || klass.prototype, props, true ), X_Class_CommonMethods, false );
             klass.prototype.constructor = klass;
         };
-        
+
         klass[ 'NAME' ] = displayName;
-        
+
         if( opt_abstract ){
             classDef.isAbstract = true;
         } else
         if( opt_pool ){
             classDef.pool = [];
             classDef.live = [];
-        };            
+        };
         if( opt_final ){
             classDef.Final = true;
         } else {
             klass[ 'inherits' ] = X_Class_inherits;
-        };            
-        
+        };
+
         X_Class_CLASS_LIST.push( klass );
         X_Class_DEF_LIST.push( classDef );                
 
@@ -510,7 +512,7 @@ X[ 'Class' ] = /** @lends X.Class */ {
 
 function X_Class_getClass( instance ){
     var cList = X_Class_CLASS_LIST, i;
-    
+
     if( ( i = cList.indexOf( instance.constructor ) ) !== -1 ) return cList[ i ];
     if( cList.indexOf( instance ) !== -1 ) return instance;
 };
@@ -520,18 +522,21 @@ function X_Class_getClassDef( KlassOrInstance ){
     var i = X_Class_CLASS_LIST.indexOf( KlassOrInstance );
     if( i === -1 ) i = X_Class_CLASS_LIST.indexOf( X_Class_getClass( KlassOrInstance ) );
     if( i !== -1 ) return X_Class_DEF_LIST[ i ];
-    
+
     if( X_Class_DEF_LIST.indexOf( KlassOrInstance ) !== -1 ) return KlassOrInstance;
 };
 
-/* over のプロパティを target にコピーする．ただし target の プロパティが優先, force で解除 */
+/* src のプロパティを target にコピーする．ただし target の プロパティが優先, force で解除 */
+/* Class.create() で ClassBase のメソッドを上書きしていた場合の警告が必要 */
 function X_Class_override( target, src, force ){
     var p;
     for( p in src ){
-        if( p === 'Constructor' ) continue;
-        if( p === '__proto__' || p === 'prototype' || p === 'constructor' ){
-            X.Logger.critical( p + ' is reserved!' );
-            return;
+        if( src[ p ] === src[ 'Constructor' ] ) continue; // TODO src[P] === src.Constructor closure compiler の改名に対応
+        if( X_IS_DEV ){
+            if( p === '__proto__' || p === 'prototype' || p === 'constructor' ){
+                X_error( 'X.Class.override : ' + p + ' is reserved!' );
+                return;
+            };
         };
         if( force || target[ p ] === undefined ){
             target[ p ] = src[ p ];
@@ -552,11 +557,11 @@ function X_Class_superClassOf( klass ){
         SuperClass = klass;
 
     if( !myDef || !targetDef || this === klass ) return false;
-    
+
     while( SuperClass = X_Class_getClassDef( SuperClass ).SuperClass ){
         if( SuperClass === this ) return true;
     };
-    
+
     return false;
 };
 
@@ -570,7 +575,7 @@ function X_Class_superClassOf( klass ){
 function X_Class_subClassOf( klass ){
     return klass && X_Class_superClassOf.call( klass, this );
 };
-            
+
 /**
  * サブクラスを作ります。与える引数は X_Class.create と同じです。http://d.hatena.ne.jp/m-hiyama/20051018/1129605002
  * @alias __ClassBase__.inherits
@@ -589,8 +594,11 @@ function X_Class_inherits( /* displayName, classSetting, props */ ){
         classSetting,
         //opt_super,
         klass, def;
-    if( superDef.Final ) X.Logger.critical( 'X.Class inherits, Class is final!' );
-    
+
+    if( X_IS_DEV && superDef.Final ){
+        return X_error( 'X.Class inherits, Class is final!' );
+    };
+
     // サブクラス名
     if( X_Type_isString( displayName ) ){
         args.shift();
@@ -598,7 +606,7 @@ function X_Class_inherits( /* displayName, classSetting, props */ ){
         displayName = 'SubClass of ' + superDef.displayName;
     };
     params.push( displayName );
-    
+
     // サブクラス設定
     classSetting = args[ 0 ];
     if( X_Type_isNumber( classSetting ) ){
@@ -614,10 +622,10 @@ function X_Class_inherits( /* displayName, classSetting, props */ ){
     if( args[ 0 ] && X_Class_getClass( args[ 0 ] ) ){
         params.push( args.shift() );
     };
-    
+
     /* props 未定義でも可 */
     params.push( args[ 0 ] );
-    
+
     // 継承クラスの作成
     if( X_Class_useObjectCreate ){
         X_Class_traits = Object.create( Super.prototype );
@@ -629,16 +637,16 @@ function X_Class_inherits( /* displayName, classSetting, props */ ){
     };
     klass  = X_Class_create.apply( X.Class, params );
     X_Class_traits = null;
-    
+
     def    = X_Class_getClassDef( klass );
     // 継承用プロパティを控える
     def.SuperClass       = Super;
     //def.SuperProto       = Super.prototype;
     //def.SuperConstructor = superDef.Constructor || superDef.SuperConstructor;
-    
+
     return klass;
 };
-    
+
 /*
  * new の実体．コンストラクタの機能は instance.Constructor に書く．
  * これにより pool された オブジェクト（破棄されたインスタンス） を再利用できる
@@ -648,11 +656,11 @@ function X_Class_actualConstructor( f, args ){
         def      = f.classDef,
         instance, obj;
 
-    if( def.isAbstract ){
-        X.Logger.critical( 'AbstractClass!' );
+    if( X_IS_DEV && def.isAbstract ){
+        X_error( 'AbstractClass!' );
         return;
     };
-    
+
     instance = def.pool && def.pool.length ?
                     def.pool.pop() :
                 X_Class_useObjectCreate ?
@@ -662,7 +670,9 @@ function X_Class_actualConstructor( f, args ){
     def.live && def.live.push( instance );
 
     if( X_Class_constructorFix && instance.constructor !== klass ){
-        console.log( '------- constructor の不一致!' ); // Android2.3.7
+        if( X_IS_DEV ){
+            console.log( '------- constructor の不一致!' ); // Android2.3.7
+        };
         instance.constructor = klass;
     };
 
@@ -674,8 +684,6 @@ function X_Class_actualConstructor( f, args ){
         instance[ 'kill' ]();
         return obj;
     };
-    
+
     return instance;
 };
-
-console.log( 'X.Core.Class' );

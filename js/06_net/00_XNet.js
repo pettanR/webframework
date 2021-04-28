@@ -90,13 +90,13 @@
  * // load &lt;script&gt;, &lt;link&gt;
  */
 X[ 'Net' ] = X_EventDispatcher[ 'inherits' ](
-        'X.Net',
+        //'X.Net',
         X_Class.NONE,
         {
-            
+
             'Constructor' : function( urlOrObject, opt_options ){
                 var opt, url, type, auth;
-                
+
                 if( X_Type_isObject( opt = urlOrObject ) ){
                     //{+xhr
                     if( X_Type_isString( url = opt[ 'xhr' ] ) ){
@@ -119,19 +119,17 @@ X[ 'Net' ] = X_EventDispatcher[ 'inherits' ](
                     } else
                     //}+netform
                     if( !( type = X_NET_NAME_TO_ID[ opt[ 'type' ] ] ) ){
-                        //{+dev
-                        alert( 'X.Net args error' );
-                        //}+dev
-                        return;
+                        if( X_IS_DEV ){
+                            X_error( 'X.Net : Invalid type=' +  opt[ 'type' ] );
+                            return;
+                        };
                     } else {
                         url = opt[ 'url' ];
                     };
-                    //{+dev
-                    if( !X_Type_isString( url ) ){
-                        alert( 'X.Net args error' );
+                    if( X_IS_DEV && !X_Type_isString( url ) ){
+                        X_error( 'X.Net : Invalid url=' + url );
                         return;
                     };
-                    //}+dev
                 } else
                 if( X_Type_isString( urlOrObject ) ){
                     url = urlOrObject;
@@ -142,13 +140,13 @@ X[ 'Net' ] = X_EventDispatcher[ 'inherits' ](
                         type = X_NET_TYPE_XHR;
                         opt  = { 'url' : url, 'method' : 'GET' };
                     };
-                //{+dev    
                 } else {
-                    alert( 'X.Net args error' );
-                    return;
-                //}+dev
+                    if( X_IS_DEV ){
+                        X_error( 'X.Net : Args error!' );
+                        return;
+                    };
                 };
-                
+
                 // auth の退避
                 if( auth = opt[ 'auth' ] ){
                     delete opt[ 'auth' ];
@@ -157,13 +155,13 @@ X[ 'Net' ] = X_EventDispatcher[ 'inherits' ](
                 if( auth ){
                     opt[ 'auth' ] = auth; // auth は deep copy されるとまずい
                 };
-                
+
                 // params を url に追加 但し form は除く
                 if( opt[ 'params' ] && type !== X_NET_TYPE_FORM ){
                     url = X_URL_create( url, opt[ 'params' ] );
                     delete opt[ 'params' ];
-                };                
-                
+                };
+
                 if( type === X_NET_TYPE_XHR ){
                     opt[ 'method' ] = opt[ 'method' ] || ( opt[ 'postdata' ] ? 'POST' : 'GET' );
 
@@ -174,14 +172,14 @@ X[ 'Net' ] = X_EventDispatcher[ 'inherits' ](
                     
                     opt[ 'dataType' ] = opt[ 'dataType' ] || X_URL_getEXT( url );
                 };
-                
+
                 opt.netType   = type;
                 opt[ 'url'  ] = url;
-                
+
                 X_Pair_create( this, opt );
-                
+
                 this[ 'listen' ]( X_EVENT_KILL_INSTANCE, X_NET_proxyDispatch );
-                
+
                 X_NET_QUEUE_LIST[ X_NET_QUEUE_LIST.length ] = this;
                 !X_NET_currentQueue && X_NET_shiftQueue();
             },
@@ -234,7 +232,7 @@ var X_NET_TYPE_XHR   = 1,
 
 function X_NET_proxyDispatch( e ){
     var i, flag, auth;
-    
+
     switch( e.type ){
         case X_EVENT_KILL_INSTANCE :
             if( this === X_NET_currentQueue && X_NET_completePhase ){
@@ -255,17 +253,17 @@ function X_NET_proxyDispatch( e ){
                 X_NET_QUEUE_LIST.splice( i, 1 );
                 flag = true;
             };
-            
+
             if( flag ){ // flag が立つ場合、これは中断
                 this[ 'dispatch' ]( X_EVENT_CANCELED );
                 this[ 'dispatch' ]( { type : X_EVENT_COMPLETE, 'lastEventType' : X_EVENT_CANCELED } );
                 X_Pair_release( this );
             };
-            break;            
+            break;
         case X_EVENT_PROGRESS :
             this[ 'dispatch' ]( e );
             break;
-        
+
         case X_EVENT_ERROR :
             if( e.status === 401 ){
                 if( auth = X_Pair_get( this )[ 'auth' ] ){
@@ -273,7 +271,7 @@ function X_NET_proxyDispatch( e ){
                     // TODO 破棄しないで待機。
                 };
             };
-            
+
         case X_EVENT_SUCCESS :
             X_NET_completePhase = 1;
             this[ 'listenOnce' ]( X_EVENT_COMPLETE, X_NET_proxyDispatch )
@@ -297,22 +295,22 @@ function X_NET_shiftQueue( currentKilled ){
 
     if( X_NET_currentQueue ){
         if( !currentKilled ) return;
-        
+
         X_NET_currentWrapper
             [ 'unlisten' ]( [ X_EVENT_PROGRESS, X_EVENT_SUCCESS, X_EVENT_ERROR ], X_NET_currentQueue, X_NET_proxyDispatch )
             .reset();
 
         X_NET_currentQueue = X_NET_currentWrapper = X_NET_currentData = null;
     };
-    
-    console.log( '■■------------ X_NET_shiftQueue ' + X_NET_QUEUE_LIST.length );
-    
+
+    //console.log( '■■------------ X_NET_shiftQueue ' + X_NET_QUEUE_LIST.length );
+
     if( !X_NET_QUEUE_LIST.length ) return;
 
 
     X_NET_currentQueue = q = X_NET_QUEUE_LIST.shift();
     X_NET_currentData  = X_Pair_get( X_NET_currentQueue );
-    
+
     switch( X_NET_currentData.netType ){
         case X_NET_TYPE_XHR :
             
@@ -328,8 +326,8 @@ function X_NET_shiftQueue( currentKilled ){
                 default :
                     X_NET_currentWrapper = X_XHR || X_TEMP.X_XHR_init();
             };
-            
-            
+
+
             // OAuth2
             if( auth = X_NET_currentData[ 'auth' ] ){
                 authSettings = X_Pair_get( auth );
@@ -368,9 +366,9 @@ function X_NET_shiftQueue( currentKilled ){
             X_NET_currentWrapper = X_ImgLoader || X_TEMP.X_ImgLoader_init();
             break;
     };
-    
+
     X_NET_currentWrapper[ 'listen' ]( [ X_EVENT_PROGRESS, X_EVENT_SUCCESS, X_EVENT_ERROR ], X_NET_currentQueue, X_NET_proxyDispatch );
-    
+
     X_NET_currentWrapper.load( X_NET_currentData );
 };
 

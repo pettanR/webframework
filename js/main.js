@@ -73,25 +73,16 @@ X( function(){
                 [
                     { label : '戻る', back : true },
                     {
-                        label   : 'ブラウザ',
-                        summary : X.UA.IE ? 'IE ' + X.UA.IE :
-                            X.UA.Opera      ? 'Presto Opera ' + X.UA.Opera :
-                            X.UA.Gecko      ? 'Gecko ' + X.UA.Gecko :
-                            X.UA.KHTML      ? 'KHTML ' + X.UA.KHTML :
-                            X.UA.WebKit     ? 'WebKit ' + X.UA.WebKit :
-                            X.UA.BlinkOpera ? 'Blink Opera ' + X.UA.BlinkOpera :
-                            X.UA.Blink      ? 'Blink ' + X.UA.Blink :
-                            X.UA.AOSP       ? 'AOSP ' + X.UA.AOSP :
-                            X.UA.ChromeWV   ? 'Chrome WebView ' + X.UA.ChromeWV :
-                            X.UA.Edge       ? 'Edge' + X.UA.Edge : 'Other'
+                        label   : 'ブラウザエンジン',
+                        summary : X.UA.ENGINE + ' ' + ( X.UA.ENGINE_VERSION || '' )
                     },
                     {
-                        label   : 'OS',
-                        summary : X.UA.Windows ? 'Windows ' + X.UA.Windows : X.UA.Mac ? 'Mac' : X.UA.Android ? 'Android' : X.UA.iOS ? 'iOS' : 'Other'
+                        label   : 'ブランド',
+                        summary : X.UA.BRAND + ' ' + ( X.UA.BRAND_VERSION || '' )
                     },
                     {
-                        label   : 'IE6専用 背景画像ちらつき対処',
-                        summary : X.Doc.ieExeComError ? 'error!' : X.UA.IE6 ? 'success!' : '-'
+                        label   : 'プラットフォーム',
+                        summary : X.UA.PLATFORM + ' ' + ( X.UA.PLATFORM_VERSION || '' )
                     },
                     {
                         label   : 'SVG',
@@ -101,14 +92,14 @@ X( function(){
                         label   : 'VML',
                         summary : X.Doc.VML || '-'
                     },
-                    {
+                    /* {
                         label   : 'XHR',
                         summary :
                             X.XHR.XDR ? ( X.XHR.MSXML ? 'W3C+XDR+MSXML' + X.XHR.MSXML : 'W3C+XDR' ) :
                             X.XHR.W3C ? ( X.XHR.CORS ? 'W3C Lv2' : 'W3C' ) :
                             X.XHR.MSXML ? 'MSXML' + X.XHR.MSXML :
                             X.XHR.FLASH ? 'Flash' + X.XHR.FLASH : ''
-                    },
+                    }, */
                     {
                         label   : 'ユーザーエージェント文字列',
                         summary : navigator.userAgent

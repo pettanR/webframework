@@ -5,15 +5,21 @@ var X_NodeAnime_QUEUE           = [],
     X_NodeAnime_updateTimerID   = 0,
     X_NodeAnime_needsDetection  = false,
     
-    X_NodeAnime_hasTransform    = !!X_Node_CSS_VENDER_PREFIX[ 'transform' ],
-    
-    X_NodeAnime_hasDXTransform  = 5.5 <= X_UA[ 'IE' ] && X_UA[ 'IE' ] < 9 && X_UA[ 'ActiveX' ], // IEHost が 11 の場合不可
+    X_NodeAnime_hasTransform    = !!X_Node_CSS_VENDER_PREFIX.transform,
+    // TODO ActiveX filter のチェック
+    X_NodeAnime_hasDXTransform  = 5.5 <= ( X_UA.Trident || X_UA.TridentMobile ) && ( X_UA.Trident || X_UA.TridentMobile ) < 9 && ( X_UA.IEHost !== 11 ), // IE11 emu では不可
     
     /* Opera mobile で  translateZ(0) が有効だと XY が 0 0 になる */
     /* GPUレイヤーにいる間に要素のコンテンツを変更をすると transitionend が動かなくなるっぽい Mac safari と firefox */
-    X_NodeAnime_translateZ      = X_Node_CSS_VENDER_PREFIX[ 'perspective' ] &&
-                                    !X_UA[ 'OperaMobile' ] && !X_UA[ 'OperaTablet' ] &&
-                                    !( X_UA[ 'IE' ] === 11 ) && !( X_UA[ 'IEHost' ] === 11 ) ? ' translateZ(0)' : '',
+    X_NodeAnime_translateZ      = X_Node_CSS_VENDER_PREFIX.perspective &&
+                                    !( X_UA.PrestoMobile && X_UA.Android ) &&
+                                    // https://twitter.com/uupaa/status/811157467094663168
+                                    // Win7 IE11 と Win10 IE11 は IE11 が利用しているバックエンドが違うため、GPU叩く系のCSS/SVG/Flashの挙動が大きく異なりますよ。簡単に言うと Win7 IE11 はガビガビになる
+                                    // Win7-8 + IE で描画が極めて乱れていた itozyun
+                                    !(
+                                        ( X_UA.Trident || X_UA.TridentMobile ) &&
+                                        6.1 <= ( X_UA.Win32 || X_UA.Win64 ) && ( X_UA.Win32 || X_UA.Win64 ) < 7 // 7 <= windows <= 8.1
+                                    ) ? ' translateZ(0)' : '',
 
 // https://ics.media/entry/306
 // transform(3D)はAndroid 2.x系の標準ブラウザや、最新版のFirefoxで不具合があるので注意が必要
@@ -31,7 +37,7 @@ var X_NodeAnime_QUEUE           = [],
  *  7: アニメーション中
  */
 
-    X_NODE_ANIME_RESET = 1,
+    X_NODE_ANIME_RESET    = 1,
     X_NODE_ANIME_STAY_GPU = 2,
     
     X_NodeAnime_DEFAULT = {
@@ -96,21 +102,21 @@ function X_Node_animate( obj ){
         easing      = obj[ 'easing' ],
         fallback    = obj[ 'fallback' ],
         a, sameRate;
-        
+
     obj = this[ '_anime' ];
-    
+
     if( !( this[ '_flags' ] & X_NodeFlags_IN_TREE ) ){
-        alert( '@animate 要素はツリーに追加されていません!' );
+        //alert( '@animate 要素はツリーに追加されていません!' );
         // それでもアニメーションしてタイマー代わりにするとか、、、?
         return this;
     };
-    
+
     if( !obj ){
         this[ '_anime' ] = obj = X_Object_copy( X_NodeAnime_DEFAULT );
         a = this[ '_css' ] && parseFloat( this[ '_css' ].opacity );
         if( 0 <= a ) obj.alpha = a;
     };
-        
+
 // form :
     obj.fromX       = obj.x       = X_NodeAnime_getFinite( from[ 'x' ],       obj.x );
     obj.fromY       = obj.y       = X_NodeAnime_getFinite( from[ 'y' ],       obj.y );
@@ -210,10 +216,10 @@ function X_Node_animate( obj ){
             obj.phase = 1;
             X_NodeAnime_needsDetection = true;
         };
-        
+
         if( !X_NodeAnime_reserved ){
             X_NodeAnime_reserved = true;
-            
+
             if( X_Node_updateTimerID ){
                 if( X_NodeAnime_updateTimerID ) X_NodeAnime_updateTimerID = X_Timer_cancelFrame( X_NodeAnime_updateTimerID );
 
@@ -248,7 +254,7 @@ function X_Node_stop( option ){
     var obj    = this[ '_anime' ],
         list   = X_NodeAnime_QUEUE,
         rm;
-    
+
     if( !obj || !obj.phase ) return this;
 
     switch( obj.phase ){
@@ -264,11 +270,11 @@ function X_Node_stop( option ){
             if( option & X_NODE_ANIME_RESET ){
                 X_Object_override( obj, X_NodeAnime_DEFAULT );
             }; // TODO 終了値で停止も,,,
-            
+
             // obj.canceled = true;
-            
+
             if( rm ) break; // 1,2,3,6 の場合ここまで
-        
+
             obj.toX       = obj.x;
             obj.toY       = obj.y;
             obj.toRotate  = obj.rotate;
@@ -282,7 +288,7 @@ function X_Node_stop( option ){
 
             obj.phase     = 4; // 強制解除
             X_NodeAnime_needsDetection = true;
-            
+
         case 5 : // GPU解除待ち
             obj.releaseNow = !( option & X_NODE_ANIME_STAY_GPU );
             break;
@@ -361,16 +367,16 @@ function X_NodeAnime_updateAnimations( e ){
         c    = false,
         i, xnode, obj, _xnode,
         rm, progress, easing, lazy;
-    
+
     if( X_NodeAnime_needsDetection ){
         X_NodeAnime_needsDetection = false;
-        
+
         //
         list.sort( X_NodeAnime_sortAnimationNode );
-        
+
         for( i = 0; xnode = list[ i ]; ++i ){
             obj = xnode[ '_anime' ];
-            
+
             if( obj.phase <= 3 ){
                 if( !X_Type_isNumber( obj.phase = _xnode = X_NodeAnime_detectWaitAnimation( xnode, obj.duration ) ) ){
                     _xnode[ '_anime' ].follower = true;
@@ -381,7 +387,7 @@ function X_NodeAnime_updateAnimations( e ){
             };
         };
     };
-    
+
     for( i = list.length; i; ){
         rm    = false;
         xnode = list[ --i ];
@@ -408,7 +414,7 @@ function X_NodeAnime_updateAnimations( e ){
                 };
                 // アニメーション終了
                 xnode[ 'asyncDispatch' ]( X_EVENT_ANIME_END );
-                
+
             case 4 : // 強制停止(GPU転送予約)または transform や opacity の値のみ設定
                 lazy = !obj.follower && !obj.releaseNow && obj.lazyRelease;
                 X_NodeAnime_updatePosition( xnode, obj, 1, !!lazy );
@@ -416,16 +422,16 @@ function X_NodeAnime_updateAnimations( e ){
                 //if( obj.canceled ){
                 //    xnode[ 'asyncDispatch' ]( X_EVENT_CANCELED );
                 //} else {
-                    
+
                 //};
-                
+
                 if( lazy ){
-                    console.log( 'アニメーション終了(' + obj.phase + ') -> GPU 解除待機 ' + lazy );
+                    //console.log( 'アニメーション終了(' + obj.phase + ') -> GPU 解除待機 ' + lazy );
                     obj.toTime = now + lazy;
                     obj.phase = 5; // GPU解除待ち
                     c = true;
                 } else {
-                    console.log( 'アニメーション終了(' + obj.phase + ') -> ' );
+                    //console.log( 'アニメーション終了(' + obj.phase + ') -> ' );
                     rm = true;
                 };
                 break;
@@ -440,7 +446,7 @@ function X_NodeAnime_updateAnimations( e ){
                 //obj.canceled  = false;
                 ( !obj.inited || X_NodeAnime_translateZ ) && X_NodeAnime_updatePosition( xnode, obj, 0, true );
                 break;
-            
+
             case 5 : // GPU解除待ち
                 if( obj.toTime <= now || obj.follower || obj.releaseNow ){
                     X_NodeAnime_translateZ && X_NodeAnime_updatePosition( xnode, obj, 1, false );
@@ -449,16 +455,16 @@ function X_NodeAnime_updateAnimations( e ){
                     c = true;
                 };
                 break;
-            
+
             default : // 2 or 3
                 // 待機状態でも親要素が GPU 化していなければ、開始値をセットすることは可能
                 obj.inited || X_NodeAnime_updatePosition( xnode, obj, 0, false );
                 obj.inited = true;
                 break;
         };
-        
+
         obj.releaseNow = false;
-        
+
         if( rm ){
             X_NodeAnime_translateZ && xnode[ 'asyncDispatch' ]( X_EVENT_GPU_RELEASED );
             // 後続のアニメーションがある場合
@@ -467,9 +473,9 @@ function X_NodeAnime_updateAnimations( e ){
             obj.phase = 0;
         };
     };
-    
+
     //c && console.log( 'anime... ' + X_Node_updateTimerID );
-    
+
     if( X_NodeAnime_reserved = c ){
         if( X_Node_updateTimerID ){
             // scrollbox では X_System X_EVENT_UPDATED は不可。。。
@@ -504,7 +510,7 @@ function X_NodeAnime_updatePosition( xnode, obj, ratio, useGPU ){
     var str = '',
         x, y, rotate, skewX, skewY, scaleX, scaleY, alpha,
         scrollX, scrollY;
-    
+
     if( ratio === 1 ){
         x      = obj.x = obj.toX;
         y      = obj.y = obj.toY;
@@ -526,26 +532,27 @@ function X_NodeAnime_updatePosition( xnode, obj, ratio, useGPU ){
         scaleY = obj.scaleY;
         alpha  = obj.alpha;
     };
-    
+
     //console.log( 'updatePosition x:' + x + ' gpu:' + !!useGPU );
     if( obj.transform ){
         if( ( x === x || y === y ) && ( x !== 0 || y !== 0 ) ){
-            if( X_UA[ 'Safari' ] && X_UA[ 'Windows' ] ){
+            if( X_UA.WebKit && ( X_UA.Win32 || X_UA.Win64 ) ){
                 // http://shinimae.hatenablog.com/entry/2016/01/13/151748
+                // 本来ベンダープレフィックスはプロパティ名にのみ付けますが、Windows版Safariの場合はプロパティの値にもつけましょう。
                 str = ' -webkit-translate(' + ( x | 0 ) + 'px,' + ( y | 0 ) + 'px)';
             } else {
                 str = ' translate(' + ( x | 0 ) + 'px,' + ( y | 0 ) + 'px)';
             };
         };
-        if( rotate < 0 || 0 < rotate ) str += ' rotate(' + rotate + 'deg)'; // opera は rad?
+        if( rotate < 0 || 0 < rotate ) str += ' rotate(' + rotate + 'deg)'; // opera は　rad?
         if( skewX  < 0 || 0 < skewX  ) str += ' skewX('  + skewX  + 'deg)';
         if( skewY  < 0 || 0 < skewY  ) str += ' skewY('  + skewY  + 'deg)';
         if( scaleX < 1 || 1 < scaleX ) str += ' scaleX(' + scaleX + ')';
         if( scaleY < 1 || 1 < scaleY ) str += ' scaleY(' + scaleY + ')';
 
         xnode[ 'css' ]( 'transform', ( str ? str.substr( 1 ) : '' ) + ( useGPU ? X_NodeAnime_translateZ : '' ) );
-        console.log( xnode.className() + ' ' + str + ' ' + (xnode[ '_flags' ] & X_NodeFlags_DIRTY_CSS) );
-        
+        //console.log( xnode.className() + ' ' + str + ' ' + (xnode[ '_flags' ] & X_NodeFlags_DIRTY_CSS) );
+
         if( X_NodeAnime_translateZ ){
             if( useGPU ){
                 if( xnode[ '_flags' ] & X_NodeFlags_GPU_RELEASE_RESERVED ){
@@ -564,15 +571,15 @@ function X_NodeAnime_updatePosition( xnode, obj, ratio, useGPU ){
                 if( xnode[ '_flags' ] & X_NodeFlags_GPU_RESERVED ){
                     xnode[ '_flags' ] &= X_Node_BitMask_RESET_GPU;
                 };
-            };        
-        };        
+            };
+        };
     } else
     if( obj.fallback === 32 ){
         xnode[ 'css' ]( 'dxtransform', [ x | 0, y | 0, rotate || 0, skewX || 0, skewY || 0, scaleX, scaleY, obj.altX, obj.altY ] );
     } else {
         x === x && xnode[ 'css' ]( obj.altX, ( x | 0 ) + 'px' );
         y === y && xnode[ 'css' ]( obj.altY, ( y | 0 ) + 'px' );
-        
+
         switch( obj.fallback ){
             case 4 :
                 xnode[ 'css' ]( 'zoom', scaleX );
@@ -581,18 +588,18 @@ function X_NodeAnime_updatePosition( xnode, obj, ratio, useGPU ){
                 xnode[ 'css' ]( 'fontSize', scaleX + 'em' );
                 break;
             case 1 :
-                
+
                 break;
         };
     };
-    
+
     if( obj.doScroll && xnode[ '_rawObject' ] ){
-        console.log( 'ok ' + ratio );
+        //console.log( 'ok ' + ratio );
         xnode[ '_rawObject' ].scrollLeft = obj.scrollX | 0;
         xnode[ '_rawObject' ].scrollTop  = obj.scrollY | 0;
         //X_Node_reserveUpdate();
     };
-    
+
     alpha === alpha && xnode[ 'css' ]( 'opacity', alpha );
 };
 

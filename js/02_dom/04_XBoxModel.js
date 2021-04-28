@@ -3,18 +3,18 @@ var X_Node_BoxModel = {
         PADDING_BOX      : 2,
         BORDER_BOX       : 3
     },
-    
+
     X_Node_BoxModel_defaultBoxModel,
-    
+
     X_Node_BoxModel_boxSizingEnabled,
     // TODO: offsetLeft, offsetTop の基準位置
     X_Node_BoxModel_absoluteOffset;
 
 X_ViewPort[ 'listenOnce' ]( X_EVENT_INIT, function(){
     var node = X_Node_systemNode;
-    
+
     node[ 'cssText' ]( 'width:10px;padding:1px;border:2px solid #0;margin:4px;' );
-    
+
     X_Node_BoxModel_defaultBoxModel = node[ 'width' ]() === 10 ?
         X_Node_BoxModel.BORDER_BOX :
         X_Node_BoxModel.CONTENT_BOX;
@@ -24,17 +24,17 @@ X_ViewPort[ 'listenOnce' ]( X_EVENT_INIT, function(){
             'box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;-o-box-sizing:border-box;-ms-box-sizing:border-box;' )
                                             [ 'width' ]() === 10;
     };
-    
+
     /*
      * 古い Gekco、 Presto、 WebKit では影がレイアウトに影響します。たとえば、width が 100% のボックスに外向きの box-shadow を指定すると、横スクロールバーが表示されてしまいます。
-     * TODO boxShadow が有効な要素に対して offsetWidth 等の補正(?)
+     * TODO boxShadow が有効な要素に対して offsetWidth 等の補正(?) -> 隠し要素を生成してその要素で描画
      */
     if( X_Node_CSS_Support[ 'boxShadow' ] &&
         node[ 'cssText' ](
-                X_Node_CSS_uncamelize( X_Node_CSS_VENDER_PREFIX[ 'boxShadow' ] ) + ':10px 10px 0 0 #000;width:10px;'
+                X_Node_CSS_uncamelize( X_Node_CSS_VENDER_PREFIX.boxShadow ) + ':10px 10px 0 0 #000;width:10px;'
             )[ 'width' ]() !== 10
     ){
-         console.log( node[ 'cssText' ]() + node[ 'width' ]() );
+         //console.log( node[ 'cssText' ]() + node[ 'width' ]() );
         X_Node_CSS_Support[ 'boxShadowLayoutBug' ] = true;
     };
 
@@ -62,14 +62,18 @@ X_ViewPort[ 'listenOnce' ]( X_EVENT_INIT, function(){
  * getBoundingClientRect
  */
 
-function X_Node_BoxModel_mesure( that, name ){
+function X_Node_BoxModel_mesure( that, name, svgName ){
     var flags = that[ '_flags' ], elm;
-    
+
     if( !that[ '_tag' ] || ( ( flags & X_NodeFlags_IN_TREE ) === 0 ) || ( flags & X_NodeFlags_STYLE_IS_DISPLAY_NONE ) ) return 0;
-    
+
     X_Node_updateTimerID && X_Node_startUpdate();
-    
+
     elm = that[ '_rawObject' ] || X_Node__ie4getRawNode && X_Node__ie4getRawNode( that );
+
+    if( that[ '_flags' ] & X_NodeFlags_IS_SVG ){
+        return elm ? elm.getBoundingClientRect()[ svgName ] | 0 : 0;
+    };
     return elm ? elm[ name ] : 0;
 };
 
@@ -80,8 +84,8 @@ function X_Node_BoxModel_mesure( that, name ){
  * @example node.width();
  */
 function X_Node_width(){
-    return X_Node_BoxModel_mesure( this, 'offsetWidth' );
-    
+    return X_Node_BoxModel_mesure( this, 'offsetWidth', 'width' );
+
     // TODO width : length + overflow : hidden ならそれを返す? <- block or inline
     // TODO TextNode どうする?
     //if( X_UA_DOM.IE4 ) return elm ? elm.style.pixelWidth : 0;
@@ -95,8 +99,8 @@ function X_Node_width(){
  * @example node.height();
  */
 function X_Node_height(){
-    return X_Node_BoxModel_mesure( this, 'offsetHeight' );
-    
+    return X_Node_BoxModel_mesure( this, 'offsetHeight', 'height' );
+
     // this[ 'css' ]( X_Node_CSS_Unit.px, 'height' );
     //if( X_UA_DOM.IE4 ) return elm ? elm.style.pixelHeight : 0;
     //return elm ? elm.offsetHeight : 0;
@@ -109,8 +113,8 @@ function X_Node_height(){
  * @example node.clientWidth();
  */
 function X_Node_clientWidth(){
-    return X_Node_BoxModel_mesure( this, 'clientWidth' );
-    
+    return X_Node_BoxModel_mesure( this, 'clientWidth', 'width' );
+
     // this[ 'css' ]( X_Node_CSS_Unit.px, 'width' );
     //return elm ? elm.clientWidth : 0;
 };
@@ -122,7 +126,7 @@ function X_Node_clientWidth(){
  * @example node.clientHeight();
  */
 function X_Node_clientHeight(){
-    return X_Node_BoxModel_mesure( this, 'clientHeight' );
+    return X_Node_BoxModel_mesure( this, 'clientHeight', 'height' );
 
     // this[ 'css' ]( X_Node_CSS_Unit.px, 'height' );
     //return elm ? elm.clientHeight : 0;
@@ -135,7 +139,7 @@ function X_Node_clientHeight(){
  * @example node.scrollWidth();
  */
 function X_Node_scrollWidth(){
-    return X_Node_BoxModel_mesure( this, 'scrollWidth' );
+    return X_Node_BoxModel_mesure( this, 'scrollWidth', 'width' );
 
     // this[ 'css' ]( X_Node_CSS_Unit.px, 'width' );
     //return elm ? elm.scrollWidth : 0;
@@ -148,7 +152,7 @@ function X_Node_scrollWidth(){
  * @example node.scrollHeight();
  */
 function X_Node_scrollHeight(){
-    return X_Node_BoxModel_mesure( this, 'scrollHeight' );
+    return X_Node_BoxModel_mesure( this, 'scrollHeight', 'height' );
 };
 
 /**
@@ -158,6 +162,9 @@ function X_Node_scrollHeight(){
  * @example node.scrollLeft();
  */
 function X_Node_scrollLeft(){
+    if( this[ '_flags' ] & X_NodeFlags_IS_SVG ){
+        return 0;
+    };
     return X_Node_BoxModel_mesure( this, 'scrollLeft' );
 };
 
@@ -168,6 +175,9 @@ function X_Node_scrollLeft(){
  * @example node.scrollTop();
  */
 function X_Node_scrollTop(){
+    if( this[ '_flags' ] & X_NodeFlags_IS_SVG ){
+        return 0;
+    };
     return X_Node_BoxModel_mesure( this, 'scrollTop' );
 };
 
@@ -189,8 +199,8 @@ function X_Node_scrollTop(){
  * @example node.x();
  */
 function X_Node_x(){
-    return X_Node_BoxModel_mesure( this, 'offsetLeft' );
-    
+    return X_Node_BoxModel_mesure( this, 'offsetLeft', 'left' );
+
     // this[ 'css' ]( X_Node_CSS_Unit.px, 'left' );
     // this[ 'css' ]( X_Node_CSS_Unit.px, 'translateX' );
     //if( X_UA_DOM.IE4 ) return elm ? elm.style.pixelLeft : 0;
@@ -204,8 +214,8 @@ function X_Node_x(){
  * @example node.y();
  */
 function X_Node_y(){
-    return X_Node_BoxModel_mesure( this, 'offsetTop' );
-    
+    return X_Node_BoxModel_mesure( this, 'offsetTop', 'top' );
+
     // this[ 'css' ]( X_Node_CSS_Unit.px, 'top' );
     // this[ 'css' ]( X_Node_CSS_Unit.px, 'transisitonY' );
     //if( X_UA_DOM.IE4 ) return elm ? elm.style.pixelTop : 0;
@@ -244,9 +254,9 @@ function X_Node_offset(){
 //------------------------------------------------------------------------------
 //  座標取得
 var X_Node_getPosition =
-    !X_UA[ 'IE4' ] && document.createElement( 'div' ).getBoundingClientRect ?
+    !( ( X_UA.Trident || X_UA.TridentMobile ) < 5 ) && X_elmHtml.getBoundingClientRect ?
         (
-            document.compatMode === 'CSS1Compat' && !X_UA[ 'Webkit' ] ? function( el ){
+            document.compatMode === 'CSS1Compat' && !X_UA.WebKit ? function( el ){
                 var pos  = el.getBoundingClientRect(),
                     html = X_elmHtml;
                 return  {   x:(pos.left + html.scrollLeft - html.clientLeft)
@@ -258,7 +268,7 @@ var X_Node_getPosition =
                         ,   y:(pos.top  +   window.pageYOffset)   };
             }
         ) :
-    X_UA[ 'Opera' ] < 10 ?
+    ( X_UA.Presto || X_UA.PrestoMobile ) < 10 ?
         function( el ){
             var ex  =   0;
             var ey  =   0;

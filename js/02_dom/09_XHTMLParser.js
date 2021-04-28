@@ -5,36 +5,44 @@
  *
  */
 
-var X_HTMLParser_CHARS = {
-        'A':1,'B':1,'C':1,'D':1,'E':1,'F':1,'G':1,'H':1,'I':1,'J':1,'K':1,'L':1,'M':1,'N':1,'O':1,'P':1,'Q':1,'R':1,'S':1,'T':1,'U':1,'V':1,'W':1,'X':1,'Y':1,'Z':1,
-        'a':2,'b':2,'c':2,'d':2,'e':2,'f':2,'g':2,'h':2,'i':2,'j':2,'k':2,'l':2,'m':2,'n':2,'o':2,'p':2,'q':2,'r':2,'s':2,'t':2,'u':2,'v':2,'w':2,'x':2,'y':2,'z':2,
-        '!':1,// "0" ': 4, "1" : 4, "2" : 4, "3" : 4, "4" : 4, "5" : 4, "6" : 4, "7" : 4, "8" : 4, "9" : 4, closure compiler で minify すると ie4 で error、eval使う
-        
-        '\t' : 16, '\r\n' : 16, '\r' : 16, '\n' : 16, '\f' : 16, '\b' : 16, ' ' : 16
-    },
+var X_HTMLParser_CHARS = (function(){
+        var chars = 'abcdefghijklmnopqrstuvwxyz! \t\r\n\f\b',
+            ret   = {}, i;
+
+        for( i = 26; i; ){
+            ret[ chars.charAt( --i ) ] = 2;
+        };
+        for( i = 27, chars = chars.toUpperCase(); i; ){
+            ret[ chars.charAt( --i ) ] = 1;
+        };
+        for( i = 33; 27 < i; ){
+            ret[ chars.charAt( --i ) ] = 16;
+        };
+        return ret;
+    })(),
 
     // Empty Elements - HTML 4.01
     // X_Dom_DTD_EMPTY
 
     // Block Elements - HTML 4.01
-    X_HTMLParser_block = {'ADDRESS':1,'APPLET':1,'BLOCKQUOTE':1,'BUTTON':1,'CENTER':1,'DD':1,'DEL':1,'DIR':1,'DIV':1,'DL':1,'DT':1,'FIELDSET':1,'FORM':1,'FRAMESET':1,'HR':1,'IFRAME':1,'INS':1,
-        'ISINDEX':1,'LI':1,'MAP':1,'MENU':1,'NOFRAMES':1,'NOSCRIPT':1,'OBJECT':1,'OL':1,'P':1,'PRE':1,'SCRIPT':1,'TABLE':1,'TBODY':1,'TD':1,'TFOOT':1,'TH':1,'THEAD':1,'TR':1,'UL':1 },
+    X_HTMLParser_block = {ADDRESS:true,APPLET:true,BLOCKQUOTE:true,BUTTON:true,CENTER:true,DD:true,DEL:true,DIR:true,DIV:true,DL:true,DT:true,FIELDSET:true,FORM:true,FRAMESET:true,HR:true,IFRAME:true,INS:true,
+        ISINDEX:true,LI:true,MAP:true,MENU:true,NOFRAMES:true,NOSCRIPT:true,OBJECT:true,OL:true,P:true,PRE:true,SCRIPT:true,TABLE:true,TBODY:true,TD:true,TFOOT:true,TH:true,THEAD:true,TR:true,UL:true },
     // Inline Elements - HTML 4.01
-    X_HTMLParser_inline = {/*'A':1,*/'ABBR':1,'ACRONYM':1,'APPLET':1,'B':1,'BASEFONT':1,'BDO':1,'BIG':1,'BR':1,'BUTTON':1,'CITE':1,'CODE':1,'DEL':1,'DFN':1,'EM':1,'FONT':1,'I':1,'IFRAME':1,'IMG':1,
-        'INPUT':1,'INS':1,'KBD':1,'LABEL':1,'MAP':1,'OBJECT':1,'Q':1,'S':1,'SAMP':1,'SCRIPT':1,'SELECT':1,'SMALL':1,'SPAN':1,'STRIKE':1,'STRONG':1,'SUB':1,'SUP':1,'TEXTAREA':1,'TT':1,'U':1,'VAR':1},
+    X_HTMLParser_inline = {/*A:true,*/ABBR:true,ACRONYM:true,APPLET:true,B:true,BASEFONT:true,BDO:true,BIG:true,BR:true,BUTTON:true,CITE:true,CODE:true,DEL:true,DFN:true,EM:true,FONT:true,I:true,IFRAME:true,IMG:true,
+        INPUT:true,INS:true,KBD:true,LABEL:true,MAP:true,OBJECT:true,Q:true,S:true,SAMP:true,SCRIPT:true,SELECT:true,SMALL:true,SPAN:true,STRIKE:true,STRONG:true,SUB:true,SUP:true,TEXTAREA:true,TT:true,U:true,VAR:true},
     // Elements that you can,' intentionally,' leave open
     // (and which close themselves)
-    X_HTMLParser_closeSelf = {'OLGROUP':1,'DD':1,'DT':1,'LI':1,'OPTIONS':1,'P':1,'TBODY':1,'TD':1,'TFOOT':1,'TH':1,'THEAD':1,'TR':1}, // add tbody
+    X_HTMLParser_closeSelf = {COLGROUP:true,DD:true,DT:true,LI:true,OPTIONS:true,P:true,TBODY:true,TD:true,TFOOT:true,TH:true,THEAD:true,TR:true}, // add tbody
 
     X_HTMLParser_sisters = {
-        'TH' : { 'TD' : 1 },
-        'TD' : { 'TH' : 1 },
-        'DT' : { 'DD' : 1 },
-        'DD' : { 'DT' : 1 },
-        'COLGROUP' : { 'CAPTION' : 1 },
-        'THEAD'    : { 'CAPTION' : 1, 'COLGROUP' : 1 },
-        'TFOOT'    : { 'CAPTION' : 1, 'COLGROUP' : 1, 'THEAD' : 1, 'TBODY' : 1 },
-        'TBODY'    : { 'CAPTION' : 1, 'COLGROUP' : 1, 'THEAD' : 1, 'TFOOT' : 1 }
+        TH : { TD : true },
+        TD : { TH : true },
+        DT : { DD : true },
+        DD : { DT : true },
+        COLGROUP : { CAPTION : true },
+        THEAD    : { CAPTION : true, COLGROUP : true },
+        TFOOT    : { CAPTION : true, COLGROUP : true, THEAD : true, TBODY : true },
+        TBODY    : { CAPTION : true, COLGROUP : true, THEAD : true, TFOOT : true }
     },
     /*
      * http://www.tohoho-web.com/html/tbody.htm
@@ -47,10 +55,10 @@ var X_HTMLParser_CHARS = {
     // Attributes that have their values filled in disabled="disabled"
 
     // Special Elements (can contain anything)
-    X_HTMLParser_special = { 'SCRIPT' : 1, 'STYLE' : 1, 'PLAINTEXT' : 1, 'XMP' : 1, 'TEXTAREA' : 1 },
-    
+    X_HTMLParser_special = { SCRIPT : true, STYLE : true, PLAINTEXT : true, XMP : true, TEXTAREA : true },
+
     X_HTMLParser_skipFixNesting = false;
-    
+
     function X_HTMLParser_exec( html, handler, async ){
         var special        = X_HTMLParser_special,
             //plainText      = X_HTMLParser_plainText,
@@ -109,10 +117,10 @@ var X_HTMLParser_CHARS = {
 
                 if( chars ){
                     index = html.indexOf("<");
-                    
+
                     text = index < 0 ? html : html.substring( 0, index );
                     html = index < 0 ? '' : html.substring( index );
-                    
+
                     handler.chars( text );
                 };
 
@@ -122,19 +130,19 @@ var X_HTMLParser_CHARS = {
                 handler.err( html );
                 return;
             };
-            
+
             if( async && html && startTime + X_Timer_INTERVAL_TIME <= X_Timer_now() ){
                 handler.progress( 1 - html.length / async[ 0 ] );
                 X_Timer_once( 0, X_HTMLParser_exec, [ html, handler, async ] );
                 return;
             };
-            
+
             lastHtml = html;
         };
-        
+
         // Clean up any remaining tags
         X_HTMLParser_parseEndTag( stack, handler );
-        
+
         async && handler.asyncComplete();
     };
 
@@ -149,7 +157,7 @@ var X_HTMLParser_CHARS = {
             attrs = [],
             tagName, empty = false,
             chr, start, attrName, quot, escape, tagUpper;
-        
+
         while( i < l && phase < 9 ){
             chr = html.charAt( i );
             switch( phase ){
@@ -213,23 +221,23 @@ var X_HTMLParser_CHARS = {
         if( phase === 9 ){
             if( empty ) ++i;
             //if( X_HTMLParser_parseStartTag( stack, last, handler, tagName, attrs, empty, i ) === false ) return false;
-            
+
             tagUpper = tagName.toUpperCase();
             
-            if( !X_HTMLParser_skipFixNesting && X_HTMLParser_block[ tagUpper ] === 1 ){
-                while( last && X_HTMLParser_inline[ handler.isXML ? last.toUpperCase() : last ] === 1 ){
+            if( !X_HTMLParser_skipFixNesting && X_HTMLParser_block[ tagUpper ] ){
+                while( last && X_HTMLParser_inline[ handler.isXML ? last.toUpperCase() : last ] ){
                     X_HTMLParser_parseEndTag( stack, handler, last );
                     last = stack[ stack.length - 1 ];
                 };
             };
-            last && X_HTMLParser_closeSelf[ tagUpper ] === 1 &&
-                ( last === tagName || ( X_HTMLParser_sisters[ tagUpper ] && X_HTMLParser_sisters[ tagUpper ][ handler.isXML ? last.toUpperCase() : last ] === 1 ) ) &&
+            last && X_HTMLParser_closeSelf[ tagUpper ] &&
+                ( last === tagName || ( X_HTMLParser_sisters[ tagUpper ] && X_HTMLParser_sisters[ tagUpper ][ handler.isXML ? last.toUpperCase() : last ] ) ) &&
                     X_HTMLParser_parseEndTag( stack, handler, last );
             empty = empty || X_Dom_DTD_EMPTY[ tagUpper ];
             !empty && ( stack[ stack.length ] = handler.isXML ? tagName : tagUpper );
-            
+
             if( handler.tagStart( handler.isXML ? tagName : tagUpper, attrs, empty, i ) === false ) return false;
-            
+
             return i;
         };
         return 0; // error
@@ -243,7 +251,7 @@ var X_HTMLParser_CHARS = {
             i     = 0,
             tagName,
             chr, start;
-        
+
         while( i < l && phase < 9 ){
             chr = html.charAt( i );
             switch( phase ){
@@ -287,7 +295,7 @@ var X_HTMLParser_CHARS = {
     function X_HTMLParser_parseEndTag( stack, handler, tagName ) {
         var pos = 0, i = stack.length;
         // If no tag name is provided, clean shop
-        
+
         // Find the closest opened tag of the same type
         if ( tagName )
             for ( pos = i; 0 <= pos; )
@@ -310,7 +318,9 @@ var X_HTMLParser_htmlStringToXNode = {
     isXML : false,
     err : function( html ){
         X_HTMLParser_htmlStringToXNode.flat.length = 0;
-        !X_HTMLParser_htmlStringToXNode.ignoreError && X.Logger.warn( 'X_Dom_Parser() error ' + html );
+        if( X_IS_DEV && !X_HTMLParser_htmlStringToXNode.ignoreError ){
+            X_error( 'X.Node#X_HTMLParser() : parse error! html=' + html );
+        };
     },
     tagStart : function( tagName, attrs, noChild, length ){
         var xnode,
@@ -318,6 +328,7 @@ var X_HTMLParser_htmlStringToXNode = {
             flat   = X_HTMLParser_htmlStringToXNode.flat,
             l      = nest.length,
             attr, name, i, _attrs; //, toIndex;
+
         if( l ){
             xnode = nest[ l - 1 ][ 'create' ]( tagName );
         } else {
@@ -355,6 +366,7 @@ var X_HTMLParser_htmlStringToXNode = {
 
 function X_HtmlParser_parse( html, ignoreError ){
     var worker = X_HTMLParser_htmlStringToXNode, ret;
+
     worker.flat = [];
     worker.nest.length = 0;
     worker.ignoreError = ignoreError;
@@ -380,6 +392,7 @@ var X_HTMLParser_asyncHtmlStringToXNode = {
     },
     asyncComplete : function(){
         var ret = X_HTMLParser_htmlStringToXNode.flat;
+
         delete X_HTMLParser_htmlStringToXNode.flat;
         this[ 'asyncDispatch' ]( { type : X_EVENT_SUCCESS, xnodes : ret } );
     }
@@ -388,6 +401,7 @@ var X_HTMLParser_asyncHtmlStringToXNode = {
 function X_HTMLParser_asyncParse( html, ignoreError ){
     var dispatcher = X_Class_override( X_EventDispatcher(), X_HTMLParser_asyncHtmlStringToXNode ),
         worker = X_HTMLParser_htmlStringToXNode;
+
     dispatcher[ 'listenOnce' ]( X_EVENT_SUCCESS, dispatcher, dispatcher[ 'kill' ] );
     worker.flat = [];
     worker.nest.length = 0;

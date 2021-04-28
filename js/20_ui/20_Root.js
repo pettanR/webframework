@@ -1,6 +1,6 @@
 var XUI_rootData         = null,
     XUI_xnodeIneraction  = null,
-    XUI_mousemoveFix     = X_UA[ 'WinPhone' ] === 7.5,
+    XUI_mousemoveFix     = X_UA.WindowsPhone === 7.5,
     XUI_mousemoveFixOn   = 0,
     XUI_mousemoveFixX    = 0,
     XUI_mousemoveFixY    = 0,
@@ -48,7 +48,7 @@ function X_UI_eventRellay( e ){
     
     XUI_interactionBusy = true;
 
-    //X_UA[ 'iOS' ] < 5 && console.log( e.type + ':[' + x + ',' + y + ']' );
+    //( X_UA.SafariMobile || X_UA.iOSWebView ) < 5 && console.log( e.type + ':[' + x + ',' + y + ']' );
 
     if( XUI_mousemoveFix ){
         if( e.type === 'scroll' ){
@@ -171,19 +171,19 @@ var XUI_Root = XUI_Box.inherits(
                 'class'      : XUI_mousemoveFix ? 'mouse-operation-catcher-scrollFix' : 'mouse-operation-catcher',
                 unselectable : 'on'
             } );
-            
+
             X_Node_body[ 'listen' ]( 'pointerleave', this, X_UI_onMouseOut );
-            
+
             // hover や rollover rollout のための move イベントの追加
             // TODO この切り替えを ViewPort へ
-            XUI_xnodeIneraction = ( X_UA[ 'IE' ] < 9 ? X_ViewPort_document : X_UA[ 'Opera' ] < 8 ? X_Node_body : X_UA[ 'iOS' ] < 5 ? XUI_xnodeInteractionOverlay : X_ViewPort );
-            
+            XUI_xnodeIneraction = ( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ? X_ViewPort_document : X_UA.Presto < 8 ? X_Node_body : ( X_UA.SafariMobile || X_UA.iOSWebView ) < 5 ? XUI_xnodeInteractionOverlay : X_ViewPort );
+
             if( XUI_mousemoveFix ){
                 XUI_xnodeInteractionOverlay[ 'listen' ]( [ 'scroll', 'mouseup' ], X_UI_eventRellay )[ 'create' ]( 'div' );
             } else {
                 XUI_xnodeIneraction[ 'listen' ]( 'pointermove', X_UI_eventRellay );
             };
-            
+
             if( XUI_EVENT_COUNTER[ XUI_Event._POINTER_MOVE ] ){
                 ++XUI_EVENT_COUNTER[ XUI_Event._POINTER_MOVE ];
             } else {
@@ -194,11 +194,11 @@ var XUI_Root = XUI_Box.inherits(
         },
         afterAddToView : function(){
             this.xnode[ 'className' ]( 'Root' );
-            
+
             this.creationComplete();
             X_Timer_once( 0, this, XUI_Root_do1stCalculate );
         },
-        
+
         reserveCalc : function(){
             if( !this.calcReserved ){
                 this.calcReserved = true;
@@ -208,21 +208,21 @@ var XUI_Root = XUI_Box.inherits(
         calculate : function( e ){
             var cancelable = !e || ( e.type !== X_EVENT_VIEW_RESIZED && e.type !== X_EVENT_BASE_FONT_RESIZED ),
                 size, font, w, h;
-            
+
             if( ( this[ 'dispatch' ]( { type : XUI_Event.LAYOUT_BEFORE, 'cancelable' : cancelable } ) & X_CALLBACK_PREVENT_DEFAULT ) && cancelable ){
                 console.log( 'Layout のキャンセル' );
                 return X_CALLBACK_NONE;
             };
-            
+
             console.log( 'レイアウト開始' );
-            
+
             XUI_mousemoveFix && XUI_mousemoveFixResetScroll();
-            
+
             size = X[ 'ViewPort' ][ 'getSize' ]();
             font = X[ 'ViewPort' ][ 'getBaseFontSize' ]();
             this.layout.calculate( this, false, 0, 0, size[ 0 ] / font, size[ 1 ] / font );
             this.updateLayout();
-            
+
             this.calcReserved = false;
 
             // size を測りながらレイアウトする結果、アップデートがない場合がある
@@ -234,9 +234,9 @@ var XUI_Root = XUI_Box.inherits(
 
             return X_CALLBACK_NONE;
         },
-        
+
         updateCoursor : function( cursor ){
-            
+
         }
     }
 );

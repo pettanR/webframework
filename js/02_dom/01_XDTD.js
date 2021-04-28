@@ -14,17 +14,17 @@
         'PARAM'    : true,
         'EMBED'    : true
     },
-    
+
     /*
      * TODO html5 要素, audio, video は?
-     */    
+     */
     X_Dom_DTD_TAG_FIX =
-        X_UA[ 'IE4' ] ?
+        ( X_UA.Trident || X_UA.TridentMobile ) < 5 ? // IE4
             { 'ABBR' : 'ACRONYM', 'BDO' : '', 'RUBY' : '' } :
-        X_UA[ 'IE5x' ] || X_UA[ 'IE6' ] ?
+        ( X_UA.Trident || X_UA.TridentMobile ) < 7 ? // IE6-
             { 'ABBR' : 'ACRONYM' } :
             {},
-    
+
     X_Dom_DTD_ATTR_VAL_IS_URI = {
         'action'     : true,
         'archive'    : true,
@@ -39,7 +39,7 @@
         'src'        : true, // lowsrc, dynsrc
         'usemap'     : true
     },
-    
+
     X_Dom_DTD_MOVE_TO_HEAD = {
         'STYLE'   : true,
         'LINK'    : true,
@@ -49,7 +49,7 @@
         'BASE'    : true,
         'META'    : true
     },
-    
+
     X_Dom_DTD_CLEANUP_TAGS = {
         'SCRIPT'   : true,
         'NOSCRIPT' : true,
@@ -59,7 +59,7 @@
         'NOEMBED'  : true,
         'NOLAYER'  : true
     },
-    
+
     X_Dom_DTD_SKIP_CLEANUP_TAGS = {
         'PRE'       : true,
         'TEXTAREA'  : true,

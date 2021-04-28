@@ -1,16 +1,20 @@
 ﻿
 /*
     WebAudio    : 1,
-    HTMLAudio   : 2,
-    Flash       : 3,
+    Flash       : 2,
+    HTMLAudio   : 3,
     Silverlight : 4,
     Unity       : 5,
     WMP         : 6,
     RealPlayer  : 7,
     QuickTime   : 8,
+    VLC
  */
 
 var X_Audio_BACKENDS     = []; // Array.<Hash>
+
+/** use audio ============================================================== */
+if( X_USE_AUDIO ){
 
 X_TEMP.onSystemReady.push(
     function(){
@@ -53,7 +57,7 @@ X_TEMP.onSystemReady.push(
  * <p>ハッシュフラグメント以下にデータを書くことで、各オーディオバックエンドが再生可能性の判断にあたって参考にするデータを渡すことができます。
  * <dl>
  * <dt>CBR=1<dd>audio が固定ビットレートであることを示す。Android 用 Opera12- は可変ビットレートの mp3 を正しくシークできない。
- * [ 'snd.mp3', 'snd.mp3#CBR=1' ] と指定すると、Android 用 Opera12- では CBR な mp3 が、他の環境ではよりファイルサイズの小さい VBR な mp3 が使用される。(未実装)
+ * [ 'snd.mp3', 'snd.mp3#CBR=1' ] と指定すると、Android 用 Opera12- では CBR な mp3 が、他の環境ではよりファイルサイズの小さい VBR な mp3 が使用される。
  * <dt>ext=mp3<dd>パスに拡張子が含まれない場合、または上書き指定したい場合に指定する
  * 
  * @alias X.Audio
@@ -136,15 +140,15 @@ X[ 'Audio' ] = X_EventDispatcher[ 'inherits' ](
          * @example
 audio.setState(
  {
-    'startTime'     : 0,
-    'endTime'       : 80000,
-    'loopStartTime' : 120000,
-    'loopEndTime'   : 200000,
-    'currentTime'   : 0,
-    'loop'          : true,
-    'looded'        : false,
-    'volume'        : 1,
-    'autoplay'      : true
+    startTime     : 0,
+    endTime       : 80000,
+    loopStartTime : 120000,
+    loopEndTime   : 200000,
+    currentTime   : 0,
+    loop          : true,
+    looded        : false,
+    volume        : 1,
+    autoplay      : true
 });
          */
         'state' : function( obj ){
@@ -152,19 +156,19 @@ audio.setState(
             if( obj === undefined ){
                 return pair ? pair.getState() :
                     {
-                        'startTime'     : -1,
-                        'endTime'       : -1,
-                        'loopStartTime' : -1,
-                        'loopEndTime'   : -1,
-                        'currentTime'   : -1,
-                        'loop'          : false,
-                        'looded'        : false,
-                        'error'         : 0,
-                        'autoplay'      : false,
-                        'playing'       : false,
-                        'source'        : this[ 'source' ],
-                        'duration'      : 0,
-                        'volume'        : 0.5
+                        startTime     : -1,
+                        endTime       : -1,
+                        loopStartTime : -1,
+                        loopEndTime   : -1,
+                        currentTime   : -1,
+                        loop          : false,
+                        looded        : false,
+                        error         : 0,
+                        autoplay      : false,
+                        playing       : false,
+                        source        : this[ 'source' ],
+                        duration      : 0,
+                        volume        : 0.5
                     };
             };
             pair && pair.setState( obj );
@@ -216,6 +220,9 @@ audio.setState(
     }
 );
 
+};
+/** / use audio ============================================================ */
+
 function X_Audio_handleEvent( e ){
     var backend, src, pair;
     
@@ -227,7 +234,7 @@ function X_Audio_handleEvent( e ){
             this[ 'source' ]      = e[ 'source' ];
             this[ 'backendName' ] = backend.backendName;
             
-            X_Pair_create( this, backend.klass( this, e[ 'source' ], e[ 'option' ] ) );
+            X_Pair_create( this, backend.klass( this, e[ 'source' ], e[ 'option' ], e.ext ) );
             this[ 'listenOnce' ]( X_EVENT_READY, X_Audio_handleEvent );
             break;
         
@@ -281,19 +288,19 @@ function X_Audio_onEndedDetection( e, xaudio, sourceList, option, source, ext, s
         _e = {
             type          : X_EVENT_BACKEND_READY,
             'option'      : option,
-            'source'      : source,
+            'source'      : source.split( '#' )[ 0 ], // #以降があると MacOS でエラーの模様 ftom atr
             'backendName' : this.backendName,
-            'backendID'   : i
+            'backendID'   : i,
+            ext           : ext
         };
         // WebAudio
         if( this.backendID === 1 ) _e[ 'needTouchForPlay' ] = /* X_WebAudio_need1stTouch && */ X_WebAudio_isNoTouch;
         // HTMLAudio
         if( this.backendID === 2 ) _e[ 'needTouchForLoad' ] = X_HTMLAudio_need1stTouch;
 
-        // TODO キャンセル可能に
-        xaudio[ 'asyncDispatch' ]( _e );            
+        xaudio[ 'asyncDispatch' ]( _e );
     } else {
-        console.log( 'No ' + source + ' ' + this.backendName );
+        //console.log( 'No ' + source + ' ' + this.backendName );
         if( sup[ 3 ] = source = sourceList[ sourceList.indexOf( source ) + 1 ] ){
             hash     = X_URL_paramToObj( X_URL_getHash( source ) );
             sup[ 4 ] = ext    = hash[ 'ext' ] || X_URL_getEXT( source );
@@ -304,11 +311,13 @@ function X_Audio_onEndedDetection( e, xaudio, sourceList, option, source, ext, s
             X_Audio_startDetectionBackend( backend, xaudio, sourceList, option );
         } else {
             xaudio[ 'asyncDispatch' ]( X_EVENT_BACKEND_NONE );
-        };                
+        };
     };
 };
 
 
+/** use audio ============================================================== */
+if( X_USE_AUDIO ){
 
 var X_AudioBase = X_EventDispatcher[ 'inherits' ](
     'X.AudioBase',
@@ -324,99 +333,98 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
         duration      : 0,    //
 
         playing       : false,
-        error         : 0,    //        
+        error         : 0,    //
         autoLoop      : false,
         looped        : false,
         autoplay      : false,//
         gain          : 0.5,
-        
+
         _playReserved : false,
-        
+
         play : function( startTime, endTime, loop, loopStartTime, loopEndTime ){
             if( 0 <= startTime ){
                 this.setState( {
-                    'currentTime'   : startTime,
-                    'startTime'     : startTime,
-                    'endTime'       : endTime,
-                    'loop'          : loop,
-                    'looped'        : false,
-                    'loopStartTime' : loopStartTime,
-                    'loopEndTime'   : loopEndTime
+                    currentTime   : startTime,
+                    startTime     : startTime,
+                    endTime       : endTime,
+                    loop          : loop,
+                    looped        : false,
+                    loopStartTime : loopStartTime,
+                    loopEndTime   : loopEndTime
                 } );
             };
             // canPlay() : autoplay = true
             this.actualPlay();
         },
-        
+
         seek : function( seekTime ){
             if( seekTime < X_Audio_getEndTime( this ) ){
-                this.setState( { 'currentTime' : seekTime } );
+                this.setState( { currentTime : seekTime } );
             };
         },
-        
+
         pause : function(){
             this.seekTime = this.getActualCurrentTime();
             this.playing && this.actualPause();
             // delete this.autoplay
             // delete this.playing
-        },        
-        
+        },
+
         loop : function( v ){
             if( v === undefined ){
                 return this.autoLoop;
             };
-            this.setState( { 'loop' : v } );
+            this.setState( { loop : v } );
         },
 
         volume : function( v ){
             if( v === undefined ){
                 return this.gain;
             };
-            this.setState( { 'volume' : v } );
+            this.setState( { volume : v } );
         },
 
         currentTime : function( v ){
             if( v === undefined ){
                 return this.playing ? this.getActualCurrentTime() : this.seekTime;
             };
-            this.setState( { 'currentTime' : v } );
+            this.setState( { currentTime : v } );
         },
-        
+
         getState : function(){
-            
+
             return {
-                'startTime'     : this.startTime,
-                'endTime'       : this.endTime < 0 ? this.duration : this.endTime,
-                'loopStartTime' : this.loopStartTime < 0 ? this.startTime : this.loopStartTime,
-                'loopEndTime'   : this.loopEndTime < 0 ? ( this.endTime || this.duration ) : this.loopEndTime,
-                'loop'          : this.autoLoop,
-                'looped'        : this.looped,
-                'volume'        : this.gain,
-                'playing'       : this.playing,                    
-                'duration'      : this.duration,
-                'autoplay'      : this.autoplay,
-                
-                'currentTime'  : this.playing ? this.getActualCurrentTime() : this.seekTime,
-                'error'        : this.getActualError ? this.getActualError() : this.error
+                startTime     : this.startTime,
+                endTime       : this.endTime < 0 ? this.duration : this.endTime,
+                loopStartTime : this.loopStartTime < 0 ? this.startTime : this.loopStartTime,
+                loopEndTime   : this.loopEndTime < 0 ? ( this.endTime || this.duration ) : this.loopEndTime,
+                loop          : this.autoLoop,
+                looped        : this.looped,
+                volume        : this.gain,
+                playing       : this.playing,
+                duration      : this.duration,
+                autoplay      : this.autoplay,
+                currentTime   : this.playing ? this.getActualCurrentTime() : this.seekTime,
+                error         : this.getActualError ? this.getActualError() : this.error
             };
         },
-        
+
         setState : function( obj ){
             var playing = this.playing,
                 k, v,
                 end = 0, seek = 0, volume = 0;
-            
+
             for( k in obj ){
                 v = obj[ k ];
-                switch( k ){
-                    case 'currentTime'   :
+                switch( X_AUDIO_STATE[ k ] ){
+                    case X_AUDIO_STATE.currentTime   :
                         v = X_Audio_timeStringToNumber( v );
                         if( X_Type_isNumber( v ) ){
                             if( playing ){
                                 if( this.getActualCurrentTime() !== v ){
                                     seek = 2;
                                     this.seekTime = v;
-                                };                                
+                                };
                             } else {
                                 this.seekTime = v;
                             };
@@ -425,23 +433,23 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
                         };
                         break;
                             
-                    case 'startTime'     :
+                    case X_AUDIO_STATE.startTime     :
                         v = X_Audio_timeStringToNumber( v );
                         if( v || v === 0 ){
                             if( this.startTime !== v ){
-                                this.startTime = v;                    
+                                this.startTime = v;
                             };
                         } else {
                             delete this.startTime;
                         };
                         break;
                     
-                    case 'endTime'       :
+                    case X_AUDIO_STATE.endTime       :
                         v = X_Audio_timeStringToNumber( v );
                         if( v || v === 0 ){
                             if( this.endTime !== v ){
                                 this.endTime = v;
-                                if( playing ) end = 1;                        
+                                if( playing ) end = 1;
                             };
                         } else {
                             delete this.endTime;
@@ -449,50 +457,50 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
                         };
                         break;
                         
-                    case 'loopStartTime' :
+                    case X_AUDIO_STATE.loopStartTime :
                         v = X_Audio_timeStringToNumber( v );
                         if( v || v === 0 ){
                             if( this.loopStartTime !== v ){
-                                this.loopStartTime = v;                    
+                                this.loopStartTime = v;
                             };
                         } else {
                             delete this.loopStartTime;
                         };
                         break;
-                        
-                    case 'loopEndTime'   :
+
+                    case X_AUDIO_STATE.loopEndTime   :
                         v = X_Audio_timeStringToNumber( v );
                         if( v || v === 0 ){
                             if( this.loopEndTime !== v ){
                                 this.loopEndTime = v;
-                                if( playing ) end = 1;                        
+                                if( playing ) end = 1;
                             };
                         } else {
                             delete this.loopEndTime;
                             if( playing ) end = 1;
                         };
                         break;
-        
-                    case 'looped' :
+
+                    case X_AUDIO_STATE.looped :
                         if( X_Type_isBoolean( v ) && this.looped !== v ){
                             this.looped = v;
                             if( playing ) seek = 2;
                         };
                         break;
-                        
-                    case 'loop' :
+
+                    case X_AUDIO_STATE.loop :
                         if( X_Type_isBoolean( v ) && this.autoLoop !== v ){
                             this.autoLoop = v;
                         };
                         break;
-                        
-                    case 'autoplay' :
+
+                    case X_AUDIO_STATE.autoplay :
                         if( X_Type_isBoolean( v ) && this.autoplay !== v ){
                             this.autoplay = v;
                         };
                         break;
-        
-                    case 'volume' :
+
+                    case X_AUDIO_STATE.volume :
                         if( X_Type_isNumber( v ) ){
                             v = v < 0 ? 0 : 1 < v ? 1 : v;
                             if( this.gain !== v ){
@@ -502,22 +510,22 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
                             };
                         };
                         break;
-                    case 'useVideo' :
+                    case X_AUDIO_STATE.useVideo :
                         break;
                     default :
                         alert( 'bad arg! ' + k );
                 };
             };
-            
+
             if( this.endTime < this.startTime ||
                 ( this.loopEndTime < 0 ? this.endTime : this.loopEndTime ) < ( this.loopStartTime < 0 ? this.startTime : this.loopStartTime ) ||
                 X_Audio_getEndTime( this ) < this.seekTime// ||
                 //this.duration < this.endTime
             ){
-                console.log( 'setState 0:' + this.startTime + ' -> ' + this.endTime + ' looped:' + this.looped + ' 1:' + this.loopStartTime + ' -> ' + this.loopEndTime );
+                //console.log( 'setState 0:' + this.startTime + ' -> ' + this.endTime + ' looped:' + this.looped + ' 1:' + this.loopStartTime + ' -> ' + this.loopEndTime );
                 return;
             };
-            
+
             v = end + seek + volume;
             return v && this.playing && this.afterUpdateState( v );
         }
@@ -525,6 +533,25 @@ var X_AudioBase = X_EventDispatcher[ 'inherits' ](
     }
 );
 
+};
+/** / use audio ============================================================ */
+
+/** @enum {number} */
+var X_AUDIO_STATE = {
+    startTime     : 1,
+    endTime       : 2,
+    loopStartTime : 3,
+    loopEndTime   : 4,
+    loop          : 5,
+    looped        : 6,
+    volume        : 7,
+    playing       : 8,
+    duration      : 9,
+    autoplay      : 10,
+    currentTime   : 11,
+    error         : 12,
+    useVideo      : 13
+};
 
 function X_Audio_timeStringToNumber( time ){
     var ary, ms, s = 0, m = 0, h = 0;
@@ -534,10 +561,10 @@ function X_Audio_timeStringToNumber( time ){
 
     ary = time.split( '.' );
     ms  = parseFloat( ( ary[ 1 ] + '000' ).substr( 0, 3 ) ) || 0;
-    
+
     ary = ary[ 0 ].split( ':' );
     if( 3 < ary.length ) return;
-    
+
     switch( ary.length ){
         case 0 :
             break;
@@ -547,17 +574,17 @@ function X_Audio_timeStringToNumber( time ){
         case 2 :
             m = parseFloat( ary[ 0 ] ) || 0;
             s = parseFloat( ary[ 1 ] ) || 0;
-            if( 60 <= s ) alert( 'invalid time string ' + time );
+            //if( 60 <= s ) alert( 'invalid time string ' + time );
             break;
         case 3 :
             h = parseFloat( ary[ 0 ] ) || 0;
             m = parseFloat( ary[ 1 ] ) || 0;
             s = parseFloat( ary[ 2 ] ) || 0;
-            if( 60 <= s ) alert( 'invalid time string ' + time );
-            if( 60 <= m ) alert( 'invalid time string ' + time );
+            //if( 60 <= s ) alert( 'invalid time string ' + time );
+            //if( 60 <= m ) alert( 'invalid time string ' + time );
             break;
         default :
-            alert( 'invalid time string ' + time );
+            //alert( 'invalid time string ' + time );
     };
     ms = ( h * 3600 + m * 60 + s ) * 1000 + ms;
     return ms < 0 ? 0 : ms;
@@ -565,31 +592,31 @@ function X_Audio_timeStringToNumber( time ){
 
 function X_Audio_getStartTime( audioBase, endTime, delSeekTime ){
     var seek = audioBase.seekTime;
-    
+
     if( delSeekTime ) delete audioBase.seekTime;
-    
+
     if( 0 <= seek ){
         if( audioBase.duration <= seek || endTime < seek ) return 0;
         return seek;
     };
-    
+
     if( audioBase.looped && 0 <= audioBase.loopStartTime ){
         if( audioBase.duration <= audioBase.loopStartTime || endTime < audioBase.loopStartTime ) return 0;
         return audioBase.loopStartTime;
     };
-    
+
     if( audioBase.startTime < 0 || audioBase.duration <= audioBase.startTime ) return 0;
     return audioBase.startTime;
 };
 
 function X_Audio_getEndTime( audioBase ){
     var duration = audioBase.duration;
-    
+
     if( audioBase.looped && 0 <= audioBase.loopEndTime ){
         if( duration <= audioBase.loopEndTime ) return duration;
         return audioBase.loopEndTime;
     };
-    
+
     if( audioBase.endTime < 0 || duration <= audioBase.endTime ) return duration;
     return audioBase.endTime;
 };

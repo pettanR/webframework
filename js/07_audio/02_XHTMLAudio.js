@@ -37,53 +37,60 @@
      *      -> opera11、10.54 WinXP はまとも、、、 portable が怪しい??
      */
 
+/** use audio ============================================================== */
+if( X_USE_AUDIO ){
+
 var
     X_HTMLAudio,
     // iOS7.1, 8.3 で確認.seeking -> seeked の間の currentTime の値が全くあてにならないので無視する。
-    X_HTMLAudio_seekingFixIOS   = 7 <= X_UA[ 'iOS' ],
+    X_HTMLAudio_seekingFixIOS   = 7 <= ( X_UA.SafariMobile || X_UA.iOSWebView ),
     // ended が発生しない timeupdate 内で play() を呼ぶ (未検証) 不具合確認は iOS4,6 iOS7.1,8.3ではpause->ended起きてる 但し iOS7.1 でも 6 と同じ症状になることがある
-    X_HTMLAudio_endedFixIOS     = X_UA[ 'iOS' ] < 7,
+    X_HTMLAudio_endedFixIOS     = ( X_UA.SafariMobile || X_UA.iOSWebView ) < 7,
     // Android 2.3.5 で ended 時に audio.src='';audio.src=src;audio.load() を実施。 2.3.4 でも問題なし。
-    X_HTMLAudio_endedFixAOSP2   = X_UA[ 'AOSP' ] < 3,
+    X_HTMLAudio_endedFixAOSP2   = X_UA.AOSP < 3,
     // Android 3.1 で ended 時に src='';src=src を実施。
-    X_HTMLAudio_endedFixAOSP3   = !X_HTMLAudio_endedFixAOSP2 && X_UA[ 'AOSP' ] < 4,
+    X_HTMLAudio_endedFixAOSP3   = !X_HTMLAudio_endedFixAOSP2 && X_UA.AOSP < 4,
     // ended 時に play() を実施, currentTime が duration に張り付き更新されなければ  src='';src=src を実施。
-    X_HTMLAudio_endedFixAOSP4   = 4 <= X_UA[ 'AOSP' ],
+    X_HTMLAudio_endedFixAOSP4   = 4 <= X_UA.AOSP || X_UA.Samsung < 1,
     // ended 時に play() を実施
-    X_HTMLAudio_endedFixCWV     = X_UA[ 'ChromeWV' ] || ( X_UA[ 'Blink' ] && X_UA[ 'Android' ] ),
+    X_HTMLAudio_endedFixCWV     = X_UA.ChromeWebView || X_UA.ChromiumMobile || X_UA.Samsung,
     
     // Opera Mobile 12 は 2回目以降の currentTime へのセットで currentTime が更新されなくなるため、タイマーを使用する
-    X_HTMLAudio_currentTimeFix  = ( X_UA[ 'Prsto' ] && X_UA[ 'Android' ] ),
+    X_HTMLAudio_currentTimeFix  = ( X_UA.PrestoMobile && X_UA.Android ),
     // Firefox44.0.2 で音声の再生開始に難あり... 49 でも確認, あるいはCGIで動的に生成しているmp3自体に問題があるのかも
-    X_HTMLAudio_playStartFix    = X_UA[ 'Windows' ] && 44 <= X_UA[ 'Gecko' ],
+    X_HTMLAudio_playStartFix    = false, // ( X_UA.Win32 || X_UA.Win64 ) && 44 <= ( X_UA.Gecko || X_UA.Fennec ),
 
-    X_HTMLAudio_volumeFix       = X_UA[ 'Chrome' ],
+    X_HTMLAudio_volumeFix       = ( X_UA.Chromium || X_UA.ChromiumMobile || X_UA.Samsung ),
     /*
      * win opera12 volume, mute の変更が2度目以降できない
      */
-    X_HTMLAudio_volumeEnabled   = X_UA[ 'WinPhone' ] !== 7.5 && !X_UA[ 'Prsto' ],
+    X_HTMLAudio_volumeEnabled   = X_UA.WindowsPhone !== 7.5 && !( X_UA.Presto || X_UA.PrestoMobile ),
     // Gecko PC + Android でseek時に再生がしばしば止まる問題の修正、iOS8でも確認
-    X_HTMLAudio_needPlayForSeek = X_UA[ 'iOS' ] || X_UA[ 'Gecko' ],
+    X_HTMLAudio_needPlayForSeek = ( X_UA.SafariMobile || X_UA.iOSWebView ) || ( X_UA.Gecko || X_UA.Fennec ),
     // 
-    X_HTMLAudio_pauseFix        = 12 <= X_UA[ 'Prsto' ] && 0 < ' XP XPSP2 2003|XP64'.indexOf( X_UA[ 'Windows' ] ), // XP + Opera12 のみ?
+    X_HTMLAudio_pauseFix        = 12 <= ( X_UA.Presto || X_UA.PrestoMobile ) && ( 5.1 <= ( X_UA.Win32 || X_UA.Win64 ) && ( X_UA.Win32 || X_UA.Win64 ) <= 5.2 ), // XP + Opera12 のみ?
 
-    X_HTMLAudio_need1stTouch    = X_UA[ 'iOS' ] || 4.2 <= X_UA[ 'AOSP' ] || X_UA[ 'ChromeWV' ] || X_UA[ 'WinPhone' ] || ( X_UA[ 'Blink' ] && X_UA[ 'Android' ] ),
+    X_HTMLAudio_need1stTouch    = X_UA.SafariMobile || X_UA.iOSWebView || 4.2 <= X_UA.AOSP || X_UA.Samsung || X_UA.ChromeWebView || X_UA.ChromiumMobile || X_UA.WindowsPhone ||
+                                  66 <= X_UA.Gecko || 66 <= X_UA.Fennec || // https://gigazine.net/news/20190205-firefox-66-block-audible-video-audio/
+                                  66 <= X_UA.Chromium ||
+                                  604 <= X_UA.WebKit,   // Safari 11+ https://en.wikipedia.org/wiki/Safari_version_history
 
-    X_HTMLAudio_playTrigger     = ( X_UA[ 'WinPhone' ] === 7.5 ) ? 'canplay' :
-                                    X_UA[ 'iOS' ] < 8 ? 'suspend' :    // iOS7.x以下
-                                    X_UA[ 'iOS' ] ? 'loadedmetadata' : // iOS8以上は
-                                    X_UA[ 'Blink' ] < 32 ? 'stalled' : 'canplaythrough',
+    X_HTMLAudio_playTrigger     = ( X_UA.WindowsPhone === 7.5 ) ? 'canplay' :
+                                    ( X_UA.SafariMobile || X_UA.iOSWebView ) < 8 ? 'suspend' :    // iOS7.x以下
+                                    ( X_UA.SafariMobile || X_UA.iOSWebView ) ? 'loadedmetadata' : // iOS8以上は
+                                    ( X_UA.Chromium || X_UA.ChromiumMobile || X_UA.ChromeWebView ) < 32 ? 'stalled' : 'canplaythrough',
 
     X_HTMLAudio_durationFix     = // iOS8.1(シュミレータでは不要)
-                                  X_UA[ 'iOS' ] < 8 || X_UA[ 'ChromeWV' ] || X_UA[ 'WinPhone' ] === 7.5 ||
-                                  ( X_UA[ 'Windows' ] && 12 <= X_UA[ 'Prsto' ] ) || ( X_UA[ 'Blink' ] < 36 && X_UA[ 'Android' ] ),
+                                  ( X_UA.SafariMobile || X_UA.iOSWebView ) < 8 || X_UA.ChromeWebView || X_UA.WindowsPhone === 7.5 ||
+                                  ( ( X_UA.Win32 || X_UA.Win64 ) && 12 <= X_UA.Presto ) ||
+                                  ( X_UA.ChromiumMobile < 36 ),
 
-    X_HTMLAudio_shortPlayFix    = X_UA[ 'AOSP' ],
-    
-    X_HTMLAudio_progressEnabled = !( X_UA[ 'Prsto' ] && X_UA[ 'Android' ] ) && X_UA[ 'WinPhone' ] !== 7.5; // Android 4.1.1 でも遭遇
+    X_HTMLAudio_shortPlayFix    = X_UA.AOSP || X_UA.Samsung < 1,
+
+    X_HTMLAudio_progressEnabled = !( X_UA.PrestoMobile && X_UA.Android ) && X_UA.WindowsPhone !== 7.5; // Android 4.1.1 でも遭遇
 
 if( X_Audio_constructor ){
-    
+
     X_HTMLAudio = X_AudioBase[ 'inherits' ](
         'X.HTMLAudio',
         X_Class.POOL_OBJECT,
@@ -118,14 +125,14 @@ if( X_Audio_constructor ){
             
             _seekingFixON     : false,
             
-            'Constructor' : function( dispatcher, source, option ){
+            'Constructor' : function( dispatcher, source, option, ext ){
                 var raw;
                 
                 this.dispatcher = dispatcher || this;
                 this._src       = source;
                 
                 if( X_HTMLAudio_shortPlayFix ){
-                    this._shortPlayFixON = X_URL_getEXT( source ) === 'm4a';
+                    this._shortPlayFixON = ext === 'm4a';
                 };
                 
                 this.setState( option );
@@ -146,9 +153,9 @@ if( X_Audio_constructor ){
                     
                     if( X_TEMP.rawAudio ) delete X_TEMP.rawAudio;
                 };
-                
+
                 this[ '_rawObject' ] = raw;
-                
+
                 this[ 'listen' ]( [
                         X_EVENT_KILL_INSTANCE,
                         X_HTMLAudio_playTrigger,
@@ -186,7 +193,7 @@ if( X_Audio_constructor ){
                     raw.load(); // Android4.1.1 HTL21 では必要!
                 };
             },
-            
+
             onDebug : function( e ){
                 this.dispatcher[ 'dispatch' ]( {
                     type       : X_EVENT_DEBUG,
@@ -194,7 +201,7 @@ if( X_Audio_constructor ){
                     'current'  : this[ '_rawObject' ].currentTime,
                     duration   : this[ '_rawObject' ].duration } );
             },
-            
+
             handleEvent : function( e ){
                 var raw         = this[ '_rawObject' ],
                     actualEnded = e.type === 'ended',
@@ -202,11 +209,11 @@ if( X_Audio_constructor ){
                     i, l, buf, time,
                     ready,
                     eventType, duration, end, now;
-                
+
                 if( !raw ) return;
 
                 // e.type !== 'timeupdate' && console.log( ' > ' + e.type );
-                    
+
                 switch( e.type ){
 
                     case X_EVENT_KILL_INSTANCE :
@@ -217,13 +224,13 @@ if( X_Audio_constructor ){
                         // ・使い終わったインスタンスはload()しておくとやや安定
                         raw.src = '';
                         raw.load();
-                        
+
                         // removeChild for video
                         break;
 
-                    //case 'loadstart' :      //     ブラウザがコンテンツの検索を開始した場合に発生
+                    //case 'loadstart' :   //  ブラウザがコンテンツの検索を開始した場合に発生
                         //break;
-                    case 'progress' :       //     ブラウザがコンテンツの取得を実行した場合に発生
+                    case 'progress' :    //  ブラウザがコンテンツの取得を実行した場合に発生
                         // console.log( e.loaded + ' ' + e.total * 100 + '%' );
                         // iem9 で常に0 raw.networkState;
                         // opera Android 12 で buffered.end() へのアクセスはエラー try catch も無効、iem9 は常に end(0) = 0
@@ -235,7 +242,7 @@ if( X_Audio_constructor ){
                             this.dispatcher[ 'dispatch' ]( { type : X_EVENT_PROGRESS, 'percent' : time * 1000 / this.duration * 100 } );
                         };
                         break;
-                    
+
                     case 'loadeddata' :     //     コンテンツの表示を現在の再生位置で初めて行えるようになった場合に発生
                     case 'canplaythrough' : //     今すぐに再生を開始してもバッファリングで停止することなく最後まで表示できると予測している場合に発生
                         if( !this._endedFixON && !X_HTMLAudio_durationFix && !X_HTMLAudio_need1stTouch ){
@@ -248,7 +255,7 @@ if( X_Audio_constructor ){
                             raw.currentTime = 0; // Win8 + Opera12 で必要
                         };
                         if( this._endedFixON ){
-                            console.log( '▽ onEndedFix の終了 @' + e.type  );
+                            // console.log( '▽ onEndedFix の終了 @' + e.type  );
                             this._endedFixON = false;
                             this.actualPlay();
                         };
@@ -258,7 +265,7 @@ if( X_Audio_constructor ){
                             duration = raw.duration;
                         };
                         break;
-    
+
                     // TODO firefox で 短い音声でtimeupdate, ended が発火しない <- 最後の音に無音部分を追加する
                     case 'timeupdate' :     //     通常の再生が行われ現在の再生位置の変化が起こった場合に発生
                         if( this._seekingFixON ){
@@ -298,7 +305,7 @@ if( X_Audio_constructor ){
                                     // iOS8.4 ではこのタイミングで now が last より 0.1秒後退している場合がある
                                     // iOS7.1 ではもっと小さい場合がある,,,
                                 if( this.autoLoop ){
-                                    console.log( '☆★☆ 曲の最後に到達 @timeupdate now-end:' + ( now - end ) + ' now:' + now + ' last:' + this._lastCurrentTime );
+                                    //console.log( '☆★☆ 曲の最後に到達 @timeupdate now-end:' + ( now - end ) + ' now:' + now + ' last:' + this._lastCurrentTime );
                                     ended = true;
                                     //if( X_HTMLAudio_endedFixIOS ) actualEnded = true;
                                 } else {
@@ -311,7 +318,7 @@ if( X_Audio_constructor ){
                             this._lastCurrentTime = now;
                         };
                         break;
-    
+
                     //case 'stalled' :        //     ブラウザがコンテンツの取得を試みたが、データがまだ用意されていない場合に発生
                         // Android2 で ready 扱い?
                     //case 'suspend' :        //     ブラウザが意図的にコンテンツの取得を現在行っていない場合に発生（ダウンロードは未完了）
@@ -319,12 +326,12 @@ if( X_Audio_constructor ){
                     //case 'emptied' :        //     読み込み中に致命的なエラーが発生したか、実行状態ででload()メソッドが実行された場合に発生
                     //case 'abort' :          //     ダウンロードの完了前にコンテンツの取得を停止した場合に発生（この停止はエラーによるものではない）
                     //    break;
-                        
+
                     //case 'error' :          //     コンテンツの取得実行中にエラーが発生した場合に発生
                         // Opera12 src = '' で error が発生、無視する
                         // eventType = X_EVENT_ERROR;
                         //break;
-                        
+
                     case 'playing' :        //     再生が開始された場合に発生
                         if( X_HTMLAudio_volumeFix ){
                             raw.volume = this.gain;
@@ -342,7 +349,7 @@ if( X_Audio_constructor ){
                     case 'seeking' :        //     シークがtrueに変化し、イベントを発生させるのに十分な時間がシーク操作にかかっている場合に発生
                         eventType = X_EVENT_MEDIA_SEEKING;
                         if( X_HTMLAudio_seekingFixIOS ) this._seekingFixON = true;
-                        break;                    
+                        break;
                     case 'seeked' :
                         if( X_HTMLAudio_seekingFixIOS ) this._seekingFixON = false;
                         break;
@@ -351,22 +358,22 @@ if( X_Audio_constructor ){
                         eventType = X_EVENT_MEDIA_WAITING;
                         break;
                 };
-                
+
                 // duration は Infinity, NaN, 0 の場合があるため、これを除外する
                 // chrome18 for Android は duration = 100 の間はシークができない? 28 は可能
                 if( 0 < duration && X_Type_isFinite( duration ) && duration !== 100 ){
                     this.duration = duration * 1000;
 
                     if( this._durationFixPhase === 4 ){
-                        console.log( '▼ DurationFix の終了 @' + e.type );
+                        //console.log( '▼ DurationFix の終了 @' + e.type );
                         this._durationFixPhase = 8;
-                        
+
                         if( this.autoplay || this._playReserved ){
-                            console.log( '☆ 再生 <- DurationFix の終了' );
+                            //console.log( '☆ 再生 <- DurationFix の終了' );
                             this.actualPlay();
                         } else
                         if( X_HTMLAudio_pauseFix ){
-                            console.log( '☆ PAUSE <- DurationFix の終了' );
+                            //console.log( '☆ PAUSE <- DurationFix の終了' );
                             this.actualPause();
                         };
                     } else
@@ -398,14 +405,14 @@ if( X_Audio_constructor ){
                 if( this._readyState === 1 && this.duration ){
                     this._readyState |= 2;
                     this.dispatcher[ 'asyncDispatch' ]( X_EVENT_READY );
-                    
+
                     // TODO 勝手に play する環境があるので pause() を実施
                     /*
                     if( !this.playing && !this.autoplay && !this._playReserved && !X_HTMLAudio_pauseFix ){
                         this.actualPause();
                     }; */
                     
-                    console.log( '> Audio Loaded!! ' + e.type + ' d:' + ( this.duration | 0 ) );
+                    //console.log( '> Audio Loaded!! ' + e.type + ' d:' + ( this.duration | 0 ) );
                 } else
                 if( eventType ){
                     this.dispatcher[ 'dispatch' ]( eventType );
@@ -422,33 +429,33 @@ if( X_Audio_constructor ){
                 
                 if( X_HTMLAudio_pauseFix ){
                     if( !raw.src ){ // X_HTMLAudio_pauseFix によって src が空になっている
-                        console.log( '○ 削除された audio.src の復帰' );
+                        //console.log( '○ 削除された audio.src の復帰' );
                         raw.src = this._src;
                         return;
                     };
                     if( this._durationFixPhase < 2 ){
                         return;
-                    };        
+                    };
                 };
 
                 if( this._touchState === 2 ){
-                    //@dev{
-                    var e = X_EventDispatcher_CURRENT_EVENTS[ X_EventDispatcher_CURRENT_EVENTS.length - 1 ];
-                    if( !e || !e[ 'pointerType' ] ){
-                        alert( 'タッチイベント以外での play! ' + ( e ? e.type : '' ) );
-                        return;
+                    if( X_IS_DEV ){
+                        var e = X_EventDispatcher_CURRENT_EVENTS[ X_EventDispatcher_CURRENT_EVENTS.length - 1 ];
+                        if( !e || !e[ 'pointerType' ] ){
+                            alert( 'タッチイベント以外での play! ' + ( e ? e.type : '' ) );
+                            return;
+                        };
                     };
-                    //@}
                     this._touchState = 3;
                 } else
                 if( this._readyState !== 3 && this._durationFixPhase < 2 ){
                     return;
                 };
-                
+
                 delete this._playReserved;
-                
+
                 if( this._durationFixPhase & 3 ){ // 1 or 2
-                    console.log( '▲ DurationFix の開始' );
+                    //console.log( '▲ DurationFix の開始' );
                     this._durationFixPhase = 4;
                 };
 
@@ -465,7 +472,7 @@ if( X_Audio_constructor ){
                 };
 
                 if( this._endedFixON ){
-                    console.log( '☆ audio.play をスキップ ' + begin + ' -> ' + end + ' crt:' + ( raw.currentTime | 0 ) );
+                    //console.log( '☆ audio.play をスキップ ' + begin + ' -> ' + end + ' crt:' + ( raw.currentTime | 0 ) );
                 } else {
                     if( !this.playing ){
                         if( X_HTMLAudio_volumeFix ){
@@ -479,7 +486,7 @@ if( X_Audio_constructor ){
                     if( X_HTMLAudio_needPlayForSeek || forcePlay ){
                         raw.play();
                     };
-                    
+
                     //http://himaxoff.blog111.fc2.com/blog-entry-97.html
                     //Firefox3.6では一度も play() していない状態で currentTime = 0 を実行するとエラーになる。
                     //また、GoogleChrome7 では currentTime = 0 直後に play() すると、pause()した位置前後の音が混ざることがある。(少なくとも自分の環境では)
@@ -488,13 +495,13 @@ if( X_Audio_constructor ){
                     // 0 or 8
                     if( !( this._durationFixPhase % 8 ) && this.duration ) raw.currentTime = this._lastCurrentTime / 1000;
 
-                    console.log( '[HTMLAudio] play ' + begin + ' -> ' + end + ' crt:' + ( raw.currentTime | 0 ) + ' last:' + this._lastCurrentTime );
+                    //console.log( '[HTMLAudio] play ' + begin + ' -> ' + end + ' crt:' + ( raw.currentTime | 0 ) + ' last:' + this._lastCurrentTime );
 
                     if( forceReload ){
                         this.playing     = false;
                         this._endedFixON = true;
                         raw.src = this._src;
-                        console.log( '△ onEndedFix の開始' );
+                        //console.log( '△ onEndedFix の開始' );
                         this.dispatcher[ 'dispatch' ]( X_EVENT_MEDIA_WAITING );
                     };
                 };
@@ -504,11 +511,11 @@ if( X_Audio_constructor ){
                     this._currentFixStart = X_Timer_now();
                 };
             },
-            
+
             actualPause : function(){
                 var raw = this[ '_rawObject' ];
-                
-                console.log( '[HTMLAudio] pause' );
+
+                //console.log( '[HTMLAudio] pause' );
 
                 delete this._currentFixStart;
 
@@ -535,29 +542,29 @@ if( X_Audio_constructor ){
         2 = MEDIA_ERR_NETWORK - error occurred when downloading
         3 = MEDIA_ERR_DECODE - error occurred when decoding
         4 = MEDIA_ERR_SRC_NOT_SUPPORTED - audio/video not supported
-        */            
+        */
             getActualError : function(){
                 return this[ '_rawObject' ].error || 0;
             },
-            
+
             afterUpdateState : function( result ){
                 if( result & 3 ){ // seek
                     this.actualPlay();
                 } else
                 if( ( result & 4 ) && X_HTMLAudio_volumeEnabled ){
                    this[ '_rawObject' ].volume = this.gain;
-                };                
+                };
             }
-    
+
         }
     );
-    
+
     X_HTMLAudio && X_Audio_BACKENDS.push(
         {
             backendID   : 2,
-            
+
             backendName : 'HTMLAudio',
-            
+
             canPlay : X_Audio_codecs,
         /*
          * HTML5 の audio 要素と video 要素でサポートされているメディアフォーマット
@@ -586,15 +593,20 @@ if( X_Audio_constructor ){
          * http://wiki.bit-hive.com/tomizoo/pg/HTML5%20audio%A5%BF%A5%B0%20%A5%D6%A5%E9%A5%A6%A5%B6%B4%D6%A4%CE%B0%E3%A4%A4
          *  - volume, muted iPhone(iOS4-6)、Android(2.3.6)では動作せず。
          *  - FireFox3.6, Android 2.3.6については、src変更後、load()を呼び出さないと切り替わらなかった。iPhoneはload()が不要。
-         */    
+         */
             detect : function( proxy, ext, hash ){
-            // TODO hash.CBR
-            // 得意度で返す
-                proxy[ 'asyncDispatch' ]( { type : X_EVENT_COMPLETE, canPlay : X_Audio_codecs[ ext ] } );
+            // TODO 得意度で返す
+
+                if( X_UA.Android && X_UA.PrestoMobile && ext === 'mp3' ){
+                    // Android Opera12 は可変ビットレートのmp3を正しくシークできない。固定ビットレートを使用する。
+                    proxy[ 'asyncDispatch' ]( { type : X_EVENT_COMPLETE, canPlay : !!hash[ 'CBR' ] } );
+                } else {
+                    proxy[ 'asyncDispatch' ]( { type : X_EVENT_COMPLETE, canPlay : X_Audio_codecs[ ext ] } );
+                };
             },
-            
+
             klass : X_HTMLAudio
-            
+
         } );
 
 /*
@@ -613,8 +625,5 @@ if( X_Audio_constructor ){
  */
     
 };
-
-
-
-
-
+};
+/** / use audio ============================================================ */

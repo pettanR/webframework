@@ -4,11 +4,11 @@
  * @alias X.Number
  */
 X[ 'Number' ] = {
-    'conpareVersion'      : X_Number_conpareVersion
+    'conpareVersion' : X_Number_conpareVersion
 };
 
 /**
- * X.X.X という形式のバージョン文字列同氏の比較 <br>
+ * X.X.X という形式のバージョン文字列同士の比較 <br>
  * -1 v1 < v2<br>
  *  0 v1 = v2<br>
  *  1 v1 > v2
@@ -20,7 +20,7 @@ X[ 'Number' ] = {
  function X_Number_conpareVersion( v1, v2 ){
     var i = 0,
         l, n1, n2;
-    
+
     v1 = v1.split( '.' );
     v2 = v2.split( '.' );    
     

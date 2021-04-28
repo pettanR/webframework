@@ -1,35 +1,35 @@
 
 var X_Event_Rename    = {},
     X_Event_RenameTo  = {},
-    
+
     // TODO IFRAMEload, SCRIPTload, LINKload raw.readyState !== 'complete' && raw.readyState !== 'loaded' && this.dispatch( 'load' )
-    
-    
+
+
     X_Event_proxy     = {
-        
+
         'IFRAMEload' : function( eventDispatcher ){
             eventDispatcher[ 'listen' ]( 'readystatechange', X_Event_proxy.IFRAMEload_proxy );
         },
-        
+
             IFRAMEload_proxy : function( e ){
                 var raw = this[ '_rawObject' ];
                 
                 return ( raw.readyState === 'complete' || raw.readyState === 'loaded' ) ?
                          X_EventDispatcher_actualHandleEvent( 'load' ) : X_CALLBACK_PREVENT_DEFAULT | X_CALLBACK_STOP_PROPAGATION;
             },
-        
+
         // TODO  focusin focusout
-        
-        // X_UA[ 'Opera' ]
+
+        // X_UA.Presto
         'contextmenu' : function( eventDispatcher ){
             eventDispatcher[ 'listen' ]( 'mousedown', X_Event_proxy.contextmenu_proxy );
         },
-        
+
             contextmenu_proxy : function( e ){
                 return e.button === 2 ? this[ 'dispatch' ]( 'contextmenu' ) : X_CALLBACK_NONE;
             }
     },
-    
+
     X_Event_toPointer = !X_UA_HID.POINTER && ( X_UA_HID.TOUCH ?
         {
             'touchstart'  : 'pointerdown',
@@ -64,7 +64,7 @@ var // 内部イベント
 
     // 公開イベント
     X_EVENT_XDOM_READY             =  8,
-    
+
     X_EVENT_COMPLETE               =  9,
     X_EVENT_READY                  = 10,
     X_EVENT_SUCCESS                = 11,
@@ -77,7 +77,7 @@ var // 内部イベント
     X_EVENT_BEFORE_KILL_INSTANCE   = 17,
     X_EVENT_KILL_INSTANCE_CANCELED = 18,
     X_EVENT_KILL_INSTANCE          = 19,
-    
+
     X_EVENT_VIEW_ACTIVATE          = 20,
     X_EVENT_VIEW_DEACTIVATE        = 21,
     X_EVENT_VIEW_RESIZED           = 22,
@@ -94,19 +94,19 @@ var // 内部イベント
 
     X_EVENT_BEFORE_UNLOAD          = 29,
     X_EVENT_UNLOAD                 = 30,
-    
+
     X_EVENT_BACKEND_READY          = 31,
     X_EVENT_BACKEND_NONE           = 32,
     X_EVENT_BACKEND_RESEARCH       = 33,
     X_EVENT_BACKEND_CHANGED        = 34,
-    
+
     X_EVENT_ANIME_BEFORE_START     = 35,
     X_EVENT_ANIME_START            = 36,
     X_EVENT_ANIME                  = 37,
     X_EVENT_ANIME_END              = 38,
     X_EVENT_ANIME_BEFORE_STOP      = 39,
     X_EVENT_ANIME_STOP             = 40,
-    
+
     X_EVENT_GPU_RELEASED           = 41,
 
     X_EVENT_MEDIA_PLAYING          = 42,
@@ -117,12 +117,15 @@ var // 内部イベント
     X_EVENT_MEDIA_WAITING          = 47,
     X_EVENT_MEDIA_SEEKING          = 48,
     X_EVENT_MEDIA_WAIT_FOR_TOUCH   = 49,
-    
+
     X_EVENT_NEED_AUTH              = 50,
-    
+
     X_EVENT_DEBUG                  = 51,
-    
-    X_Event_last                   = 51;
+
+    X_EVENT_LOST                   = 52,
+    X_EVENT_NEED_UPGRADE           = 53,
+
+    X_Event_last                   = 53;
 
 // in_page_jump
 // on_screen_keyboard_show
@@ -139,7 +142,7 @@ X[ 'Event' ] = /** @lends X.Event */
      * このイベント以降、X.Doc.create(), X.Doc.find() 等が可能になる。
      */
     'XDOM_READY'             : X_EVENT_XDOM_READY,
-    
+
     'COMPLETE'               : X_EVENT_COMPLETE,
     'READY'                  : X_EVENT_READY,
     'SUCCESS'                : X_EVENT_SUCCESS,
@@ -207,12 +210,12 @@ X[ 'Event' ] = /** @lends X.Event */
      * X.ViewPort で発生する。
      */
     'UNLOAD'                 : X_EVENT_UNLOAD,
-    
+
     'BACKEND_READY'          : X_EVENT_BACKEND_READY,
     'BACKEND_NONE'           : X_EVENT_BACKEND_NONE,
     'BACKEND_RESEARCH'       : X_EVENT_BACKEND_RESEARCH,
     'BACKEND_CHANGED'        : X_EVENT_BACKEND_CHANGED,
-    
+
     'ANIME_BEFORE_START'     : X_EVENT_ANIME_BEFORE_START,
     'ANIME_START'            : X_EVENT_ANIME_START,
     'ANIME'                  : X_EVENT_ANIME,
@@ -222,7 +225,7 @@ X[ 'Event' ] = /** @lends X.Event */
      */
     'ANIME_BEFORE_STOP'      : X_EVENT_ANIME_BEFORE_STOP,
     'ANIME_STOP'             : X_EVENT_ANIME_STOP,
-    
+
     'GPU_RELEASED'           : X_EVENT_GPU_RELEASED,
 
     'MEDIA_PLAYING'          : X_EVENT_MEDIA_PLAYING,
@@ -233,9 +236,12 @@ X[ 'Event' ] = /** @lends X.Event */
     'MEDIA_WAITING'          : X_EVENT_MEDIA_WAITING,
     'MEDIA_SEEKING'          : X_EVENT_MEDIA_SEEKING,
     'MEDIA_WAIT_FOR_TOUCH'   : X_EVENT_MEDIA_WAIT_FOR_TOUCH,
-    
+
     'NEED_AUTH'              : X_EVENT_NEED_AUTH,
-    
+
+    'LOST'                   : X_EVENT_LOST,
+    'NEED_UPGRADE'           : X_EVENT_NEED_UPGRADE,
+
     'DEBUG'                  : X_EVENT_DEBUG
 };
 

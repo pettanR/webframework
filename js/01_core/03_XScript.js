@@ -1,7 +1,7 @@
-
-var X_Script_VBS_ENABLED = X_UA[ 'Windows' ] && !X_UA[ 'WinCE' ] && !X_UA[ 'WinPhone' ] && X_UA[ 'IE' ] < 11,
+var X_Script_VBS_ENABLED = ( X_UA.Win16 || X_UA.Win32 || X_UA.Win64 ) && ( X_UA.Trident ) < 11 && ( X_UA.IEHost !== 11 ), // IE11 emu では不可
     // 構文のサポート instanceof, in(for-in ではない), try-catch. JS version 1.5以上
-    X_Script_gte15       = !( X_UA[ 'IE' ] < 5.5 ) && ( new Function( 'f,a', 'try{return f.apply({},a)}catch(e){}' ) );
+    X_Script_gte15       = !( ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 ) && ( new Function( 'f,a', 'try{return f.apply({},a)}catch(e){}' ) ),
+    X_Script_ie6ExeComError;
 
 /**
  * js バージョン間の差異を可能な限り吸収する
@@ -104,11 +104,11 @@ function X_Script_createActiveXObjectSafty( name ){
     if( !X_Script_gte15 ){
         if( X_Script_VBS_ENABLED ){
             // console.log( window[ 'vbs_testAXO' ]( name ) + ' ' + name );
-            return !window[ 'vbs_testAXO' ]( name ) && X_Script_createActiveXObject( name );
+            return !vbs_testAXO( name ) && X_Script_createActiveXObject( name );
         };
         return X_Script_createActiveXObject( name );
     };
-    
+
     return X_Script_try( X_Script_createActiveXObject, [ name ] );
 };
 
@@ -122,14 +122,12 @@ function X_Script_createActiveXObject( name ){
  * hover時の背景画像ちらつきに対処する
  * この問題はIE6固有の問題であり、他のモダンブラウザやIE5等では発現しない。
  */
-if( X_UA[ 'IE' ] === 6 && // error @ NN7.2
+if( ( X_UA.Trident || X_UA.TridentMobile ) === 6 && // error @ NN7.2
     !X_Script_try( function(){ document.execCommand( 'BackgroundImageCache', false, true ); return 1; } ) ){
-        /**
+        /*
          * ie6 のみで実行する document.execCommand( 'BackgroundImageCache', false, true ) の失敗。
          * bonus: hotfix for IE6 SP1 (bug KB823727)
          * multipleIEs IE6 standalone 版では不可, IE5.5 は可,,,
-         * @alias X.UA.ieExeComError */
-        X_UA[ 'ieExeComError' ] = true;
+         */
+        X_Script_ie6ExeComError = true;
 };
-
-

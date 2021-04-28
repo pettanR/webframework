@@ -19,8 +19,9 @@
 
 var X_TextRange_range,
     X_TextRange_selection,
-    X_TextRange_isW3C = !document.selection || 9 <= X_UA[ 'IE' ] || X_UA[ 'Edge' ];
+    X_TextRange_isW3C = !document.selection || 9 <= ( X_UA.Trident || X_UA.TridentMobile ) || X_UA.EdgeHTML || X_UA.EdgeMobile;
 
+if( X_USE_DOM_RANGE ){
 /**
  * ユーザーによって選択されたテキストへの参照や文字の座標の取得
  * @alias X.TextRange
@@ -80,6 +81,8 @@ var X_TextRange = X_Class_create(
     }
 );
 
+};
+
 // TextNode を探して flat な配列に格納する
 function X_TextRange_collectTextNodes( elm, ary ){
     var kids = elm.childNodes,
@@ -102,12 +105,12 @@ function X_TextRange_collectTextNodes( elm, ary ){
 function X_TextRange_getRawRange( tr ){
     var xnode = tr.xnode,
                 //
-        range = //10 <= X_UA[ 'IE' ] /* || X_UA[ 'iOS' ] */ ? document.createRange() :
-                //8 <= X_UA[ 'IE' ] ? X_elmBody.createTextRange() :
+        range = //10 <= ( X_UA.Trident || X_UA.TridentMobile ) /* || ( X_UA.SafariMobile || X_UA.iOSWebView ) */ ? document.createRange() :
+                //8 <= ( X_UA.Trident || X_UA.TridentMobile ) ? X_elmBody.createTextRange() :
                 X_TextRange_range,
         selection = X_TextRange_selection, 
         elm, isPoint,
-        texts, i, offset, j, l, x, y, rect, top, btm, left;
+        texts, i, offset, text, j, l, x, y, rect, top, btm, left;
     
     if( xnode[ '_flags' ] & X_NodeFlags_IN_TREE ){
         
@@ -121,14 +124,14 @@ function X_TextRange_getRawRange( tr ){
                     //selection = window.getSelection();
                     
                     if( selection.getRangeAt ){
-                        return selection.rangeCount && selection.getRangeAt( 0 );
+                        return  { 'hitRange' : selection.rangeCount && selection.getRangeAt( 0 ) };
                     };
                     // http://d.hatena.ne.jp/dayflower/20080423/1208941641
                     // for Safari 1.3
                     //range = document.createRange();
                     range.setStart( selection.anchorNode, selection.anchorOffset );
                     range.setEnd( selection.focusNode, selection.focusOffset );
-                    return range;
+                    return { 'hitRange' : range };
                 } else {
                     switch( document.selection.type ){
                         case 'text' :
@@ -144,17 +147,18 @@ function X_TextRange_getRawRange( tr ){
                 if( X_TextRange_isW3C ){
                     // textarea で異なる
                     // TextNode をフラットな配列に回収
-                    X_TextRange_collectTextNodes( elm, texts = [] );                        
-                    
+                    X_TextRange_collectTextNodes( elm, texts = [] );
+
                     x = tr[ 'v1' ];
                     y = tr[ 'v2' ];
-                    
+
                     for( i = offset = 0; text = texts[ i ]; ++i ){
                         range.selectNodeContents( text ); // selectNodeContents は TextNode のみ?? Firefox
                         l = text.data.length;
 
                         for( j = 0; j < l; ++j ){
-                            if( X_UA[ 'IE' ] || X_UA[ 'Edge' ] ){
+                            if( !( xnode[ '_flags' ] & X_NodeFlags_IS_SVG ) && 
+                                ( X_UA.Trident || X_UA.TridentMobile ) || X_UA.EdgeHTML || X_UA.EdgeMobile ){
                                 // 改行の直前の文字を選択すると rect が巨大になってしまう
                                 range.setEnd( text, j );
                                 range.setStart( text, j );
@@ -202,7 +206,7 @@ function X_TextRange_getRawRange( tr ){
                     // 選択を移動して補正する https://msdn.microsoft.com/ja-jp/library/ms535872(v=vs.85).aspx
                     range.moveToPoint( x = tr[ 'v1' ], y = tr[ 'v2' ] );
                     
-                    // if( range.parentElement() !== elm  || elm.contains( range.parentElement() ) ){
+                    // if( range.parentElement() !== elm || elm.contains( range.parentElement() ) ){
                     
                     if( range.expand( 'character' ) ){
                         left = range.boundingLeft;
@@ -245,8 +249,8 @@ function X_TextRange_getRect(){
     
     if( result ){
         if( X_TextRange_isW3C ){
-            if( result.hitRange ){
-                rect = result.hitRange.getBoundingClientRect();
+            if( result[ 'hitRange' ] ){
+                rect = result[ 'hitRange' ].getBoundingClientRect();
                 ret = {
                     'x'      : rect.left,
                     'y'      : rect.top,
@@ -292,13 +296,13 @@ function X_TextRange_getOffset(){
         elm = xnode[ '_rawObject' ];
         
         if( elm && xnode[ '_flags' ] & X_NodeFlags_IN_TREE ){
-            if( X_UA[ 'IE' ] < 9 ){
+            if( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ){
                 
 
                 return cursorPosition.call( this, elm );
 
             } else if( elm.setSelectionRange ){
-                if( X_UA[ 'IE' ] < 12 ){
+                if( ( X_UA.Trident || X_UA.TridentMobile ) < 12 ){
                     l = elm.value.length;
                     ret = {
                         'from' : this[ 'v1' ] = elm.selectionStart < l ? elm.selectionStart : l,
@@ -315,7 +319,7 @@ function X_TextRange_getOffset(){
     } else
     if( result = X_TextRange_getRawRange( this ) ){
         if( X_TextRange_isW3C ){
-            range = result.hitRange;
+            range = result[ 'hitRange' ];
             ret = {
                 'offset' : result.offset,
                 'from'   : this[ 'v1' ] = range.startOffset,
@@ -357,14 +361,14 @@ function X_TextRange_getOffset(){
 };
 
 function X_TextRange_text( v ){
-    var xnode = this.xnode, elm, val, offset, from, to;
+    var xnode = this.xnode, elm, val, offset, from, to, range;
     
     if( v === undefined ){
         
     } else {
         if( xnode[ '_tag' ] === 'TEXTAREA' ){
             elm = xnode[ '_rawObject' ];
-            val = X_UA[ 'IE' ] < 9 ? X_Node_Attr_getValueForIE( elm ) : elm.value;
+            val = ( X_UA.Trident || X_UA.TridentMobile ) < 9 ? X_Node_Attr_getValueForIE( elm ) : elm.value;
             
             if( this[ 'by' ] === 'char' ){
                 xnode.attr( {
@@ -376,7 +380,7 @@ function X_TextRange_text( v ){
                 from   = offset[ 'from' ];
                 to     = offset[ 'to' ];
 
-                if( X_UA[ 'IE' ] < 9 ){
+                if( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ){
                     range = X_TextRange_selection();
                     // TODO check textarea
                     range.text = v;
@@ -423,10 +427,10 @@ function X_TextRange_move( from, to ){
     if( xnode[ '_tag' ] === 'TEXTAREA' ){
         // http://blog.enjoyxstudy.com/entry/20060305/p1
         
-        if( X_UA[ 'IE' ] < 9 || X_UA[ 'Opera' ] ){
-            len = ( X_UA[ 'IE' ] < 9 ? X_Node_Attr_getValueForIE( elm ) : elm.value ).length;
+        if( ( X_UA.Trident || X_UA.TridentMobile ) < 9 || X_UA.Presto || X_UA.PrestoMobile ){
+            len = ( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ? X_Node_Attr_getValueForIE( elm ) : elm.value ).length;
             
-            if( X_UA[ 'Opera' ] ){
+            if( X_UA.Presto || X_UA.PrestoMobile ){
                 FocusUtility_setTemporarilyFocus( elm );
             };
 

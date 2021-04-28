@@ -30,10 +30,10 @@ document.write( [
         'js/01_core/17_ExecuteAtEnd.js',
         'js/01_core/18_FocusUtility.js',
         'js/01_core/20_XSystem.js',
-        'js/01_core/21_XViewPort.js',    
+        'js/01_core/21_XViewPort.js',
         'js/01_core/22_XLogger.js',
 
-        
+
         'js/02_dom/00_XDoc.js',
         'js/02_dom/01_XDTD.js',
         'js/02_dom/02_XNodeFlags.js',
@@ -86,7 +86,8 @@ document.write( [
 
         'js/11_hid/01_KB.js',
 
-        'js/onReachEndOfScript.js'    
+        'js/export.js',
+        'js/onReachEndOfScript.js'
     + '"></script>'
 ].join( ( forceNoChashe ? '?ts=' + Math.random() : '' ) + '"></script><script src="' + basePath ));
 

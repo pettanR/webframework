@@ -22,18 +22,18 @@ function RangeFromPoint_getRawRange( xnode, isTextField, x, y ){
         elm, parent, rect, top, left;
         
     if( !isTextField && X_TextRange_w3cRange ){
-        X_TextRange_collectTextNodes( xnode[ '_rawObject' ], texts = [] );                        
+        X_TextRange_collectTextNodes( xnode[ '_rawObject' ], texts = [] );
         range = document.createRange();
         
         for( i = offset = 0, l = texts.length; text = texts[ i ]; ++i ){
             range.selectNodeContents( text );
-            rect = X_TextRange_getCorrectRect( isTextField, range );
+            rect = X_TextRange_getCorrectRect( false, range, xnode );
             m    = text.data.length;
             if( X_TextRange_hitRect( rect, x, y ) ){
                 for( j = 0; j < m; ++j ){
                     range.setEnd( text, j + 1 );
                     range.setStart( text, j );
-                    rect = X_TextRange_getCorrectRect( isTextField, range );
+                    rect = X_TextRange_getCorrectRect( false, range, xnode );
                     //console.log( text.data.charAt( j ), ' x:', x, ' y:', y, ' top:', rect.top | 0, ' left:', rect.left | 0, ' bottom:', rect.bottom | 0, ' right:', rect.right | 0 );
                     if( X_TextRange_hitRect( rect, x, y ) ){
                         return {
@@ -54,7 +54,7 @@ function RangeFromPoint_getRawRange( xnode, isTextField, x, y ){
         parent = range.parentElement();
         if( parent === elm || elm.contains( parent ) ){
             if( range.expand( 'character' ) ){
-                rect = X_TextRange_getCorrectRect( isTextField, range );
+                rect = X_TextRange_getCorrectRect( isTextField, range, xnode );
                 if( rect !== range ){
                     if( !X_TextRange_hitRect( rect, x, y ) ){
                         range = null;

@@ -3,7 +3,7 @@
  * ScrollManager
  * indicatorX, Y は再利用
  */
-var XUI_ScrollBox_useCSSP = !( X_UA[ 'IE' ] < 5.5 ),
+var XUI_ScrollBox_useCSSP = !( ( X_UA.Trident || X_UA.TridentMobile ) < 5.5 ),
     XUI_ScrollBox_current,
     XUI_ScrollBox_indicatorV,
     XUI_ScrollBox_indicatorH;
@@ -102,7 +102,7 @@ var XUI_ScrollBox = XUI_ChromeBox.inherits(
     X_Class.NONE,
     {
         layout                 : XUI_Layout_Canvas,
-        
+
         directionLockThreshold : 10,
         scrollXEnabled         : true,
         scrollYEnabled         : true,
@@ -114,9 +114,9 @@ var XUI_ScrollBox = XUI_ChromeBox.inherits(
         useKey                 : true,
         hasScrollShadow        : true,
         scrollShadowColor      : '#000',
-        
+
         scrolling       : false,
-        
+
         initiated       : '',
         moved           : false,
         directionLocked : '',
@@ -130,9 +130,9 @@ var XUI_ScrollBox = XUI_ChromeBox.inherits(
         wrapperOffset   : 0,
         wheelTimeout    : 0,
         requestFrameID  : 0,
-        
+
         fontSize        : 0,
-        
+
         scrollX         : 0, // px
         scrollY         : 0, // px
         scrollXMax      : 0, // px
@@ -149,37 +149,37 @@ var XUI_ScrollBox = XUI_ChromeBox.inherits(
         distY           : 0, // px
         directionX      : 0, // -1, 0, 1
         directionY      : 0, // -1, 0, 1
-        
+
         lastScrollWidth  : 0,
         lastScrollHeight : 0,
         lastBoxWidth     : 0,
         lastBoxHeight    : 0,
-        
+
         _containerNode   : null,
         xnodeSlider      : null,
-        
+
         Constructor : function( user, layout, args ){
             this[ 'Super' ]( user, layout, args );
             this._containerNode = X_Pair_get( this.containerNode );
             this.xnodeSlider = this._containerNode.xnode[ 'className' ]( 'ScrollSlider' )[ 'listen' ]( X_EVENT_ANIME_END, this, X_UI_ScrollBox_onAnimeEnd );
             this.xnode[ 'className' ]( 'ScrollBox' );
         },
-        
+
         creationComplete : function(){
             XUI_Box.prototype.creationComplete.apply( this, arguments );
         },
-        
+
         calculate : function(){
             this.lastScrollWidth  = this._containerNode.boxWidth;
             this.lastScrollHeight = this._containerNode.boxHeight;
             this.lastBoxWidth     = this.boxWidth;
             this.lastBoxHeight    = this.boxHeight;
-            
+
             XUI_Box.prototype.calculate.apply( this, arguments );
-            
+
             // TODO root の layout_complete 後に。
             // TODO calculate 前に scroll の解放。
-            
+
             if(
                     this.lastScrollWidth  !== this._containerNode.boxWidth ||
                     this.lastScrollHeight !== this._containerNode.boxHeight ||
@@ -192,33 +192,33 @@ var XUI_ScrollBox = XUI_ChromeBox.inherits(
     
         scrollTo : function( x, y, opt_time, opt_easing, opt_release ){
             //if( this.scrollX === x && this.scrollY === y ) return;
-            
+
             opt_time    = 0 <= opt_time ? opt_time : 0;
             opt_easing  = opt_easing || 'circular';
             opt_release = 0 <= opt_release ? opt_release : 300;
-    
+
             this.isInTransition = 0 < opt_time;
-    
+
             X_UI_ScrollBox_translate( this, x, y, opt_time, opt_easing, opt_release );
         },
-        
+
         _remove : function(){
             XUI_AbstractUINode.prototype._remove.apply( this, arguments );
-            
+
             if( this.scrolling ){
                 // scroller 削除
                 this[ 'unlisten' ]( XUI_Event._POINTER_DOWN, X_UI_ScrollBox_onStart )
                     [ 'unlisten' ]( XUI_Event.DRAG, X_UI_ScrollBox_onMove )
                     [ 'unlisten' ]( XUI_Event.DRAG_END, X_UI_ScrollBox_onEnd );
                 XUI_rootData[ 'unlisten' ]( XUI_Event.LAYOUT_BEFORE, this, X_UI_ScrollBox_onLayoutBefore );
-                
+
                 XUI_rootData[ 'unlisten' ]( XUI_Event.LAYOUT_COMPLETE, this, X_UI_ScrollBox_onLayoutComplete );
                 this[ 'unlisten' ]( XUI_Event.SCROLL_END, XUI_rootData, XUI_rootData.calculate );
-                
+
                 XUI_ScrollBox_useCSSP ? this.xnodeSlider[ 'stop' ]() : this.xnode[ 'stop' ]();
-                
+
                 XUI_ScrollBox_current === this && XUI_ScrollBox_start( null );
-                
+
                 this.scrolling = false;
             };
         }
@@ -284,9 +284,9 @@ function X_UI_ScrollBox_onLayoutComplete( e ){
             [ 'unlisten' ]( XUI_Event.DRAG, X_UI_ScrollBox_onMove )
             [ 'unlisten' ]( XUI_Event.DRAG_END, X_UI_ScrollBox_onEnd );
         XUI_rootData[ 'unlisten' ]( XUI_Event.LAYOUT_BEFORE, this, X_UI_ScrollBox_onLayoutBefore );
-        
+
         ( this.scrollX !== 0 || this.scrollY !== 0 ) && X_UI_ScrollBox_translate( this, 0, 0, 100, '', 300 );
-        
+
         delete this.scrolling;
         delete this.scrollXRatio;
         delete this.scrollYRatio;
@@ -298,13 +298,13 @@ function X_UI_ScrollBox_translate( that, x, y, opt_time, opt_easing, opt_release
     var scrollBoxH = that.fontSize * that.boxHeight,
         scrollBoxW = that.fontSize * that.boxWidth,
         indicatorH, indicatorW;
-    
+
     opt_time    = 0 <= opt_time ? opt_time : 0;
     opt_easing  = opt_easing === '' ? '' : opt_easing || 'circular';
     opt_release = 0 <= opt_release ? opt_release : 300;
-    
+
     console.log( '.. scroll ' + y );
-    
+
     if( !XUI_ScrollBox_useCSSP ){
         that.xnode[ 'animate' ]({
                         'from'        : {
@@ -331,10 +331,10 @@ function X_UI_ScrollBox_translate( that, x, y, opt_time, opt_easing, opt_release
                         'duration'    : opt_time,
                         'easing'      : opt_easing,
                         'lazyRelease' : opt_release
-                    });        
+                    });
     };
 
-    if( X_UA[ 'IE' ] < 6 ){
+    if( ( X_UA.Trident || X_UA.TridentMobile ) < 6 ){
         XUI_ScrollBox_indicatorV && XUI_ScrollBox_indicatorV[ 'css' ]( 'left', ( scrollBoxW - that.fontSize * 0.6 | 0 ) + 'px' );
         XUI_ScrollBox_indicatorH && XUI_ScrollBox_indicatorH[ 'css' ]( 'top' , ( scrollBoxH - that.fontSize * 0.6 | 0 ) + 'px' );
     };
@@ -378,7 +378,7 @@ function X_UI_ScrollBox_translate( that, x, y, opt_time, opt_easing, opt_release
                     'lazyRelease' : opt_release
                 });
     };
-    
+
     that.scrollX   = x;
     that.scrollXEm = x / that.fontSize;
     that.scrollY   = y;
@@ -387,7 +387,7 @@ function X_UI_ScrollBox_translate( that, x, y, opt_time, opt_easing, opt_release
 
 function X_UI_ScrollBox_onStart( e ){
     var ret = X_CALLBACK_NONE;
-    
+
     if( !this.scrollEnabled || ( this.initiated && e.pointerType !== this.initiated ) ){
         return ret;
     };
@@ -528,7 +528,7 @@ function X_UI_ScrollBox_onEnd( e ){
         newX, newY,
         momentumX, momentumY,
         duration, distanceX, distanceY;
-    
+
     //console.log( e.type + ' onend ' + XUI_Event.POINTER_OUT  );
     
     if( !this.scrollEnabled || e.pointerType !== this.initiated ){
@@ -538,7 +538,7 @@ function X_UI_ScrollBox_onEnd( e ){
 
     delete this.isInTransition;
     delete this.initiated;
-    this.endTime = X_Timer_now();            
+    this.endTime = X_Timer_now();
 
     duration  = this.endTime - this.startTime;
     newX      = Math.round( this.scrollX );

@@ -40,7 +40,7 @@
 	}
 
 	.IE5x body, .IE5x textarea,
-	.IE6  body, .IE6  textarea,  {
+	.IE6  body, .IE6  textarea {
 		font-family : 'ＭＳ Ｐゴシック',sans-serif;
 	}
 
@@ -85,7 +85,7 @@
 }
 .IE5x .Root, .IE5x .Root div,
 .IE6  .Root, .IE6  .Root div,
-.IE7  .Root, .IE7  .Root div, {
+.IE7  .Root, .IE7  .Root div {
 	word-break  : break-all;  /* ie5+ */
 }
 .IE .Root, .IE .Root div {

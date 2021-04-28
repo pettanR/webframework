@@ -29,9 +29,9 @@ var X_KB_SPECIALS = eval( // IE5- 対策
     X_KB_lastIs10Key = false,
     X_KB_lastKeyCode = 0, 
     X_KB_TRANSFOEM   = {},
-    
+
     // TODO keyevent のためには input 等にフォーカスが必要 -> iOS
-    
+
     X_kbManager    =
         X_Class_override(
             X_EventDispatcher(),
@@ -41,42 +41,44 @@ var X_KB_SPECIALS = eval( // IE5- 対策
                         chrCode = e.charCode, // while charCode gives the ASCII value of the resulting character
                         cb      = X_CALLBACK_NONE,
                         special;
-                    
+
                     // console.log( e.type + ' > keyCode:' + keyCode + ' chrCode:' + chrCode );
-                    
+
                     switch( e.type ){
                         case 'keydown' :
                             if( X_KB_DOWN_KEYS[ keyCode ] ){
                                 // 既に押されている、メタキー[shift,ctrl,alt]の変化はある？
-                                console.log( ' doen -- ' );
-                                
+                                //console.log( ' doen -- ' );
+
                                 return X_KB_CANCELED[ keyCode ] ? X_CALLBACK_PREVENT_DEFAULT : cb;
                             } else
                             if( special = X_KB_SPECIALS[ keyCode ] ){
-                                
+
                                 if( X_Type_isNumber( special ) ){
                                     // テンキーの [0]～[9]
                                     //chrCode = special;
                                     X_KB_lastKeyCode = keyCode;
                                     X_KB_lastIs10Key = true;
                                     return cb;
-                                } else {
+                                } else if( keyCode ){
                                     X_KB_DOWN_KEYS[ keyCode ] = true;
                                     chrCode = 0;
                                 };
-                                
+
                                 cb = this[ 'dispatch' ]( {
                                     type      : 'keydown',
                                     keyCode   : keyCode,
                                     charCode  : chrCode,
-                                    'keyName' : X_Type_isString( special ) ? special : '',
+                                    key       : e.key,
+                                    code      : e.code,
+                                    'keyName' : special || '',
                                     'is10key' : !!X_KB_lastIs10Key,
                                     shiftKey  : !!X_KB_DOWN_KEYS[ 16 ],
                                     ctrlKey   : !!X_KB_DOWN_KEYS[ 17 ],
                                     altKey    : !!X_KB_DOWN_KEYS[ 18 ],
                                     metaKey   : !!X_KB_DOWN_KEYS[ 224 ]
                                 } );
-                                
+
                                 if( cb & X_CALLBACK_PREVENT_DEFAULT ){
                                     X_KB_CANCELED[ keyCode ] = true;
                                 };
@@ -87,12 +89,14 @@ var X_KB_SPECIALS = eval( // IE5- 対策
                                 }; */
                             } else {
                                 X_KB_lastKeyCode = keyCode;
-                                
+
                                 if( e.ctrlKey || e.altKey || e.metaKey ){
                                     cb = this[ 'dispatch' ]( {
                                         type      : 'keydown',
                                         keyCode   : 0,
                                         charCode  : chrCode,
+                                        key       : e.key,
+                                        code      : e.code,
                                         'keyName' : '',
                                         'is10key' : false,
                                         shiftKey  : !!X_KB_DOWN_KEYS[ 16 ],
@@ -100,15 +104,15 @@ var X_KB_SPECIALS = eval( // IE5- 対策
                                         altKey    : !!X_KB_DOWN_KEYS[ 18 ],
                                         metaKey   : !!X_KB_DOWN_KEYS[ 224 ]
                                     } );
-                                    
+
                                     if( cb & X_CALLBACK_PREVENT_DEFAULT ){
                                         X_KB_CANCELED[ keyCode ] = true;
                                     };
                                 };
-                                console.log( ' keydown[' + keyCode + ']' + String.fromCharCode( chrCode ) + chrCode );
+                                //console.log( ' keydown[' + keyCode + ']' + String.fromCharCode( chrCode ) + chrCode );
                             };
                             return cb;
-                            
+
                         case 'keypress' :
                             // keydown 側で発火しているものは再び発火しない
                             if( X_KB_DOWN_KEYS[ chrCode ] ){
@@ -121,7 +125,7 @@ var X_KB_SPECIALS = eval( // IE5- 対策
 
                             if( 32 <= chrCode && chrCode <= 126 ){
                                 X_KB_TRANSFOEM[ X_KB_lastKeyCode ] = chrCode;
-                                
+
                                 cb = this[ 'dispatch' ]( {
                                     type      : 'keydown',
                                     keyCode   : X_KB_lastIs10Key ? X_KB_lastKeyCode : 0,
@@ -132,25 +136,27 @@ var X_KB_SPECIALS = eval( // IE5- 対策
                                     altKey    : !!X_KB_DOWN_KEYS[ 18 ],
                                     metaKey   : !!X_KB_DOWN_KEYS[ 224 ]
                                 } );
-                                
+
                                 X_KB_lastIs10Key = false;
-                                
-                                console.log( X_KB_lastKeyCode + 'keypress : chrCode:' + chrCode + ' down:' + X_KB_DOWN_KEYS[ chrCode ] + ( X_KB_CANCELED[ chrCode ] ? ' Cancel!' : '' ) );
+
+                                //console.log( X_KB_lastKeyCode + 'keypress : chrCode:' + chrCode + ' down:' + X_KB_DOWN_KEYS[ chrCode ] + ( X_KB_CANCELED[ chrCode ] ? ' Cancel!' : '' ) );
                             } else {
-                                console.log( '>> keypress : chrCode:' + chrCode + ' down:' + X_KB_DOWN_KEYS[ chrCode ] + ( X_KB_CANCELED[ chrCode ] ? ' Cancel!' : '' ) );
+                                //console.log( '>> keypress : chrCode:' + chrCode + ' down:' + X_KB_DOWN_KEYS[ chrCode ] + ( X_KB_CANCELED[ chrCode ] ? ' Cancel!' : '' ) );
                             };
                             return cb;
-                            
+
                         case 'keyup' :
                             if( X_KB_CANCELED[ keyCode ] ){
                                 cb = X_CALLBACK_PREVENT_DEFAULT;
                             };
-                        
+
                             if( ( special = X_KB_SPECIALS[ keyCode ] ) && ( !X_KB_DOWN_KEYS[ keyCode ] && !X_KB_DOWN_KEYS[ special ] ) ){
                                 cb |= this[ 'dispatch' ]( {
                                     type        : 'keydown',
                                     keyCode     : keyCode,
                                     charCode    : 0,
+                                    key         : e.key,
+                                    code        : e.code,
                                     'keyName'   : special,
                                     'is10key'   : false,
                                     'isVirtual' : true,
@@ -160,11 +166,11 @@ var X_KB_SPECIALS = eval( // IE5- 対策
                                     metaKey     : !!X_KB_DOWN_KEYS[ 224 ]
                                 } );
                             };
-                        
+
                             if( X_KB_DOWN_KEYS[ keyCode ] ) delete X_KB_DOWN_KEYS[ keyCode ];
                             if( X_KB_CANCELED[ keyCode ]  ) delete X_KB_CANCELED[ keyCode ];
-                            
-                            
+
+
                             if( !special ){
                                 // keyCode から charCode を復帰する
                                 chrCode = X_KB_TRANSFOEM[ keyCode ];
@@ -176,28 +182,30 @@ var X_KB_SPECIALS = eval( // IE5- 対策
                             } else {
                                 chrCode = 0;
                             };
-                            
+
                             //console.log( keyCode + ' keyup ' + chrCode );
-                            
+
                             cb |= this[ 'dispatch' ]( {
                                 type      : 'keyup',
                                 keyCode   : keyCode,
                                 charCode  : chrCode,
+                                key       : e.key,
+                                code      : e.code,
                                 'keyName' : X_Type_isString( special ) ? special : '',
                                 shiftKey  : X_KB_DOWN_KEYS[ 16 ],
                                 ctrlKey   : X_KB_DOWN_KEYS[ 17 ],
                                 altKey    : X_KB_DOWN_KEYS[ 18 ],
                                 metaKey   : X_KB_DOWN_KEYS[ 224 ]
                             } );
-                            
+
                             return cb;
-                        
+
                         case X_EVENT_VIEW_ACTIVATE :
                             //
                             break;
                         case X_EVENT_VIEW_DEACTIVATE :
                             //
-                            break;    
+                            break;
                     };
                 }
             }
@@ -247,7 +255,7 @@ var X_KB_SPECIALS = eval( // IE5- 対策
 
 X_ViewPort[ 'listen' ]( [ X_EVENT_VIEW_ACTIVATE, X_EVENT_VIEW_DEACTIVATE ], X_kbManager );
 
-if( X_UA[ 'IE' ] < 9 ){
+if( ( X_UA.Trident || X_UA.TridentMobile ) < 9 ){
     X_ViewPort_document[ 'listen' ]( [ 'keyup', 'keydown', 'keypress' ], X_kbManager );
 } else {
     X_ViewPort[ 'listen' ]( [ 'keyup', 'keydown', 'keypress' ], X_kbManager );

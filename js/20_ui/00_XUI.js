@@ -13,6 +13,5 @@
  */
 
 X[ 'UI' ] = {
-	
-	currentRootData : null
+    currentRootData : null
 };

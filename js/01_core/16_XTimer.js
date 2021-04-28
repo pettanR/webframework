@@ -218,28 +218,28 @@ X[ 'Timer' ] = {
             hash, obj;
 
         time = time < X_Timer_INTERVAL_TIME ? 1 : time / X_Timer_INTERVAL_TIME | 0; // 正の数で使える「Math.floor(x)」を「(x | 0)」に;
-        
+
         if( !X_Type_isNumber( opt_count ) ){
             args3 = args2;
             args2 = args1;
             args1 = opt_count;
             opt_count = 0;
         };
-        
+
         hash = X_Closure_classifyCallbackArgs( args1, args2, args3 );
         if( !hash ) return -1; // dev only
-        
+
         if( !hash.cbKind ) hash = { func : hash };
         hash._time  = time;
         hash.last   = time;
         hash._count = opt_count;
         hash._uid   = ++X_Timer_uid;
         list[ list.length ] = hash;
-        
+
         !X_Timer_busyTimeout && X_Timer_update();
         return X_Timer_uid;
     };
-    
+
     /**
      * 1 回呼ばれたら解除されるタイマーをセットします。
      * @alias X.Timer.once
@@ -252,7 +252,7 @@ X[ 'Timer' ] = {
     function X_Timer_once( time, args1, args2, args3 ){
         return X_Timer_add( time, 1, args1, args2, args3 );
     };
-    
+
     /**
      * タイマーを解除します。登録時に受け取ったタイマーIDを使用します。
      * @alias X.Timer.remove
@@ -264,8 +264,8 @@ X[ 'Timer' ] = {
         var list = X_Timer_TICKET_LIST,
             i    = list.length,
             l    = i,
-            f, q, eventDispatcher, lazy, listeners;
-        
+            q;
+
         if( X_Timer_busyTimeout ){
             // fire 中の cancel
             if( !X_Timer_removal ) X_Timer_removal = {};
@@ -285,14 +285,14 @@ X[ 'Timer' ] = {
                     !X_Timer_skipUpdate && ( q.last <= X_Timer_waitTime || l === 1 ) && X_Timer_update();
                     break;
                 };
-            };                
+            };
         };
         return 0;
     };
 
-if( X_UA[ 'IE4' ] || X_UA[ 'MacIE' ] ){
-    X[ 'Timer' ][ '_' ] = X_Timer_onTimeout;
-    X_Timer_onTimeout = 'X.Timer._()';
+if( ( X_UA.Trident || X_UA.TridentMobile ) < 5 || X_UA.Tasman ){
+    window[ '__timercb__' ] = X_Timer_onTimeout;
+    X_Timer_onTimeout = '__timercb__()';
 };
 
 function X_Timer_onTimeout(){
@@ -303,16 +303,17 @@ function X_Timer_onTimeout(){
         l     = list.length,
         limit = now + X_Timer_INTERVAL_TIME / 2,
         heavy,
-        q, f, c, r, uid;
-    
+        q, c, r, uid;
+
     //console.log( '予定時間と発火時間の差:' + ( now - X_Timer_timeStamp - X_Timer_waitTime * X_Timer_INTERVAL_TIME ) + ' -:' + minus + ' next:' + X_Timer_waitTime );
-    
+
     if( X_Timer_busyTimeout ){
-        alert( 'X_Timer_busyTimeout フラグが立ったまま!エラーの可能性' );
+        //alert( 'X_Timer_busyTimeout フラグが立ったまま!エラーの可能性' );
     };
-    
+
+    ++g_X_uniqueStamp;
     X_Timer_busyTimeout = true;
-    
+
     for( ; i < l; ++i ){
         q = list[ i ];
         if(
@@ -323,23 +324,23 @@ function X_Timer_onTimeout(){
             continue;
         };
         c = q._count;
-        
+
         X_Timer_currentUID = q._uid;
-        
+
         if( q.cbKind ){
             r = X_Closure_proxyCallback( q, [] );
         } else {
             r = q.func();
         };
-        
+
         //console.log( 'fire....' );
-        
+
         if( limit <= X_Timer_now() ){
             //console.log( '******* heavy!' );
             // 関数の実行に時間がかかる場合、次のタイミングに
             heavy = true;
         };
-        
+
         if( r & X_CALLBACK_UN_LISTEN || c === 1 ){
             list.splice( i, 1 );
             --i;
@@ -362,7 +363,7 @@ function X_Timer_onTimeout(){
         X_Timer_removal = null;
     };
     X_Timer_update();
-    
+
     ExecuteAtEnd_onEnd();
 };
 
@@ -375,11 +376,11 @@ function X_Timer_update(){
         X_Timer_timerId = 0;
         return;
     };
-    
+
     1 < i && list.sort( X_Timer_compareQueue );
-    
+
     n = list[ 0 ].last;
-    
+
     if( n < X_Timer_waitTime || X_Timer_timerId === 0 ){
         if( X_Timer_timerId ){
             clearTimeout( X_Timer_timerId );
@@ -402,9 +403,11 @@ function X_Timer_compareQueue( a, b ){
     // return a.last <= b.last ? -1 : 1; //a.last === b.last ? 0 : 1;
 };
 
+// https://stackoverflow.com/questions/18642714/why-wont-a-settimeout-fire-in-touchend-handler-after-the-user-scrolls-ios-safar
+
 // http://havelog.ayumusato.com/develop/javascript/e528-ios6_scrolling_timer_notcall.html
 // iOS6 スクロール中のタイマー発火絡みのバグ備忘
-if( X_UA[ 'iOS' ] ){
+if( ( X_UA.SafariMobile || X_UA.iOSWebView ) < 6.1 ){
     window.addEventListener( 'scroll', function(){
         var last, now;
         if( X_Timer_timerId ){
@@ -416,10 +419,9 @@ if( X_UA[ 'iOS' ] ){
             X_Timer_timeStamp = now;
             X_Timer_waitTime  = last / X_Timer_INTERVAL_TIME | 0;
         };
-        X[ 'ViewPort' ][ 'getScrollPosition' ](); // X_DomEvent のための X_ViewPort_scrollX & Y の更新、
+        X_ViewPort_getScrollPosition(); // X_DomEvent　のための X_ViewPort_scrollX & Y の更新
     });
 };
-
 
 // ページを読み込んでからの時間
 function X_Timer_onEnterFrame( time ){
@@ -428,11 +430,12 @@ function X_Timer_onEnterFrame( time ){
         i    = 0, q, uid, args;
 
     time = time || X_Timer_now();
+    ++g_X_uniqueStamp;
     X_Timer_busyOnFrame = true;
     // console.log( X_Timer_now() + ' , ' + time );
     for( ; i < l; ++i ){
         q = list[ i ];
-        
+
         if( X_Timer_removal && X_Timer_removal[ q._uid ] ) continue;
         
         if( q.cbKind ){
@@ -446,7 +449,7 @@ function X_Timer_onEnterFrame( time ){
     if( list.length ){
         X_Timer_requestID = X_Timer_REQ_ANIME_FRAME ? X_Timer_REQ_ANIME_FRAME( X_Timer_onEnterFrame ) : X_Timer_add( 0, 1, X_Timer_onEnterFrame );
     };
-    
+
     X_Timer_busyOnFrame = false;
     if( X_Timer_removal ){
         for( uid in X_Timer_removal ){
@@ -455,8 +458,6 @@ function X_Timer_onEnterFrame( time ){
         };
         X_Timer_removal = null;
     };
-    
+
     ExecuteAtEnd_onEnd();
 };
-
-console.log( 'X.Core.Timer' );

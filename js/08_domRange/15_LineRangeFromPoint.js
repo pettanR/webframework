@@ -20,7 +20,7 @@ LineRangeFromPoint = function( xnode, isTextField, x, y ){
 function LineRangeFromPoint_getRawRange( range, xnode, isTextField, x, y ){
     var elm = xnode[ '_rawObject' ],
         texts, i, l, currentNode, isLastNode, j, m, isLast, rect, hit,
-        maxB, lines = [],
+        maxB,
         lastTextNode, lastOffset, totalOffset = 0,
         startLineTextNode, startLineOffset, startLineFrom,
         currentLineStartTextNode, currentLineStartOffset, currentLineStartFrom;
@@ -37,7 +37,7 @@ function LineRangeFromPoint_getRawRange( range, xnode, isTextField, x, y ){
                 isLast = isLastNode && ( j === m - 1 );
                 range.setEnd( currentNode, j + 1 );
                 range.setStart( currentNode, j );
-                rect = X_TextRange_getCorrectRect( isTextField, range );
+                rect = X_TextRange_getCorrectRect( false, range, xnode );
                 hit  = hit || X_TextRange_hitRect( rect, x, y );
                 if( sumup(
                     i + j === 0, // i === 0 && j === 0
@@ -50,11 +50,10 @@ function LineRangeFromPoint_getRawRange( range, xnode, isTextField, x, y ){
                     range.setStart( startLineTextNode, startLineOffset );
                     return {
                         range : range,
-                        rect  : X_TextRange_getCorrectRect( isTextField, range ), // rect補正
+                        rect  : X_TextRange_getCorrectRect( false, range, xnode ), // rect補正
                         from  : startLineFrom,
                         to    : startLineFrom + ( range + '' ).length
                     };
-                    return range;
                 };
                 lastTextNode = currentNode;
                 lastOffset   = j;
@@ -76,7 +75,7 @@ function LineRangeFromPoint_getRawRange( range, xnode, isTextField, x, y ){
         range.moveEnd( 'character', 1 );
         for( i = 0; i < l; ++i ){
             isLast = i + 1 === l;
-            rect = X_TextRange_getCorrectRect( isTextField, range );
+            rect = X_TextRange_getCorrectRect( isTextField, range, xnode );
             hit = hit || X_TextRange_hitRect( rect, x, y );
             if( sumup(
                 i === 0,
@@ -89,7 +88,7 @@ function LineRangeFromPoint_getRawRange( range, xnode, isTextField, x, y ){
                 if( !isLast ) range.moveEnd( 'character', -1 );
                 return {
                     range : range,
-                    rect  : X_TextRange_getCorrectRect( isTextField, range ),
+                    rect  : X_TextRange_getCorrectRect( isTextField, range, xnode ),
                     from  : startLineFrom,
                     to    : startLineFrom + range.text.length // 改行が含まれない?
                 };

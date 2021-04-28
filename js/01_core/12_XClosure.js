@@ -72,15 +72,15 @@ var __CallbackHash__ =
 function X_Closure_create( thisObject, opt_callback, opt_args /* [ listener || ( context + function ) || function ][ args... ] */ ){
     var obj = X_Closure_classifyCallbackArgs( thisObject, opt_callback, opt_args ),
         l, ret, _obj;
-    
+
     if( !obj.cbKind ) return obj;
-    
+
     if( l = X_CLOSURE_POOL_LIST.length ){
         ret  = X_CLOSURE_POOL_LIST[ l - 1 ]; --X_CLOSURE_POOL_LIST.length; // ret = X_CLOSURE_POOL_LIST.pop();
         _obj = ret( X_Closure_COMMAND_BACK );
         
-        _obj.cbKind       = obj.cbKind;
-        _obj.funcName       = obj.funcName;
+        _obj.cbKind     = obj.cbKind;
+        _obj.funcName   = obj.funcName;
         _obj.func       = obj.func;
         _obj.context    = obj.context;
         _obj.supplement = obj.supplement;
@@ -96,7 +96,7 @@ function X_Closure_create( thisObject, opt_callback, opt_args /* [ listener || (
 
 function X_Closure_classifyCallbackArgs( arg1, arg2, arg3, alt_context ){
     var obj;
-    
+
     if( X_Type_isObject( arg1 ) && X_Type_isFunction( arg2 ) ){
         obj  = { context : arg1, func : arg2, cbKind : X_CLOSURE_THIS_FUNC };
     } else
@@ -105,7 +105,7 @@ function X_Closure_classifyCallbackArgs( arg1, arg2, arg3, alt_context ){
             obj  = { context : arg1, funcName : arg2, cbKind : X_CLOSURE_THIS_FUNCNAME };
         } else {
             obj  = { context : arg1, cbKind : X_CLOSURE_HANDLEEVENT };
-            arg3 = arg2;            
+            arg3 = arg2;
         };
     } else
     if( X_Type_isFunction( arg1 ) ){
@@ -117,7 +117,6 @@ function X_Closure_classifyCallbackArgs( arg1, arg2, arg3, alt_context ){
         };
     } else
     if( X_Type_isFunction( arg2 ) ){
-        //console.log( 'X_Closure_classifyCallbackArgs : arg1 が ' + arg1 + 'です' ); ie4 で error
         if( alt_context ){
             obj  = { context : alt_context, func : arg2, cbKind : X_CLOSURE_THIS_FUNC };
         } else {
@@ -132,11 +131,12 @@ function X_Closure_classifyCallbackArgs( arg1, arg2, arg3, alt_context ){
         obj  = { context : alt_context, cbKind : X_CLOSURE_HANDLEEVENT };
         arg3 = arg1;
     } else {
-        console.log( '不正 ' + arg1 );
-        console.dir( arg1 );
-        return;
+        if( X_IS_DEV ){
+            X_error( 'X.Closure.create : Invalid args! arguments[0]=' + arg1 );
+            return;
+        };
     };
-    
+
     if( X_Type_isArray( arg3 )){
         obj.supplement = arg3;
     };
@@ -155,8 +155,8 @@ function X_Closure_proxyCallback( xfunc, _args ){
         thisObj = xfunc.context,
         func    = xfunc.func,
         supp    = xfunc.supplement,
-        temp, ret, funcName;    
-    
+        temp, ret, funcName;
+
     if( supp && supp.length ){
         temp = [];
         args.length &&
@@ -174,8 +174,11 @@ function X_Closure_proxyCallback( xfunc, _args ){
     switch( xfunc.cbKind ){
 
         case X_CLOSURE_THIS_FUNC :
+            // closure 作成時に this オブジェクトに func が居るか調べ、funcName を調べる。( supplement が居ない場合 )
+            // arg.length < 2 であり、現在も this[ funcName ] === func なら this[ funcName ]( arg[ 0 ] ) で呼び出す。
+            // this[ funcName ] !== func なら funcName を削除
             return args.length === 0 ? func.call( thisObj ) : func.apply( thisObj, args );
-        
+
         case X_CLOSURE_THIS_FUNCNAME :
             funcName = xfunc.funcName;
         case X_CLOSURE_HANDLEEVENT :
@@ -194,7 +197,7 @@ function X_Closure_proxyCallback( xfunc, _args ){
                 return args.length === 0 ? thisObj.call( thisObj ) : thisObj.apply( thisObj, args );
             };
             return args.length === 0 ? func.call( thisObj ) : func.apply( thisObj, args );*/
-                        
+
         case X_CLOSURE_FUNC_ONLY :
             return args.length === 0 ?
                     func() :
@@ -211,7 +214,12 @@ function X_Closure_correct( f ){
 
     if( i !== -1 ){
         X_CLOSURE_LIVE_LIST.splice( i, 1 );
-        X_CLOSURE_POOL_LIST[ X_CLOSURE_POOL_LIST.length ] = f;
+        // 2020.3.16 Firefox74 Windows10 クロージャのリユースが出来ず、DOM Event のコールバックで再利用前の設定で呼ばれてしまう！
+        // 2020.3.31 Chrome80 Windows10 でも確認。
+        // 
+        if( !( 69 <= X_UA.Gecko && X_UA.Win32 ) && !( 80 <= X_UA.Chromium && X_UA.Win32 ) && !( X_UA.Trident === 8 && X_UA.Win32 === 10 ) ){
+            X_CLOSURE_POOL_LIST[ X_CLOSURE_POOL_LIST.length ] = f;
+        };
         obj = f( X_Closure_COMMAND_BACK );
         X_Object_clear( obj );
         return true;
@@ -232,5 +240,3 @@ X_TEMP.onSystemReady.push( function( sys ){
     sys.monitor( X_Closure_monitor );
     sys.gc( X_Closure_gc );
 });
-
-

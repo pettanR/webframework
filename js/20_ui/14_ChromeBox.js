@@ -7,7 +7,7 @@ var XUI_ChromeBox = XUI_Box.inherits(
         
         Constructor : function( user, layout, args ){
             var uinodes, i, l, node, after, index = 0;
-            
+
             this[ 'Super' ]( user, layout, args );
 
             uinodes = this.uinodes;
@@ -17,7 +17,7 @@ var XUI_ChromeBox = XUI_Box.inherits(
                 node = uinodes[ --i ];
                 if( node.role === 3 ){
                     if( this.containerNode ){
-                        //throw new Error( 'ContainerNode が複数設定されています！ContainerNode はクロームボックスにひとつ、生成時に設定できます ' + node );
+                        //throw new Error( 'ContainerNode　が複数設定されています！ContainerNode はクロームボックスにひとつ、生成時に設定できます ' + node );
                     };
                     this.containerNode  = node.User;
                     this._containerNode = node;
@@ -29,15 +29,15 @@ var XUI_ChromeBox = XUI_Box.inherits(
             if( !this.containerNode ){
                 //throw new Error( 'ContainerNode が設定されてい\ません！ContainerNode はクロームボックスにひとつ、生成時に設定できます ' );
             };
-            
+
             for( i = 0, l = args.length; i < l; ++i ){
                 node = args[ i ];
                 if( node === this.containerNode ){
                     after = true;
                     index = 0;
                 };
-                if( node[ 'instanceOf' ] && node[ 'instanceOf' ]( Node ) ){
-                    
+                if( node[ 'instanceOf' ] && node[ 'instanceOf' ]( X_Node ) ){
+
                 };
             };
         }

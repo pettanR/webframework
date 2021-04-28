@@ -1,5 +1,9 @@
 ﻿# pettanR/webframework
 
+## Links
+
+* [pettanr.github.io/webframework/](//pettanr.github.io/webframework/), [`http:` version for legacy browsers](http://my-http-proxy-856.appspot.com/pettanr.github.io/webframework/)
+
 ## バージョン履歴
 
 ### [0.6.200](https://github.com/pettanR/webframework/releases/tag/0.6.200)
