@@ -19,7 +19,7 @@ RangeFromPoint = function( xnode, isTextField, x, y ){
 function RangeFromPoint_getRawRange( xnode, isTextField, x, y ){
     var range = null,
         texts, range, i, offset, l, text, j, m,
-        elm, parent, rect, top, left;
+        elm, parent, rect;
         
     if( !isTextField && X_TextRange_w3cRange ){
         X_TextRange_collectTextNodes( xnode[ '_rawObject' ], texts = [] );

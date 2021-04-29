@@ -17,32 +17,38 @@ X_TextRange = function( xnode, rangeType, a, b ){
     };
 
     if( flags & X_NodeFlags_IN_TREE && !( flags & X_NodeFlags_STYLE_IS_DISPLAY_NONE ) ){
-        // X_Node_updateTimerID && X_Node_startUpdate();
-
         if( rangeType === 'selection' ){
             // focus が無い場合はつくれない
             if( isTextField && FocusUtility_getFocusedElement() !== elm ) return;
-            return canCreateRange() && RangeFromSelection( xnode, isTextField, a );
+            if( !canCreateRange() ) return;
+            X_Node_updateTimerID && X_Node_startUpdate();
+            return RangeFromSelection( xnode, isTextField, a );
         };
         if( rangeType === 'index' ){
             if( !( a <= b ) ) b = a;
-            return canCreateRange() && RangeFromIndex( xnode, isTextField, a, b );
+            if( !canCreateRange() ) return;
+            X_Node_updateTimerID && X_Node_startUpdate();
+            return RangeFromIndex( xnode, isTextField, a, b );
         };
         // TextField の場合、ieRange でないと無理です。同じテキストフローになる隠し要素を作って下さい。ごめんなさい。
         if( isTextField && !X_TextRange_ieRange ) return;
 
-        switch( rangeType ){    
+        switch( rangeType ){
             case 'point' :
                 if( !X_Type_isFinite( a + b ) ) return;
+                X_Node_updateTimerID && X_Node_startUpdate();
                 return RangeFromPoint( xnode, isTextField, a, b );
             case 'line-index' :
                 if( !( a <= b ) ) b = a;
+                X_Node_updateTimerID && X_Node_startUpdate();
                 return LineRangeFromIndex( xnode, isTextField, a, b );
             case 'line-last' :
                 if( !( a <= b ) ) b = a;
+                X_Node_updateTimerID && X_Node_startUpdate();
                 return LineRangeFromLast( xnode, isTextField, a, b );
             case 'line-point' :
                 if( !X_Type_isFinite( a + b ) ) return;
+                X_Node_updateTimerID && X_Node_startUpdate();
                 return LineRangeFromPoint( xnode, isTextField, a, b );
         };
     };

@@ -109,7 +109,7 @@ function X_TextRange_getRawRange( tr ){
                 //8 <= ( X_UA.Trident || X_UA.TridentMobile ) ? X_elmBody.createTextRange() :
                 X_TextRange_range,
         selection = X_TextRange_selection, 
-        elm, isPoint,
+        elm,
         texts, i, offset, text, j, l, x, y, rect, top, btm, left;
     
     if( xnode[ '_flags' ] & X_NodeFlags_IN_TREE ){
