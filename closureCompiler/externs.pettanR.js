@@ -34,6 +34,14 @@ function vbs_testAE(){}
 var XNode = {
     UID : 0
 }
+
+/**
+ * @enum {Object}
+ */
+var XNodeAttr = {
+    ns : 'svg'
+}
+
 /**
  * @enum {Object}
  */
