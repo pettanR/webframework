@@ -32,7 +32,9 @@ if( X_JSONDB_USE_indexedDB ){
                 };
                 request.onupgradeneeded = function(){
                     this.onsuccess = this.onerror = this.onupgradeneeded = null;
-                    this.transaction.abort();
+                    if( !( X.UA.Goanna < 4.4 ) ){ // Wimdows 10 + PaleMoon 28.6 Goanna 4.3
+                        this.transaction.abort();
+                    };
                     X_JSONDB_Transaction_dispatchSuccess( transaction, false );
                 };
             };
@@ -82,14 +84,14 @@ if( X_JSONDB_USE_indexedDB ){
         },
 
         // https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/deleteIndex
-        _deleteIndexIn : function( storeName, indexName ){
+        _deleteIndex : function( storeName, indexName ){
             var objectStore = this._rawIndexedDB.objectStore( storeName );
 
             objectStore.deleteIndex( indexName );
         },
 
         // https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/createIndex
-        _createIndexIn : function( storeName, indexName ){
+        _createIndex : function( storeName, indexName ){
             var definition  = this._definitions[ storeName ],
                 indexes     = definition.indexes,
                 objectStore = this._rawIndexedDB.objectStore( storeName ),

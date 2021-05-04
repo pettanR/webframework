@@ -152,7 +152,7 @@ if( X_JSONDB_USE_WebSQL ){
             );
         },
 
-        _deleteIndexIn : function( storeName, indexName ){
+        _deleteIndex : function( storeName, indexName ){
             var me = this;
 
             me._upgradeTransaction.executeSql(
@@ -169,7 +169,7 @@ if( X_JSONDB_USE_WebSQL ){
             );
         },
     
-        _createIndexIn : function( storeName, indexName ){
+        _createIndex : function( storeName, indexName ){
             var me      = this,
                 indexes = me._definitions[ storeName ].indexes,
                 i = -1, index, keyOrKeyList;

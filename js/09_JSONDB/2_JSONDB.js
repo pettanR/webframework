@@ -25,9 +25,9 @@ X_TEMP.jsonDB_base = {
 
     _createJsonStore : X_emptyFunction,
 
-    _deleteIndexIn : X_emptyFunction,
+    _deleteIndex : X_emptyFunction,
 
-    _createIndexIn : X_emptyFunction
+    _createIndex : X_emptyFunction
 };
 
 // X.JSONDB.exist()

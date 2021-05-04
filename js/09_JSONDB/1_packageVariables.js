@@ -58,10 +58,10 @@ function X_JSONDB_dispatchUpgradeNeededEvent( jsonDB, oldVersion ){
         this._deleteJsonStore( storeName );
     };
     jsonDB.createIndexIn = function( storeName, indexName ){
-        this._createIndexIn( storeName, indexName );
+        this._createIndex( storeName, indexName );
     };
     jsonDB.deleteIndexIn = function( storeName, indexName ){
-        this._deleteIndexIn( storeName, indexName );
+        this._deleteIndex( storeName, indexName );
     };
     jsonDB.createJsonStore = function( storeName ){
         this._createJsonStore( storeName );
@@ -75,7 +75,7 @@ function X_JSONDB_dispatchUpgradeNeededEvent( jsonDB, oldVersion ){
 
             if( indexes ){
                 for( i = -1; index = indexes[ ++i ]; ){
-                    jsonDB._createIndexIn( storeName, index.indexName );
+                    jsonDB._createIndex( storeName, index.indexName );
                 };
             };
         };

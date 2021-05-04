@@ -58,9 +58,9 @@ if( X_JSONDB_USE_localStorage ){
             };
         },
 
-        /* _deleteIndexIn : function( storeName, indexName ){},
+        /* _deleteIndex : function( storeName, indexName ){},
     
-        _createIndexIn : function( storeName, indexName ){} */
+        _createIndex : function( storeName, indexName ){} */
 
         _drop : function(){
             try {
