@@ -8,14 +8,14 @@ var X_HID_Gamepads,
 // 2 : navigator.webkitGetGamepad
 // 3 : Gecko 24~28, this feature is behind the dom.gamepad.enabled preference
 // 4 : Wii or WiiU
-// 5 : DS, DSi, 3DS, PSP, PSVita, Mylo ...
+// 5 : DS, DSi, 3DS, PSP, PSVita, PSPGo, Mylo ...
     X_HID_CANUSE_GAMEPAD =
         (
-            X_UA.EdgeHTML || X_UA.EdgeMobile || 29 <= X_UA.Gecko || 35 <= X_UA.Chromium || 603.1 <= X_UA.Webkit ||
+            X_UA.EdgeHTML || X_UA.EdgeMobile /* ?? */ || 29 <= X_UA.Gecko || 35 <= X_UA.Chromium || 603.1 <= X_UA.Webkit ||
             35 <= X_UA.ChromiumMobile || 32 <= X_UA.Fennec || 10.3 <= ( X_UA.SafariMobile || X_UA.iOSWebView ) || 4 <= X_UA.Samsung
         ) ? 1 :
         (
-            21 <= X_UA.Chromium || 25 <= X_UA.ChromiumMobile || 2 <= X_UA.Samsung || X_UA.N3DS
+            21 <= X_UA.Chromium || 25 <= X_UA.ChromiumMobile || 2 <= X_UA.Samsung || X_UA.N3DS // ChromeWebView は非対応
         ) ? 2 :
         (
             24 <= X_UA.Gecko
@@ -24,7 +24,7 @@ var X_HID_Gamepads,
             X_UA.Wii || X_UA.WiiU
         ) ? 4 :
         (
-            X_UA.NDS || X_UA.NDSi || X_UA.PSP || X_UA.PSVita || X_UA.Mylo
+            X_UA.NDS || X_UA.NDSi || X_UA.PSP || X_UA.PSPGo || X_UA.PSVita || X_UA.Mylo
         ) ? 5 : 0,
 
     X_HID_GAMEPAD_MAX = X_UA.Wii  ? 4 :
