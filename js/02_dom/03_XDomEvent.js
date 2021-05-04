@@ -63,11 +63,13 @@ if( !( X_UA.Trident || X_UA.TridentMobile ) || 9 <= ( X_UA.Trident || X_UA.Tride
         //console.log( 'original : ' + originalType + ' > ' + type );
         // http://msdn.microsoft.com/ja-jp/library/ie/dn304886%28v=vs.85%29.aspx
         // ポインター イベントの更新
-        if( e.pointerType ||
-            // IE11 の IE10 モードで click イベントの pointerType が undefined
-            ( X_Dom_Event_convertMSPointerType && type === 'click' && ( e.pointerType = 'mouse' ) ) ){
+        if( e.pointerType || X_Dom_Event_convertMSPointerType ){
             // PointerEvent;
             if( X_Dom_Event_convertMSPointerType ){
+                // IE11 の IE10 モードで click イベントの pointerType が undefined
+                if( type === 'click' ){
+                    e.pointerType = 4;
+                };
                 this.pointerType   = X_Dom_Event_convertMSPointerType[ e.pointerType ];
                 this.pressure      = isNum( e.pressure ) ? e.pressure : ( e.button !== -1 ? 0.5 : 0 );
                 // ポインターの接触形状の スクリーン ピクセル単位の幅と高さ なので変換。(多分、、、)
@@ -121,7 +123,7 @@ if( !( X_UA.Trident || X_UA.TridentMobile ) || 9 <= ( X_UA.Trident || X_UA.Tride
         } else
         if( pointerEventType = X_Event_toPointer[ originalType ] ){
             // Touch or Mouse
-            //console.log( originalType + ' => ' + pointerEventType );
+            // console.log( originalType + ' => ' + pointerEventType );
 
             /* e.constructor === window.TouchEvent -> e.touches for iOS3.13 */
             if( touches = e.changedTouches ){

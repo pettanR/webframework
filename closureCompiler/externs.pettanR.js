@@ -438,3 +438,22 @@ var ActiveXObjectPlugin = {
     versionInfo        : '',
     QuickTimeVersion   : 0
 };
+
+/**
+ * @enum {Object}
+ */
+var X_Event_toPointer = {
+    touchstart  : 'pointerdown',
+    touchend    : 'pointerup', 
+    touchmove   : 'pointermove',
+    touchleave  : 'pointerleave',
+    touchcancel : 'pointercancel',
+    mousedown   : 'pointerdown',
+    mouseup     : 'pointerup',
+    mousemove   : 'pointermove',
+    mouseout    : 'pointerout',
+    mouseleave  : 'pointerleave',
+    contextmenu : 'contextmenu',
+    dbclick     : 'dbclick',
+    click       : 'click'
+};

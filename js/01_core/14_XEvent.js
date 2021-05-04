@@ -32,29 +32,29 @@ var X_Event_Rename    = {},
 
     X_Event_toPointer = !X_UA_HID.POINTER && ( X_UA_HID.TOUCH ?
         {
-            'touchstart'  : 'pointerdown',
-            'mousedown'   : 'pointerdown',
-            'touchend'    : 'pointerup', 
-            'mouseup'     : 'pointerup',
-            'touchmove'   : 'pointermove',
-            'mousemove'   : 'pointermove',
-            'touchleave'  : 'pointerleave',
-            'mouseout'    : 'pointerout',
-            'mouseleave'  : 'pointerleave',
-            'touchcancel' : 'pointercancel',
-            'contextmenu' : 'contextmenu',
-            'dbclick'     : 'dbclick',
-            'click'       : 'click'
+            touchstart  : 'pointerdown',
+            mousedown   : 'pointerdown',
+            touchend    : 'pointerup', 
+            mouseup     : 'pointerup',
+            touchmove   : 'pointermove',
+            mousemove   : 'pointermove',
+            touchleave  : 'pointerleave',
+            mouseout    : 'pointerout',
+            mouseleave  : 'pointerleave',
+            touchcancel : 'pointercancel',
+            contextmenu : 'contextmenu',
+            dbclick     : 'dbclick',
+            click       : 'click'
         } :
         {
-            'mousedown'   : 'pointerdown',
-            'mouseup'     : 'pointerup',
-            'mousemove'   : 'pointermove',
-            'mouseout'    : 'pointerout',
-            'mouseleave'  : 'pointerleave',
-            'contextmenu' : 'contextmenu',
-            'dbclick'     : 'dbclick',
-            'click'       : 'click'
+            mousedown   : 'pointerdown',
+            mouseup     : 'pointerup',
+            mousemove   : 'pointermove',
+            mouseout    : 'pointerout',
+            mouseleave  : 'pointerleave',
+            contextmenu : 'contextmenu',
+            dbclick     : 'dbclick',
+            click       : 'click'
         });
 
 var // 内部イベント
