@@ -362,9 +362,9 @@ function X_NodeAnime_detectWaitAnimation( xnode, duration, isTest ){
 };
 
 function X_NodeAnime_updateAnimations( e ){
-    var list = X_NodeAnime_QUEUE,
-        now  = X_Timer_now(),
-        c    = false,
+    var list    = X_NodeAnime_QUEUE,
+        now     = X_Timer_now(),
+        reserve = false,
         i, xnode, obj, _xnode,
         rm, progress, easing, lazy;
 
@@ -409,7 +409,7 @@ function X_NodeAnime_updateAnimations( e ){
                     obj.scrollX = ( obj.toScrollX - obj.fromScrollX ) * easing + obj.fromScrollX;
                     obj.scrollY = ( obj.toScrollY - obj.fromScrollY ) * easing + obj.fromScrollY;
                     X_NodeAnime_updatePosition( xnode, obj, progress, true );
-                    c = true;
+                    reserve = true;
                     break;
                 };
                 // アニメーション終了
@@ -429,7 +429,7 @@ function X_NodeAnime_updateAnimations( e ){
                     //console.log( 'アニメーション終了(' + obj.phase + ') -> GPU 解除待機 ' + lazy );
                     obj.toTime = now + lazy;
                     obj.phase = 5; // GPU解除待ち
-                    c = true;
+                    reserve = true;
                 } else {
                     //console.log( 'アニメーション終了(' + obj.phase + ') -> ' );
                     rm = true;
@@ -440,9 +440,9 @@ function X_NodeAnime_updateAnimations( e ){
                 obj.fromTime = now;
                 obj.toTime   = now + obj.duration;
                 obj.phase    = 7; // アニメーション中
-                obj.progress = 0;            
+                obj.progress = 0;
                 xnode[ 'asyncDispatch' ]( X_EVENT_ANIME_START );
-                c = true;
+                reserve = true;
                 //obj.canceled  = false;
                 ( !obj.inited || X_NodeAnime_translateZ ) && X_NodeAnime_updatePosition( xnode, obj, 0, true );
                 break;
@@ -452,7 +452,7 @@ function X_NodeAnime_updateAnimations( e ){
                     X_NodeAnime_translateZ && X_NodeAnime_updatePosition( xnode, obj, 1, false );
                     rm = true;
                 } else {
-                    c = true;
+                    reserve = true;
                 };
                 break;
 
@@ -468,7 +468,7 @@ function X_NodeAnime_updateAnimations( e ){
         if( rm ){
             X_NodeAnime_translateZ && xnode[ 'asyncDispatch' ]( X_EVENT_GPU_RELEASED );
             // 後続のアニメーションがある場合
-            if( obj.follower ) X_NodeAnime_needsDetection = c = true;
+            if( obj.follower ) X_NodeAnime_needsDetection = reserve = true;
             list.splice( i, 1 );
             obj.phase = 0;
         };
@@ -476,7 +476,7 @@ function X_NodeAnime_updateAnimations( e ){
 
     //c && console.log( 'anime... ' + X_Node_updateTimerID );
 
-    if( X_NodeAnime_reserved = c ){
+    if( X_NodeAnime_reserved = reserve ){
         if( X_Node_updateTimerID ){
             // scrollbox では X_System X_EVENT_UPDATED は不可。。。
             !e || e.type !== X_EVENT_UPDATED ?
@@ -536,9 +536,11 @@ function X_NodeAnime_updatePosition( xnode, obj, ratio, useGPU ){
     //console.log( 'updatePosition x:' + x + ' gpu:' + !!useGPU );
     if( obj.transform ){
         if( ( x === x || y === y ) && ( x !== 0 || y !== 0 ) ){
-            if( X_UA.WebKit && ( X_UA.Win32 || X_UA.Win64 ) ){
+            if( ( X_UA.Win32 || X_UA.Win64 ) && X_UA.WebKit < 535 ){
                 // http://shinimae.hatenablog.com/entry/2016/01/13/151748
                 // 本来ベンダープレフィックスはプロパティ名にのみ付けますが、Windows版Safariの場合はプロパティの値にもつけましょう。
+                //   -> Windows 10 + Lunascape 6.15.2 (WebKit 537.21, Safari 7.0 相当) では不可…(itozyun)
+                //      TODO Chrome 等で確認
                 str = ' -webkit-translate(' + ( x | 0 ) + 'px,' + ( y | 0 ) + 'px)';
             } else {
                 str = ' translate(' + ( x | 0 ) + 'px,' + ( y | 0 ) + 'px)';
