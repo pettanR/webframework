@@ -441,8 +441,9 @@ var ActiveXObjectPlugin = {
 
 /**
  * @enum {Object}
+ * @see X_Event_toPointer
  */
-var X_Event_toPointer = {
+var convertToPointerEventName = {
     touchstart  : 'pointerdown',
     touchend    : 'pointerup', 
     touchmove   : 'pointermove',
