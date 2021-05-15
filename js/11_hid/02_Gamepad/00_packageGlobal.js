@@ -11,7 +11,7 @@ var X_HID_Gamepads,
 // 5 : DS, DSi, 3DS, PSP, PSVita, PSPGo, Mylo ...
     X_HID_CANUSE_GAMEPAD =
         (
-            X_UA.EdgeHTML || X_UA.EdgeMobile /* ?? */ || 29 <= X_UA.Gecko || 35 <= X_UA.Chromium || 603.1 <= X_UA.Webkit ||
+            X_UA.EdgeHTML || X_UA.EdgeMobile /* ?? */ || 29 <= X_UA.Gecko || 35 <= X_UA.Chromium || 603.1 <= X_UA.WebKit ||
             35 <= X_UA.ChromiumMobile || 32 <= X_UA.Fennec || 10.3 <= ( X_UA.SafariMobile || X_UA.iOSWebView ) || 4 <= X_UA.Samsung
         ) ? 1 :
         (
