@@ -26,20 +26,47 @@ if( X_JSONDB_USE_indexedDB ){
                     X_JSONDB_Transaction_dispatchError( transaction, e );
                 };
                 request.onsuccess = function(){
+                    var db = this.result;
+
                     this.onsuccess = this.onerror = this.onupgradeneeded = null;
-                    this.result.close();
-                    X_JSONDB_Transaction_dispatchSuccess( transaction, true );
+                    if( db.objectStoreNames && !db.objectStoreNames.length ){
+                        db.close();
+                        dropDB();
+                    } else {
+                        X_JSONDB_Transaction_dispatchSuccess( transaction, true );
+                    };
                 };
                 request.onupgradeneeded = function(){
                     this.onsuccess = this.onerror = this.onupgradeneeded = null;
-                    if( !( X.UA.Goanna < 4.4 ) ){ // Wimdows 10 + PaleMoon 28.6 Goanna 4.3
+                    this.result.close();
+                    if( !X.UA.Goanna && !X.UA.Gecko ){ // Wimdows 10 + PaleMoon 28.6 Goanna 4.3, Firefox45 abort に失敗する
                         this.transaction.abort();
+                        // 存在確認をした時に空の DB を作る問題?
+                        X_JSONDB_Transaction_dispatchSuccess( transaction, false );
+                    } else {
+                        dropDB();
                     };
-                    X_JSONDB_Transaction_dispatchSuccess( transaction, false );
                 };
             };
         } catch( O_o ){
             X_JSONDB_Transaction_dispatchError( transaction, O_o );
+        };
+
+        function dropDB(){
+            var request = X_JSONDB_indexedDB.deleteDatabase( dbName );
+
+            request.onerror = function( e ){
+                this.onsuccess = this.onerror = this.onblocked = null;
+                X_JSONDB_Transaction_dispatchError( transaction, e );
+            };
+            request.onsuccess = function(){
+                this.onsuccess = this.onerror = this.onblocked = null;
+                X_JSONDB_Transaction_dispatchSuccess( transaction, false );
+            };
+            request.onblocked = function( e ){
+                this.onsuccess = this.onerror = this.onblocked = null;
+                X_JSONDB_Transaction_dispatchError( transaction, e );
+            };
         };
     };
 
@@ -63,6 +90,7 @@ if( X_JSONDB_USE_indexedDB ){
             };
 
             dbOpenRequest.onupgradeneeded = function( e ){
+                // this.onsuccess = this.onerror = this.onupgradeneeded = null; ?
                 me._rawIndexedDB = this.result;
                 X_JSONDB_dispatchUpgradeNeededEvent( me, me._rawIndexedDB.oldVersion );
             };
@@ -74,7 +102,7 @@ if( X_JSONDB_USE_indexedDB ){
             if( definition.keyPath ){
                 this._rawIndexedDB.createObjectStore( storeName, { keyPath : definition.keyPath, autoIncrement : definition.autoIncrement || false } );
             } else {
-                this._rawIndexedDB.createObjectStore( storeName, { autoIncrement : definition.autoIncrement || false } );
+                this._rawIndexedDB.createObjectStore( storeName /*, { autoIncrement : definition.autoIncrement || false } */ );
             };
         },
 

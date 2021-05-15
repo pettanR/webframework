@@ -6,9 +6,21 @@ X_TEMP.jsonDB_base = {
     _definitions : null,
 
     'Constructor' : function( dbName, dbVersion, description, dbSize, jsonStoreDefinitions ){
+        var jsonStoreName;
+
         this._dbName      = dbName;
         this._dbVersion   = dbVersion;
-        this._definitions = jsonStoreDefinitions;
+        if( X_Type_isString( jsonStoreDefinitions ) ){
+            this._definitions = {};
+            this._definitions[ jsonStoreDefinitions ] = 1;
+        } else if( X_Type_isArray( jsonStoreDefinitions ) ){
+            this._definitions = {};
+            for( jsonStoreName in jsonStoreDefinitions ){
+                this._definitions[ jsonStoreName ] = 1;
+            };
+        } else {
+            this._definitions = jsonStoreDefinitions;
+        };
 
         this._init( dbName, dbVersion, description, dbSize );
     },
