@@ -458,3 +458,20 @@ var convertToPointerEventName = {
     dbclick     : 'dbclick',
     click       : 'click'
 };
+
+var _webkitIndexedDB = {
+    webkitGetDatabaseNames : function(){}
+}
+
+window.mozAudioContext = function(){};
+
+X_Audio_codecs = {
+    'mp3'  : true,
+    'opus' : true,
+    'ogg'  : true,
+    'wav'  : true,
+    'aac'  : true,
+    'm4a'  : true,
+    'mp4'  : true,
+    'weba' : true
+};
