@@ -101,7 +101,7 @@ var X_WebAudio_Context      = (
     X_WebAudio_context,
     X_WebAudio_BUFFER_LIST  = [],
     X_WebAudio_need1stTouch = X_UA.SafariMobile || X_UA.iOSWebView || X_UA.Samsung || X_UA.ChromeWebView || X_UA.ChromiumMobile ||
-                              /* 66 <= X_UA.Gecko || 66 <= X_UA.Fennec || */ // https://gigazine.net/news/20190205-firefox-66-block-audible-video-audio/
+                              66 <= X_UA.Gecko || 66 <= X_UA.Fennec || // https://gigazine.net/news/20190205-firefox-66-block-audible-video-audio/
                               66 <= X_UA.Chromium ||
                               604 <= X_UA.WebKit,   // Safari 11+ https://en.wikipedia.org/wiki/Safari_version_history
     X_WebAudio_isNoTouch    = X_WebAudio_need1stTouch,
