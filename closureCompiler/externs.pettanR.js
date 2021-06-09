@@ -465,7 +465,7 @@ var _webkitIndexedDB = {
 
 window.mozAudioContext = function(){};
 
-X_Audio_codecs = {
+var AudioExtranames = {
     'mp3'  : true,
     'opus' : true,
     'ogg'  : true,
@@ -474,4 +474,8 @@ X_Audio_codecs = {
     'm4a'  : true,
     'mp4'  : true,
     'weba' : true
+};
+
+var GamepadEvent = {
+    gamepad : null
 };
