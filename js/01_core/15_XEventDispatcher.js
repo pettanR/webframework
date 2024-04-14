@@ -823,7 +823,7 @@ var X_EventDispatcher_actualHandleEvent =
             if( !X_EventDispatcher_CURRENT_EVENTS.length ) ExecuteAtEnd_onEnd();
 
             if( ret & X_CALLBACK_STOP_PROPAGATION ){
-                e.stopPropagation();
+                e.stopPropagation(); // TODO safariPreventDefault の為にはバブルアップさせる必要があるのでは?
             };
             if( ret & X_CALLBACK_PREVENT_DEFAULT ){
                 X_EventDispatcher_ignoreActualEvent = true;
@@ -851,7 +851,7 @@ if( X_UA.WebKit < 525.13 ){ // Safari3-
         };
 };
 
-// イベントの退避、dom が画面から抜かれる場合に実施しておく
+// イベントの退避、DOM が画面から抜かれる場合に実施しておく
 // 退避したイベントの復帰
 function X_EventDispatcher_toggleAllEvents( that, add ){
     var list = that[ '_listeners' ],

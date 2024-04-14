@@ -22,7 +22,7 @@ X[ 'Number' ] = {
         l, n1, n2;
 
     v1 = v1.split( '.' );
-    v2 = v2.split( '.' );    
+    v2 = v2.split( '.' );
     
     l = Math.min( v1.length, v2.length );
 

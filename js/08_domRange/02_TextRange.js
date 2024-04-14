@@ -80,7 +80,7 @@ function X_TextRange_getCorrectRect( isTextField, range, xnode ){
 
     if( !isTextField && X_TextRange_w3cRange ){
         if( ( xnode[ '_flags' ] & X_NodeFlags_IS_SVG ) || // SVG の場合はこちら
-            !( X_UA.Trident || X_UA.TridentMobile ) && !( X_UA.EdgeHTML || X_UA.EdgeMobile )
+            !( X_UA.Trident || X_UA.TridentMobile || X_UA.EdgeHTML || X_UA.EdgeMobile )
         ){
             return range.getBoundingClientRect();
         } else {

@@ -37,7 +37,7 @@ function X_JSON_stringify( obj ){
     for( k in obj ){
         if( json ) json += ',';
         v = obj[ k ];
-        v = v || v === 0 ? v : null;
+        v = v || v === 0 || v === '' ? v : null;
         json += '"' + k + '":' + ( X_Type_isObject( v ) ? X_JSON_stringify( v ) : X_Type_isString( v ) ? '"' + v + '"' : v );
     };
     //console.log( json );
